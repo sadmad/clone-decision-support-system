@@ -2,24 +2,51 @@ from app import app
 import os
 from flask import Flask, request, jsonify, render_template
 from app.structure import dss
-from flask_restful import reqparse
+
+# from marshmallow import Schema, fields
+from flask import abort
+
+from marshmallow import Schema, fields, validate, ValidationError
+
+
+
+class CreateDSSInputSchema(Schema):
+
+    model_id = fields.Int(required=True,validate=validate.Range(min=1, max=4))
+    training = fields.Int(required=True,validate=validate.Range(min=0, max=1))
+    testing  = fields.Int(required=True,validate=validate.Range(min=0, max=1))
 
 
 
 
-@app.route('/dss', methods=['GET'])
+@app.route('/dss', methods=['POST'])
 def dss_main():
 
-    model = None
-    model_name = training = testing = None
-    
+    model = model_name = training = testing = None
 
-    if request.args.get('model_id'):
-        model_id = int(request.args.get('model_id'))
-    if request.args.get('training'):
-        training = int(request.args.get('training'))
-    if request.args.get('testing'):
-        testing  = int(request.args.get('testing'))
+    create_dss_schema = CreateDSSInputSchema()
+    errors = create_dss_schema.validate(request.form)
+
+    if errors:
+        message = {
+                'status': 404,
+                'message': str(errors),
+        }
+        resp = jsonify(message)
+        resp.status_code = 404
+        return resp
+
+
+
+    training = 0
+    testing  = 0 
+    if request.form.get('model_id'):
+        model_id = int(request.form.get('model_id'))
+    if request.form.get('training'):
+        training = int(request.form.get('training'))
+    if request.form.get('testing'):
+        testing  = int(request.form.get('testing'))
+
 
     if model_id:
         if(model_id == 1):
@@ -48,7 +75,7 @@ def dss_main():
                     'model_name'  : model_name,
                     'status':  200,
                     'message': 'Trained Successully',
-                    'results': model_reseponse
+                    'results': []
                 }
 
 
@@ -62,7 +89,6 @@ def dss_main():
                     'message': 'Tested successully',
                     'results': model_reseponse
                 }
-                print(data)
 
         resp = jsonify(data)
         resp.status_code = 200
@@ -87,13 +113,13 @@ def not_found(error=None):
     return resp
 
 @app.errorhandler(400)
-def not_found(error=None):
+def bad_request(error=None):
     message = {
-            'status': 400,
-            'message': 'Not Found: ' + request.url,
+            'status': 404,
+            'message': error,
     }
     resp = jsonify(message)
-    resp.status_code = 400
+    resp.status_code = 404
     return resp
     
 
@@ -109,3 +135,4 @@ def internal_error(error):
 
 
        
+
