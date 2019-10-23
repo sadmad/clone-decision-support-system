@@ -86,11 +86,14 @@ class DSS:
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
-        return jsonify([{
-            'status':200,
-            'message':'Test Obervations are predicted by Neural Network Trained Model.',
-            'predictions' : pd.Series(predictions).to_json(orient='values')
-        }])
+        return pd.Series(predictions).to_json(orient='values')
+        # return jsonify([{
+        #     'status':200,
+        #     'message':'Test Obervations are predicted by Neural Network Trained Model.',
+        #     'predictions' : pd.Series(predictions).to_json(orient='values')
+        # }])
+
+
 
 class NeuralNetwork(DSS):
 
