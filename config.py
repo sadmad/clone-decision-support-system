@@ -19,9 +19,25 @@ class ProductionConfig(Config):
     Use this class to define production configuration atrributes, such
     as database usernames, passwords, server specific files & directories etc.
     """
-    NEURAL_NETWORK_MODEL = 'neural_network_finalized_model.sav'
-    SCALER_FILENAME =   'scaler.save'
+    NEURAL_NETWORK_MODEL = {
+        'model':'neural_network_finalized_model.sav',
+        'scaler':'nn_scaler.save'
+    }
 
+    RANDOM_FOREST_CLASSIFIER_MODEL = {
+        'model':'random_forest_classifier_model.sav',
+        'scaler':'rfc_scaler.save'
+    }
+
+    LINEAR_REGRESSION_MODEL = {
+        'model':'linear_regression_model.sav',
+        'scaler':'lr_scaler.save'
+    }
+
+    LOGISTIC_REGRESSION_MODEL = {
+        'model':'logistic_model.sav',
+        'scaler':'logr_scaler.save'
+    }
 
 class DevelopmentConfig(Config):
     """
@@ -30,4 +46,3 @@ class DevelopmentConfig(Config):
     as local database usernames, passwords, local specific files & directories etc.
     """
     DEBUG = True
-    NEURAL_NETWORK_MODEL = 'neural_network_finalized_model.sav'
