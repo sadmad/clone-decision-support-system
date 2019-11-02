@@ -19,6 +19,7 @@ class CreateDSSInputSchema(Schema):
 
 
 
+
 @app.route('/dss', methods=['POST'])
 def dss_main():
 
@@ -51,44 +52,42 @@ def dss_main():
     if model_id:
         if(model_id == 1):
             model = dss.NeuralNetwork(app.config['NEURAL_NETWORK_MODEL'])
-            model_name = 'NEURAL_NETWORK_MODEL'
         elif(model_id == 2):
             model = dss.RandomForest(app.config['RANDOM_FOREST_CLASSIFIER_MODEL'])
-            model_name = 'RANDOM_FOREST_CLASSIFIER_MODEL'
         elif(model_id == 3):
             model = dss.LinearRegressionM(app.config['LINEAR_REGRESSION_MODEL'])
-            model_name = 'LINEAR_REGRESSION_MODEL'
         elif(model_id == 4):
             model = dss.LogisticRegressionM(app.config['LOGISTIC_REGRESSION_MODEL'])
-            model_name = 'LOGISTIC_REGRESSION_MODEL'
-
+        
         
         data = None
-        if training:
-            if( training == 1 ):
-                model.data_intialization()
-                model.data_preprocessing()
-                trained_model = model.training()
-                model.save_model( trained_model )
-                data = {
-                    'model_id' :    model_id,
-                    'model_name'  : model_name,
-                    'status':  200,
-                    'message': 'Trained Successully',
-                    'results': []
-                }
+    
+        if( training == 1 ):
+            model.data_intialization()
+            model.data_preprocessing()
+            modelObject = model.training()
+            model.save_model( modelObject.get_trained_model() )
+            data = {
+                'model_id' :    model_id,
+                'model_name'  : modelObject.get_name(),
+                'status':  200,
+                'message': 'Trained Successully',
+                'results': [],
+                'accuracy': modelObject.get_accuracy()
+            }
 
 
-        if testing:
-            if( testing == 1):
-                model_reseponse =  model.testing()
-                data = {
-                    'model_id' :    model_id,
-                    'model_name'  : model_name,
-                    'status':  200,
-                    'message': 'Tested successully',
-                    'results': model_reseponse
-                }
+        # if( testing == 1):
+        #     model_reseponse =  model.testing()
+        #     data = {
+        #         'model_id' :    model_id,
+        #         'model_name'  : model_name,
+        #         'status':  200,
+        #         'message': 'Tested successully',
+        #         'results': model_reseponse,
+        #         'accuracy': trained_model.accuracy
+
+        #     }
 
         resp = jsonify(data)
         resp.status_code = 200
@@ -98,9 +97,12 @@ def dss_main():
         return not_found()
 
 
-
-
-    
+@app.route('/cross-validation/k-fold', methods=['GET'])
+def cross_validation_kfold_main():
+   
+    model = dss.LogisticRegressionM(app.config['LOGISTIC_REGRESSION_MODEL'])
+    accuracy = model.kfold()
+    return  'awais'
     
 @app.errorhandler(404)
 def not_found(error=None):

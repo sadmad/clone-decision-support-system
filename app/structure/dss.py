@@ -15,6 +15,17 @@ from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 
 
+
+from sklearn import model_selection
+from sklearn.model_selection import KFold
+from sklearn.model_selection import LeaveOneOut
+from sklearn.model_selection import LeavePOut
+from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import StratifiedKFold
+
+from app.structure import model_accuracy
+from app.structure import model
+
 app_path = os.path.join(app.root_path,'models' )
 
 features = [
@@ -50,7 +61,7 @@ class DSS:
 
     def data_intialization(self):
 
-        self.train_data = pd.read_csv('wine_data_train.csv', names = features)
+        self.train_data = pd.read_csv('wine_data.csv', names = features)
         self.x_train    = self.train_data.drop('Cultivator',axis=1)
         self.y_train    = self.train_data['Cultivator']
 
@@ -99,35 +110,58 @@ class NeuralNetwork(DSS):
 
     def training(self):
 
-        model = MLPClassifier(hidden_layer_sizes=(13,13,13),max_iter=500)
-        model.fit(self.x_train,self.y_train)
-        return model
+        generalModel = MLPClassifier(hidden_layer_sizes=(13,13,13),max_iter=500) 
+        #generalModel.fit(self.x_train, self.y_train) 
+
+        modelObject = model.Model()
+        modelObject.set_name('NEURAL_NETWORK_MODEL')
+        #modelObject.set_trained_model( generalModel )
+        return model_accuracy.ModelAccuracy.stratified_k_fold(generalModel,self.x_train, self.y_train,modelObject)
+
+
 
 class RandomForest(DSS):
 
     def training(self):
 
         #X, y = make_classification(n_samples=1000, n_features=4,n_informative=2, n_redundant=0,random_state=0, shuffle=False)
-        model = RandomForestClassifier(n_estimators=100, max_depth=2,random_state=0)
-        model.fit(self.x_train,self.y_train)  
-        return model
+
+        generalModel =  RandomForestClassifier(n_estimators=100, max_depth=2,random_state=0)    
+        #generalModel.fit(self.x_train, self.y_train) 
+
+        modelObject = model.Model()
+        modelObject.set_name('RANDOM_FOREST_CLASSIFIER_MODEL')
+        #modelObject.set_trained_model( generalModel )
+        return model_accuracy.ModelAccuracy.stratified_k_fold(generalModel,self.x_train, self.y_train,modelObject)
+
+
 
 
 class LinearRegressionM(DSS):
 
     def training(self):
 
-        model = LinearRegression()      
-        model.fit(self.x_train, self.y_train) #training the algorithm  
-        return model
+        generalModel = LinearRegression()      
+        #generalModel.fit(self.x_train, self.y_train) 
+
+        modelObject = model.Model()
+        modelObject.set_name('LINEAR_REGRESSION_MODEL')
+        #modelObject.set_trained_model( generalModel )
+        return model_accuracy.ModelAccuracy.stratified_k_fold(generalModel,self.x_train, self.y_train,modelObject)
+
 
 
 class LogisticRegressionM(DSS):
 
     def training(self):
+        
+        generalModel = LogisticRegression()      
+        #generalModel.fit(self.x_train, self.y_train) 
 
-        print('LogisticRegression')
-        model = LogisticRegression()      
-        model.fit(self.x_train, self.y_train) #training the algorithm  
-        return model
+        modelObject = model.Model()
+        modelObject.set_name('LOGISTIC_REGRESSION_MODEL')
+        #modelObject.set_trained_model( generalModel )
+        return model_accuracy.ModelAccuracy.stratified_k_fold(generalModel,self.x_train, self.y_train,modelObject)
+    
+
         
