@@ -105,10 +105,6 @@ class DSS:
         # }])
 
 
-
-
-
-
     def gridSearch(self,classifier,grid_param):
 
         #https://stackabuse.com/cross-validation-and-grid-search-for-model-selection-in-python/
@@ -142,11 +138,11 @@ class NeuralNetwork(DSS):
             'solver': ['lbfgs', 'sgd', 'adam'],
             'learning_rate': ['constant', 'invscaling', 'adaptive'],
             'activation': ['identity', 'logistic', 'tanh', 'relu'],
-            'shuffle': [True,False],
-            'verbose': [True,False],
-            'warm_start': [True,False],
-            'nesterovs_momentum': [True,False],
-            'early_stopping': [True,False]
+            # 'shuffle': [True,False],
+            # 'verbose': [True,False],
+            # 'warm_start': [True,False],
+            # 'nesterovs_momentum': [True,False],
+            # 'early_stopping': [True,False]
         }
         super().gridSearch(self.getClassifier(),grid_param)
 
