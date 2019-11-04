@@ -18,7 +18,7 @@ class ModelAccuracy:
         results_skfold = model_selection.cross_val_score(generalModel, x1, y1, cv=skfold)
         
         modelObject.set_accuracy( results_skfold.mean()*100.0 )
-        modelObject.set_trained_model( generalModel )
+        #modelObject.set_trained_model( generalModel )
         
         return modelObject
 

@@ -63,31 +63,45 @@ def dss_main():
         data = None
     
         if( training == 1 ):
+            
             model.data_intialization()
             model.data_preprocessing()
             modelObject = model.training()
-            model.save_model( modelObject.get_trained_model() )
+
+            if(modelObject.get_trained_model() != None):
+
+                model.save_model( modelObject.get_trained_model() )
+                data = {
+                    'model_id' :    model_id,
+                    'model_name'  : modelObject.get_name(),
+                    'status':  200,
+                    'message': 'Trained Successully',
+                    'results': [],
+                    'accuracy': modelObject.get_accuracy()
+                }
+            else:
+
+                data = {
+                    'model_id' :    model_id,
+                    'model_name'  : modelObject.get_name(),
+                    'status':  500,
+                    'message': 'Model is empty',
+                    'results': [],
+                    'accuracy': None
+                }
+
+
+        if( testing == 1):
+            model_reseponse =  model.testing()
             data = {
                 'model_id' :    model_id,
-                'model_name'  : modelObject.get_name(),
+                'model_name'  : model_name,
                 'status':  200,
-                'message': 'Trained Successully',
-                'results': [],
-                'accuracy': modelObject.get_accuracy()
+                'message': 'Tested successully',
+                'results': model_reseponse,
+                'accuracy': None
+
             }
-
-
-        # if( testing == 1):
-        #     model_reseponse =  model.testing()
-        #     data = {
-        #         'model_id' :    model_id,
-        #         'model_name'  : model_name,
-        #         'status':  200,
-        #         'message': 'Tested successully',
-        #         'results': model_reseponse,
-        #         'accuracy': trained_model.accuracy
-
-        #     }
 
         resp = jsonify(data)
         resp.status_code = 200
