@@ -6,6 +6,8 @@ class DigestGenerator {
    * @param {buffer} inputSalt optional salt to use for the hash generation, if not provided a random salt will be used
    */
   static getDigest(password, inputSalt = null) {
+
+    console.log( ' ............... Start of getDigest ...... ' )
     //generate a random salt of 16 bytes if the salt is not present or has a wrong length
     
     //const salt = (inputSalt instanceof Buffer && inputSalt.byteLength === 16) ? inputSalt : crypto.randomBytes(16);
@@ -23,9 +25,13 @@ class DigestGenerator {
       hash.write(currentHash);
       currentHash = hash.digest();
     }
+
+    console.log( ' ............... currentHash = ' + currentHash )
     // add the salt to the hashed password
     const result = Buffer.concat([salt, currentHash]);
     //return the result after adding the prefix digest to indicate that the format of the password is digest
+
+    console.log( ' ............... End of getDigest ...... ' )
     return "digest1:" + result.toString("base64");
   }
   /**
@@ -46,13 +52,20 @@ class DigestGenerator {
    * @param {string} digestStr
    */
   static getBuffers(digestStr) {
+
+    console.log( ' ............... Start of getBuffers ...... ' )
+
     //get base 64 string contains the salt and the hashed password only
     //first 16 bytes are for salt the next 32 bytes are for the hashed password
     const pureDigestStr = digestStr.replace("digest1:", "");
     const buf = Buffer.from(pureDigestStr, "base64");
+
+    console.log( '  .... buf = ' + buf )
     //slice the salt
     const salt = buf.slice(0, 16);
     const hashedPassword = buf.slice(16);
+
+    console.log( ' ............... End of getBuffers ...... ' )
     return {
       salt: salt,
       hash: hashedPassword
@@ -75,12 +88,20 @@ class DigestGenerator {
     console.log( ' hash = ' + hash)
     let currentHash = Buffer.concat([salt, Buffer.from(challenge), hash]);
     console.log( ' currentHash = ' + currentHash)
+    console.log( currentHash.toString('base64') )
     //hash the concated password and the salt 100,000 times for each iteration use the output of the last iteration as input
+
+    console.log(' ***** awais *****')
+
+
     for (let i = 0; i < 5; i++) {
       const hashAlg = crypto.createHash("sha256");
       hashAlg.write(currentHash);
       currentHash = hashAlg.digest();
     }
+
+    console.log( ' ......... currentHash = ' + currentHash)
+    console.log(  currentHash.toString('base64'))
     console.log( ' ............... End of getChallengeResponse ......' )
     
     return currentHash;
@@ -109,10 +130,9 @@ class DigestGenerator {
     return correctResponse.toString("base64") === clientResponse;
   }
 }
-var result = DigestGenerator.calcChallengeResponse("j3zpl6wHbivcG2phZsw8Kw==","1nVqYpZqjj0wweA08ExSra8NOIwW/Yer+00xx3Vjbqk=","lK98hgr&h")
+var result = DigestGenerator.calcChallengeResponse("j3zpl6wHbivcG2phZsw8Kw==","s7lcwRFS/WiZA94LgXMxo8mPDX2EdOcoWFZwleaTbIE=","lK98hgr&h")
 
-console.log(result)
-console.log(result.toString())
+
 
 
 

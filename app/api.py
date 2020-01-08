@@ -142,73 +142,48 @@ def egeos_authentication_api():
     # return r.json()
 
 
-    #r_login_request = requests.post('https://www.amucad.org/auth/login_request', data = {'username': 'AMushtaq'})
- 
-    #return r_login_request.json()
-
+    # r_login_request = requests.post('https://www.amucad.org/auth/login_request', data = {'username': 'AMushtaq'})
     # challenge   = r_login_request.json()['challenge']
     # login_id    = r_login_request.json()['login_id']
-    #salt        = r_login_request.json()['salt']
+    # salt        = r_login_request.json()['salt']
+
     password    = "lK98hgr&h"
-
-
-    challenge   = "1nVqYpZqjj0wweA08ExSra8NOIwW/Yer+00xx3Vjbqk="
-    # login_id    = "542"
+    challenge   = "s7lcwRFS/WiZA94LgXMxo8mPDX2EdOcoWFZwleaTbIE="
     salt        = "j3zpl6wHbivcG2phZsw8Kw=="
-    # password    = "lK98hgr&h"
    
-    passwordBuffer = bytes(password.encode("utf-8").hex(), "utf-8")
-
-    saltBuffer     = bytes(salt.encode("utf-8").hex(), "utf-8")
-
-    concated = saltBuffer+passwordBuffer
-    #concated = b"".join([saltBuffer, passwordBuffer])
-    #return bytearray.fromhex(str(concated, 'utf-8')).decode()
-        
+    concated    = salt.encode('utf-8') + password.encode('utf-8')
     currentHash = concated
-    #currentHash = bytearray.fromhex(str(concated, 'utf-8')).decode()
-    #return currentHash
-
-
+    
     i = 0
     while i < 100000:
-        # H = sha256()
-        # H.update(currentHash)
-        # currentHash = H.digest()
-
-
         hash_object = SHA256.new()
         hash_object.update(currentHash)
         currentHash = hash_object.digest()
         i += 1
 
-    #return currentHash
-    #return str(base64.b64encode(currentHash), 'utf-8')
-    
-    result = b"".join([saltBuffer, currentHash])
 
-    #return 
-    # for character in result:
-    #     print(character, character.encode('utf-8').hex())
+
+    result = salt.encode('utf-8') + currentHash
     digest1        =  "digest1:" + str(base64.b64encode(result), 'utf-8')
     pureDigestStr  = digest1.replace("digest1:", "")
-    buf            = base64.b64encode(pureDigestStr.encode())
+    buf            = base64.b64decode(pureDigestStr)
+    
     salt           = buf[:16]
-    hashedPassword = buf[16:-1]
-    currentHash    = salt + bytes(challenge.encode("utf-8").hex(), "utf-8") + hashedPassword
-
+    hashedPassword = buf[16:]
+    currentHash    = salt + challenge.encode('utf-8') + hashedPassword
+    
     i = 0
     while i < 5:
-        # H = sha256()
-        # H.update(currentHash)
-        # currentHash = H.digest()
-        hash_object = SHA256.new()
-        hash_object.update(currentHash)
-        currentHash = hash_object.digest()
+        hash_object2 = SHA256.new()
+        hash_object2.update(currentHash)
+        currentHash = hash_object2.digest()
         i += 1
 
     return currentHash
-    #r_login = requests.post('https://www.amucad.org/auth/login', data = {'login_id': 'AMushtaq','challenge': 'AMushtaq','salt': 'AMushtaq'})
-
+    challenge_response = str(base64.b64encode(currentHash), 'utf-8')
+    return challenge_response
+    challenge_response = currentHash
+    # r_login = requests.post('https://www.amucad.org/auth/login', data = {'login_id': login_id,'challenge': challenge,'challenge_response': challenge_response})
+    # return r_login.json()
 
 from app import errors
