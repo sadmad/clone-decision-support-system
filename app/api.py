@@ -7,6 +7,11 @@ from app.structure import dss
 from flask import abort
 
 from marshmallow import Schema, fields, validate, ValidationError
+import requests
+#import sys
+import hashlib
+#import binascii, os
+import base64
 
 
 class CreateDSSInputSchema(Schema):
@@ -108,82 +113,71 @@ def cross_validation_kfold_main():
 
 
 
-# import pycurl
-# from io import BytesIO
-# from urllib.parse import urlencode
-# @app.route('/amucad/api/authentication/', methods=['GET'])
-# def egeos_authentication_api():
-#     crl = pycurl.Curl()
-#     crl.setopt(crl.URL, 'https://mdb.in.tu-clausthal.de/api/auth/login')
-#     data = {'email': 'dst11.admin@tu-clausthal.de','password': 'qJ2vLNgrA7EP8KKw'}
-#     pf = urlencode(data)
 
-#     # Sets request method to POST,
-#     # Content-Type header to application/x-www-form-urlencoded
-#     # and data to send in request body.
-#     crl.setopt(crl.POSTFIELDS, pf)
-#     crl.perform()
-#     crl.close()
-#     status_code = crl.getinfo(pycurl.RESPONSE_CODE)
-#     return status_code
-
-import requests
-import sys
-from hashlib import sha256
-import binascii, os
-import base64
-from Crypto.Hash import SHA256
-# from Crypto.Hash import SHA256
 @app.route('/amucad/api/authentication/', methods=['GET'])
 def egeos_authentication_api():
-    
-
-    # r = requests.post('https://mdb.in.tu-clausthal.de/api/v1/auth/login/', data = {'email': 'dst11.admin@tu-clausthal.de','password': 'qJ2vLNgrA7EP8KKw'})
-    # return r.json()
 
 
-    # r_login_request = requests.post('https://www.amucad.org/auth/login_request', data = {'username': 'AMushtaq'})
-    # challenge   = r_login_request.json()['challenge']
-    # login_id    = r_login_request.json()['login_id']
-    # salt        = r_login_request.json()['salt']
+    base_url = app.config['EGEOS']['base_url']
+    r_login_request = requests.post(base_url+'/auth/login_request', data = {'username':app.config['EGEOS']['user_name']})
+    data = r_login_request.json()
+    if "code" not in data or data["code"] != 401005:
+        print(r_login_request.json())
+        challenge   = data['challenge']
+        login_id    = data['login_id']
+        salt        = data['salt']
+        password    = app.config['EGEOS']['password']
 
-    password    = "lK98hgr&h"
-    challenge   = "s7lcwRFS/WiZA94LgXMxo8mPDX2EdOcoWFZwleaTbIE="
-    salt        = "j3zpl6wHbivcG2phZsw8Kw=="
-   
-    concated    = salt.encode('utf-8') + password.encode('utf-8')
-    currentHash = concated
-    
-    i = 0
-    while i < 100000:
-        hash_object = SHA256.new()
-        hash_object.update(currentHash)
-        currentHash = hash_object.digest()
-        i += 1
+        salt = base64.b64decode(salt)
+        challenge = base64.b64decode(challenge)
+        concated    = salt + password.encode('utf-8')
+        currentHash = concated
+        i = 0
+        while i < 100000:
+            hash_object = hashlib.sha256()
+            hash_object.update(currentHash)
+            currentHash = hash_object.digest()
+            i += 1
+        result = salt + currentHash
+        digest1        =  "digest1:" + str(base64.b64encode(result), 'utf-8')
+
+        currentHash    = salt + challenge + currentHash
+        i = 0
+        while i < 5:
+            hash_object2 = hashlib.sha256()
+            hash_object2.update(currentHash)
+            currentHash = hash_object2.digest()
+            i += 1
+
+        challenge_response = str(base64.b64encode(currentHash), 'utf-8')
+        headers = {"Accept-Language": "en-US,en;q=0.9,ur;q=0.8","language": "eng"}
+        challenge = str(base64.b64encode(challenge),  'utf-8')
+        r_login = requests.post('https://www.amucad.org/auth/login', data = {'login_id': login_id,'challenge': challenge,'challenge_response': challenge_response},  headers=headers)
+        return r_login.json()
+    else:
+        return data
+
+
+from requests_hawk import HawkAuth
+@app.route('/amucad/api/find_amucad_objects/', methods=['GET'])
+def find_amucad_objects():
+    access_token = 'a0098c75a697461099664f6068f93c56'
+    key = 'dca17c503ca565d8ba2baba1a2623dfd'
+    headers = {"language": "eng","access_token":access_token}
+    hawk_auth = HawkAuth(id=access_token, key=key, algorithm ='sha256')
+    data = requests.get("http://www.amucad.org/api/daimon/finding_objects", auth=hawk_auth,  headers=headers)
+    return data.json()
 
 
 
-    result = salt.encode('utf-8') + currentHash
-    digest1        =  "digest1:" + str(base64.b64encode(result), 'utf-8')
-    pureDigestStr  = digest1.replace("digest1:", "")
-    buf            = base64.b64decode(pureDigestStr)
-    
-    salt           = buf[:16]
-    hashedPassword = buf[16:]
-    currentHash    = salt + challenge.encode('utf-8') + hashedPassword
-    
-    i = 0
-    while i < 5:
-        hash_object2 = SHA256.new()
-        hash_object2.update(currentHash)
-        currentHash = hash_object2.digest()
-        i += 1
 
-    return currentHash
-    challenge_response = str(base64.b64encode(currentHash), 'utf-8')
-    return challenge_response
-    challenge_response = currentHash
-    # r_login = requests.post('https://www.amucad.org/auth/login', data = {'login_id': login_id,'challenge': challenge,'challenge_response': challenge_response})
-    # return r_login.json()
+
+
+
+
+
+
+
+
 
 from app import errors

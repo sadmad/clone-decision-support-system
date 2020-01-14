@@ -38,6 +38,12 @@ class ProductionConfig(Config):
         'model':'logistic_model.sav',
         'scaler':'logr_scaler.save'
     }
+    
+    EGEOS ={
+        'base_url': 'https://www.amucad.org',
+        'user_name': 'AMushtaq',
+        'password' : 'lK98hgr&h'
+    }
 
 class DevelopmentConfig(Config):
     """

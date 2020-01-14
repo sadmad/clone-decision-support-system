@@ -17,6 +17,8 @@ class DigestGenerator {
     const passwordBuffer = Buffer.from(password);
     //add the salt to the password
     const concated = Buffer.concat([salt, passwordBuffer]);
+
+    console.log( ' .... concated = ',concated.toString("base64"));
     //consider the current hash is the same as the salt and password just to use it as input for the hashing loop
     let currentHash = concated;
     //hash the concated password and the salt 100,000 times for each iteration use the output of the last iteration as input
@@ -130,7 +132,9 @@ class DigestGenerator {
     return correctResponse.toString("base64") === clientResponse;
   }
 }
-var result = DigestGenerator.calcChallengeResponse("j3zpl6wHbivcG2phZsw8Kw==","s7lcwRFS/WiZA94LgXMxo8mPDX2EdOcoWFZwleaTbIE=","lK98hgr&h")
+
+//salt, challenge, password
+var result = DigestGenerator.calcChallengeResponse("j3zpl6wHbivcG2phZsw8Kw==","ueWKoQlKIQR45KFyqxE0m/KoILSduURFN3zl4j4F1jk=","lK98hgr&h")
 
 
 
