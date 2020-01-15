@@ -35,7 +35,7 @@ class ProductionConfig(Config):
     }
 
     LOGISTIC_REGRESSION_MODEL = {
-        'model':'logistic_model.sav',
+        'model':'logistic_regression_model.sav',
         'scaler':'logr_scaler.save'
     }
     

@@ -13,12 +13,8 @@ class ModelAccuracy:
         return ''
 
     @staticmethod
-    def stratified_k_fold( generalModel ,x1 ,y1, modelObject ):
+    def stratified_k_fold( mlModel, x1 ,y1 ):
         skfold = StratifiedKFold(n_splits=3, random_state=100)
-        results_skfold = model_selection.cross_val_score(generalModel, x1, y1, cv=skfold)
-        
-        modelObject.set_accuracy( results_skfold.mean()*100.0 )
-        #modelObject.set_trained_model( generalModel )
-        
-        return modelObject
+        results_skfold = model_selection.cross_val_score( mlModel.get_model(), x1, y1, cv=skfold)
+        return results_skfold.mean()*100.0
 

@@ -47,25 +47,25 @@ def dss_main():
 
     if model_id:
         if (model_id == 1):
-            model = dss.NeuralNetwork(app.config['NEURAL_NETWORK_MODEL'])
+            DSS = dss.NeuralNetwork(app.config['NEURAL_NETWORK_MODEL'])
         elif (model_id == 2):
-            model = dss.RandomForest(app.config['RANDOM_FOREST_CLASSIFIER_MODEL'])
+            DSS = dss.RandomForest(app.config['RANDOM_FOREST_CLASSIFIER_MODEL'])
         elif (model_id == 3):
-            model = dss.LinearRegressionM(app.config['LINEAR_REGRESSION_MODEL'])
+            DSS = dss.LinearRegressionM(app.config['LINEAR_REGRESSION_MODEL'])
         elif (model_id == 4):
-            model = dss.LogisticRegressionM(app.config['LOGISTIC_REGRESSION_MODEL'])
+            DSS = dss.LogisticRegressionM(app.config['LOGISTIC_REGRESSION_MODEL'])
 
         data = None
 
         if training == 1:
 
-            model.data_intialization()
-            model.data_preprocessing()
-            modelObject = model.training()
+            DSS.data_intialization()
+            DSS.data_preprocessing()
+            modelObject = DSS.training()
 
-            if modelObject.get_trained_model() is not None:
+            if modelObject.get_model() is not None:
 
-                model.save_model(modelObject.get_trained_model())
+                DSS.save_model( modelObject.get_model() )
                 data = {
                     'model_id': model_id,
                     'model_name': modelObject.get_name(),
@@ -86,7 +86,7 @@ def dss_main():
                 }
 
         if testing == 1:
-            model_reseponse = model.testing()
+            model_reseponse = DSS.testing()
             data = {
                 'model_id': model_id,
                 'model_name': model_name,
