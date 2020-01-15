@@ -10,7 +10,7 @@ from sklearn.neural_network import MLPClassifier
 from app import app
 from app import scale
 from app.structure import model
-from app.structure import model_accuracy
+from app.structure import accuracy_finder
 
 # import pickle
 
@@ -112,7 +112,7 @@ class DSS:
         mlObject = model.ML_Model()
         mlObject.set_name( name )
         mlObject.set_model( classifier.fit(self.x_train, self.y_train) )
-        mlObject.set_accuracy( model_accuracy.ModelAccuracy.stratified_k_fold( mlObject, self.x_train, self.y_train ))
+        mlObject.set_accuracy( accuracy_finder.AccuracyFinder.stratified_k_fold( mlObject, self.x_train, self.y_train ))
         return mlObject
 
 

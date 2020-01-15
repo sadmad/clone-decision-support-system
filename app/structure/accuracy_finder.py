@@ -8,7 +8,7 @@ from sklearn.model_selection import StratifiedKFold
 
 from app.structure import model
 
-class ModelAccuracy:
+class AccuracyFinder:
     def __init__(self):
         return ''
 
