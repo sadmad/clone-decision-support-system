@@ -2,16 +2,13 @@ from app import app
 import os
 from flask import Flask, request, jsonify, render_template
 from app.structure import dss
-
+from app.structure import data_transformer as DT
 # from marshmallow import Schema, fields
 from flask import abort
 
 from marshmallow import Schema, fields, validate, ValidationError
-import requests
-#import sys
-import hashlib
-#import binascii, os
-import base64
+
+
 
 
 class CreateDSSInputSchema(Schema):
@@ -113,71 +110,9 @@ def cross_validation_kfold_main():
 
 
 
-
-@app.route('/amucad/api/authentication/', methods=['GET'])
-def egeos_authentication_api():
-
-
-    base_url = app.config['EGEOS']['base_url']
-    r_login_request = requests.post(base_url+'/auth/login_request', data = {'username':app.config['EGEOS']['user_name']})
-    data = r_login_request.json()
-    if "code" not in data or data["code"] != 401005:
-        print(r_login_request.json())
-        challenge   = data['challenge']
-        login_id    = data['login_id']
-        salt        = data['salt']
-        password    = app.config['EGEOS']['password']
-
-        salt = base64.b64decode(salt)
-        challenge = base64.b64decode(challenge)
-        concated    = salt + password.encode('utf-8')
-        currentHash = concated
-        i = 0
-        while i < 100000:
-            hash_object = hashlib.sha256()
-            hash_object.update(currentHash)
-            currentHash = hash_object.digest()
-            i += 1
-        result = salt + currentHash
-        digest1        =  "digest1:" + str(base64.b64encode(result), 'utf-8')
-
-        currentHash    = salt + challenge + currentHash
-        i = 0
-        while i < 5:
-            hash_object2 = hashlib.sha256()
-            hash_object2.update(currentHash)
-            currentHash = hash_object2.digest()
-            i += 1
-
-        challenge_response = str(base64.b64encode(currentHash), 'utf-8')
-        headers = {"Accept-Language": "en-US,en;q=0.9,ur;q=0.8","language": "eng"}
-        challenge = str(base64.b64encode(challenge),  'utf-8')
-        r_login = requests.post('https://www.amucad.org/auth/login', data = {'login_id': login_id,'challenge': challenge,'challenge_response': challenge_response},  headers=headers)
-        return r_login.json()
-    else:
-        return data
-
-
-from requests_hawk import HawkAuth
 @app.route('/amucad/api/find_amucad_objects/', methods=['GET'])
 def find_amucad_objects():
-    access_token = 'a0098c75a697461099664f6068f93c56'
-    key = 'dca17c503ca565d8ba2baba1a2623dfd'
-    headers = {"language": "eng","access_token":access_token}
-    hawk_auth = HawkAuth(id=access_token, key=key, algorithm ='sha256')
-    data = requests.get("http://www.amucad.org/api/daimon/finding_objects", auth=hawk_auth,  headers=headers)
-    return data.json()
-
-
-
-
-
-
-
-
-
-
-
-
+    obj = DT.DataTransformer()
+    return obj.get_data()
 
 from app import errors

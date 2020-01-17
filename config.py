@@ -45,6 +45,8 @@ class ProductionConfig(Config):
         'password' : 'lK98hgr&h'
     }
 
+    CACHE_API = 1
+
 class DevelopmentConfig(Config):
     """
     This class will inherit any attributes from the parent Config class.
