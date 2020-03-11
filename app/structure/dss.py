@@ -42,8 +42,7 @@ class DSS:
         self.x_train = None
         self.y_train = None
         #self.model_key = obj['model']
-        self.saved_model_scaler = os.path.join(app_path, obj['scaler'])
-        self.saved_model_path = os.path.join(app_path, obj['model'])
+        
 
         self.test_data = None
         self.x_test = None
@@ -52,7 +51,7 @@ class DSS:
     def data_intialization(self):
         print(' DSS data_intialization')
 
-        #dynamic logic for different models
+        #dynamic logic for different models, inject from model class
         self.train_data = pd.read_csv('wine_data.csv', names=features)
         self.x_train = self.train_data.drop('Cultivator', axis=1)
         self.y_train = self.train_data['Cultivator']

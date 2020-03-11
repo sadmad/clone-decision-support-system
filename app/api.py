@@ -7,7 +7,7 @@ from app.structure import data_transformer as DT
 from flask import abort
 
 from marshmallow import Schema, fields, validate, ValidationError
-
+from app.structure import model as md
 
 
 
@@ -118,8 +118,13 @@ def find_amucad_objects():
 
 @app.route('/fish/training', methods=['GET'])
 def fish_training():
-    DSS = dss.RandomForest(app.config['RANDOM_FOREST_CLASSIFIER_MODEL'])
-    DSS.data_intialization()
+    
+    #pass datset/model name to intialize new model
+    mdObject = md.FDI_ASSESMENT()
+
+    
+    mdObject.main();
+
     return 'awais'
 
 
