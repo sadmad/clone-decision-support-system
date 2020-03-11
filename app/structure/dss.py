@@ -51,6 +51,8 @@ class DSS:
 
     def data_intialization(self):
         print(' DSS data_intialization')
+
+        #dynamic logic for different models
         self.train_data = pd.read_csv('wine_data.csv', names=features)
         self.x_train = self.train_data.drop('Cultivator', axis=1)
         self.y_train = self.train_data['Cultivator']

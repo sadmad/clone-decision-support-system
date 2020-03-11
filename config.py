@@ -38,6 +38,33 @@ class ProductionConfig(Config):
         'model':'logistic_regression_model.sav',
         'scaler':'logr_scaler.save'
     }
+
+    MODELS = {
+
+            'FDI_ASSESMENT':        'fdi_assesment_',           #FISH
+            'CF_ASSESMENT':         'cf_assesment_',            #FISH
+            'LHI_ASSESMENT':        'lhi_assesment_',           #FISH
+            'MUSCEL_CWA_ASSESMENT': 'muscel_cwa_assessment_',   #FISH
+            'LIVER_CWA_ASSESMENT':  'liver_cwa_assessment_',    #FISH
+            'ERY_ASSESMENT':        'ery_assessment_',          #FISH
+            'HB_ASSESMENT':         'hb_assessment_',           #FISH
+            'GLU_ASSESMENT':        'glu_assessment_',          #FISH
+            'HCT_ASSESMENT':        'hct_assessment_',          #FISH
+            'GILL_CWA_ASSESMENT':   'gill_cwa_assessment_',     #FISH
+    }
+
+    MODELS_ID_MAPPING = {
+        0:  'FDI_ASSESMENT',
+        1:  'CF_ASSESMENT',
+        2:  'LHI_ASSESMENT',
+        3:  'MUSCEL_CWA_ASSESMENT',
+        4:  'LIVER_CWA_ASSESMENT',
+        5:  'ERY_ASSESMENT',
+        6:  'HB_ASSESMENT',
+        7:  'GLU_ASSESMENT',
+        8:  'HCT_ASSESMENT',
+        9:  'GILL_CWA_ASSESMENT',
+    }
     
     EGEOS ={
         'base_url': 'https://www.amucad.org',

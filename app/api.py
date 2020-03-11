@@ -115,4 +115,12 @@ def find_amucad_objects():
     obj = DT.DataTransformer()
     return obj.get_data()
 
+
+@app.route('/fish/training', methods=['GET'])
+def fish_training():
+    DSS = dss.RandomForest(app.config['RANDOM_FOREST_CLASSIFIER_MODEL'])
+    DSS.data_intialization()
+    return 'awais'
+
+
 from app import errors
