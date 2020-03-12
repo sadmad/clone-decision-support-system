@@ -119,11 +119,13 @@ def find_amucad_objects():
 @app.route('/fish/training', methods=['GET'])
 def fish_training():
     
-    #pass datset/model name to intialize new model
-    mdObject = md.FDI_ASSESMENT()
+    model_type = 2 #Random Forest
+    
+    #DSS model type is initialized
+    mdObject = md.FDI_ASSESMENT(model_type)
 
     
-    mdObject.main();
+    mdObject.start( );
 
     return 'awais'
 

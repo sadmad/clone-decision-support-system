@@ -35,18 +35,24 @@ features = [
 
 
 class DSS:
-    def __init__(self, obj=None):
+    def __init__( self ):
 
         print(' DSS Constructor')
-        self.train_data = None
-        self.x_train = None
-        self.y_train = None
+        
         #self.model_key = obj['model']
         
-
+        self.train_data              = None
+        self.x_train                 = None
+        self.y_train                 = None
+        
         self.test_data = None
         self.x_test = None
         self.y_test = None
+
+
+        #Should be intialized in model.py 
+        self.trained_model_scaler = None
+        self.trained_model = None
 
     def data_intialization(self):
         print(' DSS data_intialization')
@@ -58,19 +64,29 @@ class DSS:
         
     def data_preprocessing(self):
         print(' DSS data_preprocessing')
-        self.x_train = scale.Scale.StandardScaler(self.x_train, self.saved_model_scaler)
+        self.x_train = scale.Scale.StandardScaler(self.x_train, self.trained_model_scaler)
+    
+    def fit( self, classifier, name ):
 
-    def save_model(self, model=None):
+        self.save_model( classifier.fit(self.x_train, self.y_train) )
+
+        # mlObject = model.ML_Model()
+        # mlObject.set_name( name )
+        # mlObject.set_model( classifier.fit(self.x_train, self.y_train) )
+        # mlObject.set_accuracy( accuracy_finder.AccuracyFinder.stratified_k_fold( mlObject, self.x_train, self.y_train ))
+        #return mlObject
+
+    def save_model(self, model):
         print(' DSS save_model')
-        if os.path.exists(self.saved_model_path):
-            os.remove(self.saved_model_path)
+        if os.path.exists(self.trained_model ):
+            os.remove(self.trained_model)
         
 
         # save the model to disk
         # https://machinelearningmastery.com/save-load-machine-learning-models-python-scikit-learn/
 
         # pickle.dump(model, open(app.config['NEURAL_NETWORK_MODEL'], 'wb'))
-        joblib.dump(model, self.saved_model_path)
+        joblib.dump(model, self.trained_model)
 
     def testing(self):
         print(' DSS testing')
@@ -109,12 +125,7 @@ class DSS:
         best_parameters = gd_sr.best_params_
         print(best_parameters)
 
-    def fit( self, classifier, name ):
-        mlObject = model.ML_Model()
-        mlObject.set_name( name )
-        mlObject.set_model( classifier.fit(self.x_train, self.y_train) )
-        mlObject.set_accuracy( accuracy_finder.AccuracyFinder.stratified_k_fold( mlObject, self.x_train, self.y_train ))
-        return mlObject
+
 
 
 class NeuralNetwork(DSS):

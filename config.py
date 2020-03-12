@@ -20,23 +20,23 @@ class ProductionConfig(Config):
     as database usernames, passwords, server specific files & directories etc.
     """
     NEURAL_NETWORK_MODEL = {
-        'model':'neural_network_finalized_model.sav',
-        'scaler':'nn_scaler.save'
+        'model':'neural_network.sav',
+        'scaler':'neural_network_scaler.save'
     }
 
     RANDOM_FOREST_CLASSIFIER_MODEL = {
-        'model':'random_forest_classifier_model.sav',
-        'scaler':'rfc_scaler.save'
+        'model':'random_forest_classifier.sav',
+        'scaler':'random_forest_classifier_scaler.save'
     }
 
     LINEAR_REGRESSION_MODEL = {
-        'model':'linear_regression_model.sav',
-        'scaler':'lr_scaler.save'
+        'model':'linear_regression.sav',
+        'scaler':'linear_regression_scaler.save'
     }
 
     LOGISTIC_REGRESSION_MODEL = {
-        'model':'logistic_regression_model.sav',
-        'scaler':'logr_scaler.save'
+        'model':'logistic_regression.sav',
+        'scaler':'logistic_regression_scaler.save'
     }
 
     MODELS = {
