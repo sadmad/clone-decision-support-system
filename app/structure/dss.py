@@ -40,7 +40,7 @@ class DSS:
     def testing( self, finding ):
 
         print(' DSS testing')
-
+        
         finding.x_train = scale.Scale.LoadScalerAndScaleTestData( finding.x_train, finding.trained_scaler_path )
         
         loaded_model = joblib.load(finding.trained_model_path)
