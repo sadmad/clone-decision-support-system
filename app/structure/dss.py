@@ -10,96 +10,42 @@ from sklearn.neural_network import MLPClassifier
 from app import app
 from app import scale
 from app.structure import model
-from app.structure import accuracy_finder
-
-# import pickle
-
-app_path = os.path.join(app.root_path, 'models')
-
-features = [
-    "Cultivator",
-    "Alchol",
-    "Malic_Acid",
-    "Ash",
-    "Alcalinity_of_Ash",
-    "Magnesium",
-    "Total_phenols",
-    "Falvanoids",
-    "Nonflavanoid_phenols",
-    "Proanthocyanins",
-    "Color_intensity",
-    "Hue",
-    "OD280",
-    "Proline"
-]
-
+from app.structure import accuracy_finder as accuracy
 
 class DSS:
     def __init__( self ):
 
         print(' DSS Constructor')
         
-        #self.model_key = obj['model']
+        pass
         
-        self.train_data              = None
-        self.x_train                 = None
-        self.y_train                 = None
-        
-        self.test_data = None
-        self.x_test = None
-        self.y_test = None
+    def data_preprocessing( self, finding ):
 
-
-        #Should be intialized in model.py 
-        self.trained_model_scaler = None
-        self.trained_model = None
-
-    def data_intialization(self):
-        print(' DSS data_intialization')
-
-        #dynamic logic for different models, inject from model class
-        self.train_data = pd.read_csv('wine_data.csv', names=features)
-        self.x_train = self.train_data.drop('Cultivator', axis=1)
-        self.y_train = self.train_data['Cultivator']
-        
-    def data_preprocessing(self):
-        print(' DSS data_preprocessing')
-        self.x_train = scale.Scale.StandardScaler(self.x_train, self.trained_model_scaler)
+        print(' DSS Data Preprocessing')
+        return  scale.Scale.StandardScaler(finding.x_train, finding.trained_scaler_path)
     
-    def fit( self, classifier, name ):
+    def fit( self, classifier, finding ):
 
-        self.save_model( classifier.fit(self.x_train, self.y_train) )
+        fit_model = classifier.fit(finding.x_train, finding.y_train)
+        self.save_model( fit_model, finding )
+        return accuracy.AccuracyFinder.stratified_k_fold( fit_model, finding.x_train, finding.y_train )
 
-        # mlObject = model.ML_Model()
-        # mlObject.set_name( name )
-        # mlObject.set_model( classifier.fit(self.x_train, self.y_train) )
-        # mlObject.set_accuracy( accuracy_finder.AccuracyFinder.stratified_k_fold( mlObject, self.x_train, self.y_train ))
-        #return mlObject
+    def save_model( self, model, finding ):
 
-    def save_model(self, model):
-        print(' DSS save_model')
-        if os.path.exists(self.trained_model ):
-            os.remove(self.trained_model)
-        
+        print(' DSS Save Model')
+        if os.path.exists(finding.trained_model_path ):
+            os.remove(finding.trained_model_path)
+        joblib.dump(model, finding.trained_model_path)
 
-        # save the model to disk
-        # https://machinelearningmastery.com/save-load-machine-learning-models-python-scikit-learn/
+    def testing( self, finding ):
 
-        # pickle.dump(model, open(app.config['NEURAL_NETWORK_MODEL'], 'wb'))
-        joblib.dump(model, self.trained_model)
-
-    def testing(self):
         print(' DSS testing')
-        self.test_data = pd.read_csv('wine_data_test.csv', names=features)
-        self.x_test = self.test_data.drop('Cultivator', axis=1)
-        self.y_test = self.test_data['Cultivator']
 
-        self.x_test = scale.Scale.LoadScalerAndScaleTestData(self.x_test, self.saved_model_scaler)
-        # load the model from disk
-        # loaded_model = pickle.load(open(saved_model_path, 'rb'))
-        loaded_model = joblib.load(self.saved_model_path)
-        score_result = loaded_model.score(self.x_test, self.y_test)
-        predictions  = loaded_model.predict(self.x_test)
+        finding.x_train = scale.Scale.LoadScalerAndScaleTestData( finding.x_train, finding.trained_scaler_path )
+        
+        loaded_model = joblib.load(finding.trained_model_path)
+        score_result = loaded_model.score( finding.x_train, finding.y_train )
+        predictions  = loaded_model.predict( finding.x_train )
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
@@ -110,7 +56,7 @@ class DSS:
         #     'predictions' : pd.Series(predictions).to_json(orient='values')
         # }])
 
-    def gridSearch(self, classifier, grid_param):
+    def gridSearch( self, classifier, grid_param, finding ):
         # https://stackabuse.com/cross-validation-and-grid-search-for-model-selection-in-python/
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74##targetText=In%20the%20case%20of%20a,each%20node%20learned%20during%20training).
         from sklearn.model_selection import GridSearchCV
@@ -120,25 +66,33 @@ class DSS:
                              scoring='accuracy',
                              cv=5,
                              n_jobs=-1)
-        gd_sr.fit(self.x_train, self.y_train)
-
+        gd_sr.fit(finding.x_train, finding.y_train)
         best_parameters = gd_sr.best_params_
         print(best_parameters)
 
 
 
+#######################################################################
+#######################################################################
+#######################################################################
+################### Neural Network Model ##############################
+#######################################################################
+#######################################################################
+#######################################################################
 
 class NeuralNetwork(DSS):
 
     def getClassifier(self):
+
         print(' NeuralNetwork Return Model')
         return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
 
-    def training(self):
-        # self.determineBestHyperParameters()
-        return super().fit(self.getClassifier(), 'NEURAL_NETWORK_MODEL')
+    def training(self, finding):
 
-    def determineBestHyperParameters(self):
+        return super().fit(self.getClassifier(), finding)
+
+    def determineBestHyperParameters( self, finding ):
+
         grid_param = {
             'activation': ['identity', 'logistic', 'tanh', 'relu'],
             'solver': ['lbfgs', 'sgd', 'adam'],
@@ -150,8 +104,15 @@ class NeuralNetwork(DSS):
             # 'nesterovs_momentum': [True,False],
             # 'early_stopping': [True,False]
         }
-        super().gridSearch(self.getClassifier(), grid_param)
+        super().gridSearch( self.getClassifier(), grid_param, finding )
         
+#######################################################################
+#######################################################################
+#######################################################################
+################### Random Forest Model ###############################
+#######################################################################
+#######################################################################
+#######################################################################
 
 class RandomForest(DSS):
 
@@ -166,13 +127,12 @@ class RandomForest(DSS):
             bootstrap=True
         )
 
-    def training(self):
-        # X, y = make_classification(n_samples=1000, n_features=4,n_informative=2, n_redundant=0,random_state=0, shuffle=False)
+    def training( self, finding ):
 
-        # self.determineBestHyperParameters()
-        return super().fit(self.getClassifier(), 'RANDOM_FOREST_CLASSIFIER_MODEL')
+        return super().fit( self.getClassifier(), finding )
 
-    def determineBestHyperParameters(self):
+    def determineBestHyperParameters( self, finding ):
+
         grid_param = {
             'criterion': ['gini', 'entropy'],
             'bootstrap': [True, False],
@@ -185,8 +145,16 @@ class RandomForest(DSS):
             'n_estimators': [100]
 
         }
-        super().gridSearch(self.getClassifier(), grid_param)
+        super().gridSearch( self.getClassifier(), grid_param, finding )
 
+
+#######################################################################
+#######################################################################
+#######################################################################
+################### Linear Regression Model ###########################
+#######################################################################
+#######################################################################
+#######################################################################
 
 class LinearRegressionM(DSS):
 
@@ -194,20 +162,26 @@ class LinearRegressionM(DSS):
         print(' LinearRegressionM Return MODEL')
         return LinearRegression()
 
-    def training(self):
-        # self.determineBestHyperParameters()
-        return super().fit(self.getClassifier(), 'LINEAR_REGRESSION_MODEL')
+    def training( self, finding ):
 
-    def determineBestHyperParameters(self):
+        return super().fit(self.getClassifier(), finding )
+
+    def determineBestHyperParameters( self, finding ):
+
         grid_param = {
             'fit_intercept': [True, False],
             'normalize': [True, False],
             'copy_X': [True, False]
         }
-        super().gridSearch(self.getClassifier(), grid_param)
+        super().gridSearch( self.getClassifier(), grid_param, finding )
 
-
-
+#######################################################################
+#######################################################################
+#######################################################################
+################### Logistic Regression Model #########################
+#######################################################################
+#######################################################################
+#######################################################################
 
 class LogisticRegressionM(DSS):
 
@@ -215,11 +189,11 @@ class LogisticRegressionM(DSS):
         print(' LogisticRegressionM Return Model')
         return LogisticRegression( )
     
-    def training(self):
-        # self.determineBestHyperParameters()
-        return super().fit(self.getClassifier(), 'LOGISTIC_REGRESSION_MODEL')
+    def training( self, finding ):
+
+        return super().fit( self.getClassifier(), finding )
     
-    def determineBestHyperParameters(self):
+    def determineBestHyperParameters( self, finding ):
         grid_param = {
             # 'penalty': ['l1','l2','elasticnet','none'],
             # 'penalty': ['l2','elasticnet','none'],
@@ -232,6 +206,6 @@ class LogisticRegressionM(DSS):
             # 'multi_class':['ovr', 'multinomial','auto'],
             'warm_start': ['True', 'False']
         }
-        super().gridSearch(self.getClassifier(), grid_param)
+        super().gridSearch( self.getClassifier(), grid_param, finding )
 
 

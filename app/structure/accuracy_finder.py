@@ -9,12 +9,10 @@ from sklearn.model_selection import StratifiedKFold
 from app.structure import model
 
 class AccuracyFinder:
-    def __init__(self):
-        return ''
 
     @staticmethod
-    def stratified_k_fold( mlModel, x1 ,y1 ):
+    def stratified_k_fold( model, x ,y ):
         skfold = StratifiedKFold(n_splits=3, random_state=100)
-        results_skfold = model_selection.cross_val_score( mlModel.get_model(), x1, y1, cv=skfold)
+        results_skfold = model_selection.cross_val_score( model, x, y, cv=skfold)
         return results_skfold.mean()*100.0
 
