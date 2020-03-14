@@ -125,7 +125,7 @@ def fish_training():
     mdObject = md.FDI_ASSESMENT(model_type)
 
     
-    mdObject.start( );
+    mdObject.start();
 
     return 'awais'
 
