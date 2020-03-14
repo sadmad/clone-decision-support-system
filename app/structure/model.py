@@ -125,11 +125,19 @@ class FDI_ASSESMENT(Fish):
 
         # For Fish data
         self.x_train = self.data.drop('fdi_assesment', axis=1)
-        
-        
+   
+       
+      
         self.y_train = self.data['fdi_assesment']
 
-        #print(self.y_train)
+        from sklearn.preprocessing import Imputer
+        imputer = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
+        imputer = imputer.fit(self.x_train)
+
+        self.x_train = imputer.transform(self.x_train)
+    
+        print(self.x_train.round(decimals=2))
+        
         import numpy as np
         from sklearn.experimental import enable_iterative_imputer
         from sklearn.impute import IterativeImputer
