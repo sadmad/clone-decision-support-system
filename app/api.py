@@ -2,7 +2,7 @@ from app import app
 import os
 from flask import Flask, request, jsonify, render_template
 from app.structure import dss
-from app.structure import data_transformer as DT
+#from app.structure import data_transformer as DT
 # from marshmallow import Schema, fields
 from flask import abort
 
