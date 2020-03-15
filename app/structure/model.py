@@ -130,23 +130,42 @@ class FDI_ASSESMENT(Fish):
       
         self.y_train = self.data['fdi_assesment']
 
-        from sklearn.preprocessing import Imputer
-        imputer = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
-        imputer = imputer.fit(self.x_train)
+        # from sklearn.preprocessing import Imputer
+        # imputer = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
+        # imputer = imputer.fit(self.x_train)
 
-        self.x_train = imputer.transform(self.x_train)
+        # self.x_train = imputer.transform(self.x_train)
     
         print(self.x_train.round(decimals=2))
         
-        import numpy as np
-        from sklearn.experimental import enable_iterative_imputer
-        from sklearn.impute import IterativeImputer
-        imp = IterativeImputer(max_iter=10, random_state=0)
-        imp.fit([[1, 2], [3, 6], [4, 8], [np.nan, 3], [7, np.nan]])
+        #https://towardsdatascience.com/preprocessing-regression-imputation-of-missing-continuous-values-f612179bafb4
 
-        X_test = [[np.nan, 2], [6, np.nan], [np.nan, 6]]
-        # the model learns that the second feature is double the first
-        print(np.round(imp.transform(X_test)))
+
+        #import pandas as pd
+        import numpy as np
+        # explicitly require this experimental feature
+        from sklearn.experimental import enable_iterative_imputer
+        # now you can import normally from sklearn.impute
+        from sklearn.impute import IterativeImputer
+        from sklearn.ensemble import ExtraTreesRegressor
+        from sklearn.linear_model import BayesianRidge
+        import random
+
+
+        imputer = IterativeImputer(BayesianRidge())
+        #impute_data = pd.DataFrame(imputer.fit_transform(self.x_train))
+
+        print(imputer.fit_transform(self.x_train))
+        
+        # import numpy as np
+        # from sklearn.experimental import enable_iterative_imputer
+        # from sklearn.impute import IterativeImputer
+        # imp = IterativeImputer(max_iter=10, random_state=0)
+        # imp.fit([[1, 2], [3, 6], [4, 8], [np.nan, 3], [7, np.nan]])
+
+        # X_test = [[np.nan, 2], [6, np.nan], [np.nan, 6]]
+        # # the model learns that the second feature is double the first
+        # print(np.round(imp.transform(X_test)))
 
 
 
