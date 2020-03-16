@@ -53,7 +53,7 @@ class Finding:
 
         # Waleed Part
         self.categorical_fields_handling()
-        # self.x_train = self.DSS.data_preprocessing( self )
+        #self.x_train = self.DSS.data_preprocessing( self )
         # accuracy = self.DSS.training( self )
         # print(accuracy)
 
@@ -122,40 +122,62 @@ class FDI_ASSESMENT(Fish):
         # for wine dataset
         # self.x_train = self.data.drop('Cultivator', axis=1)
         # self.y_train = self.data['Cultivator']
+        # https://dzone.com/articles/pandas-find-rows-where-columnfield-is-null
+        # for finding nan
+        null_columns =  self.data.columns[ self.data.isnull().any()]
+        test= self.data[null_columns].isnull().sum()
+        print(test)
+        test1=self.data[self.data["fdi_assesment"].isnull()][null_columns]
+        print(test1)
+        self.data =  self.data.drop([2213, 2214], axis=0)
+        test3= self.data[self.data["fdi_assesment"].isnull()][null_columns]
+        print(test3)
+        self.data.reset_index(drop=True, inplace=True) # used to reset the index as we have used drop statement and we want to reuse that index.
+
 
         # For Fish data
         self.x_train = self.data.drop('fdi_assesment', axis=1)
-   
+        import numpy as np
        
       
         self.y_train = self.data['fdi_assesment']
+        from sklearn.impute import SimpleImputer
+        imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
+
+
 
         # from sklearn.preprocessing import Imputer
         # imputer = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
-        # imputer = imputer.fit(self.x_train)
+        imputer = imputer.fit(self.x_train)
 
-        # self.x_train = imputer.transform(self.x_train)
+        self.x_train = imputer.transform(self.x_train)
     
         print(self.x_train.round(decimals=2))
-        
+
+        from sklearn.preprocessing import LabelEncoder
+        labelEncoder_Y = LabelEncoder()
+        y= labelEncoder_Y.fit_transform(self.data['fdi_assesment'])
+        print(y)
+
+
         #https://towardsdatascience.com/preprocessing-regression-imputation-of-missing-continuous-values-f612179bafb4
 
 
-        #import pandas as pd
-        import numpy as np
-        # explicitly require this experimental feature
-        from sklearn.experimental import enable_iterative_imputer
-        # now you can import normally from sklearn.impute
-        from sklearn.impute import IterativeImputer
-        from sklearn.ensemble import ExtraTreesRegressor
-        from sklearn.linear_model import BayesianRidge
-        import random
-
-
-        imputer = IterativeImputer(BayesianRidge())
-        #impute_data = pd.DataFrame(imputer.fit_transform(self.x_train))
-
-        print(imputer.fit_transform(self.x_train))
+        # #import pandas as pd
+        # import numpy as np
+        # # explicitly require this experimental feature
+        # from sklearn.experimental import enable_iterative_imputer
+        # # now you can import normally from sklearn.impute
+        # from sklearn.impute import IterativeImputer
+        # from sklearn.ensemble import ExtraTreesRegressor
+        # from sklearn.linear_model import BayesianRidge
+        # import random
+        #
+        #
+        # imputer = IterativeImputer(BayesianRidge())
+        # #impute_data = pd.DataFrame(imputer.fit_transform(self.x_train))
+        #
+        # print(imputer.fit_transform(self.x_train))
         
         # import numpy as np
         # from sklearn.experimental import enable_iterative_imputer
@@ -171,6 +193,8 @@ class FDI_ASSESMENT(Fish):
 
     def categorical_fields_handling(self):
         print(' Categorical Fields Handling FDI_ASSESMENT')
+
+
 
         pass
 
