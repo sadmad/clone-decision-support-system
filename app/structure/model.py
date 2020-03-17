@@ -53,9 +53,9 @@ class Finding:
 
         # Waleed Part
         self.categorical_fields_handling()
-        #self.x_train = self.DSS.data_preprocessing( self )
-        # accuracy = self.DSS.training( self )
-        # print(accuracy)
+        self.x_train = self.DSS.data_preprocessing(self)
+        accuracy = self.DSS.training(self)
+        print(accuracy)
 
         # To determine best model parameter
         # self.DSS.determineBestHyperParameters( self )
@@ -114,94 +114,43 @@ class FDI_ASSESMENT(Fish):
 
     def data_initialization(self, file):
         print(' Data Initialization FDI_ASSESMENT')
-        self.data = pd.read_csv(file, usecols = self.features)
-        
-        #print(self.features)
-        print(self.data)
-        
-        # for wine dataset
-        # self.x_train = self.data.drop('Cultivator', axis=1)
-        # self.y_train = self.data['Cultivator']
-        # https://dzone.com/articles/pandas-find-rows-where-columnfield-is-null
-        # for finding nan
-        null_columns =  self.data.columns[ self.data.isnull().any()]
-        test= self.data[null_columns].isnull().sum()
-        print(test)
-        test1=self.data[self.data["fdi_assesment"].isnull()][null_columns]
-        print(test1)
-        self.data =  self.data.drop([2213, 2214], axis=0)
-        test3= self.data[self.data["fdi_assesment"].isnull()][null_columns]
-        print(test3)
-        self.data.reset_index(drop=True, inplace=True) # used to reset the index as we have used drop statement and we want to reuse that index.
+        self.data = pd.read_csv(file, usecols=self.features)
 
+        print(self.data['fdi_assesment'].isnull().sum().sum())
 
-        # For Fish data
-        self.x_train = self.data.drop('fdi_assesment', axis=1)
-        import numpy as np
-       
-      
+        #count_row = self.data.shape[0]  # gives number of row count
+        #count_col = self.data.shape[1]  # gives number of col count
+
+        # Drop rows from data in which Y has NaN
+        self.data  = self.data.dropna(how='any', subset=['fdi_assesment'])
+        print(self.data['fdi_assesment'].isnull().sum().sum())
+
+        #count_row = self.data.shape[0]  # gives number of row count
+        #count_col = self.data.shape[1]  # gives number of col count
+
+        self.x_train = self.data.drop('fdi_assesment', axis=1) #axis 1 for column
         self.y_train = self.data['fdi_assesment']
+
+        import numpy as np
         from sklearn.impute import SimpleImputer
         imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
-
-
-
-        # from sklearn.preprocessing import Imputer
-        # imputer = Imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
         imputer = imputer.fit(self.x_train)
-
         self.x_train = imputer.transform(self.x_train)
-    
-        print(self.x_train.round(decimals=2))
-
-        from sklearn.preprocessing import LabelEncoder
-        labelEncoder_Y = LabelEncoder()
-        y= labelEncoder_Y.fit_transform(self.data['fdi_assesment'])
-        print(y)
-
-
-        #https://towardsdatascience.com/preprocessing-regression-imputation-of-missing-continuous-values-f612179bafb4
-
-
-        # #import pandas as pd
-        # import numpy as np
-        # # explicitly require this experimental feature
-        # from sklearn.experimental import enable_iterative_imputer
-        # # now you can import normally from sklearn.impute
-        # from sklearn.impute import IterativeImputer
-        # from sklearn.ensemble import ExtraTreesRegressor
-        # from sklearn.linear_model import BayesianRidge
-        # import random
-        #
-        #
-        # imputer = IterativeImputer(BayesianRidge())
-        # #impute_data = pd.DataFrame(imputer.fit_transform(self.x_train))
-        #
-        # print(imputer.fit_transform(self.x_train))
-        
-        # import numpy as np
-        # from sklearn.experimental import enable_iterative_imputer
-        # from sklearn.impute import IterativeImputer
-        # imp = IterativeImputer(max_iter=10, random_state=0)
-        # imp.fit([[1, 2], [3, 6], [4, 8], [np.nan, 3], [7, np.nan]])
-
-        # X_test = [[np.nan, 2], [6, np.nan], [np.nan, 6]]
-        # # the model learns that the second feature is double the first
-        # print(np.round(imp.transform(X_test)))
-
-
 
     def categorical_fields_handling(self):
         print(' Categorical Fields Handling FDI_ASSESMENT')
+        from sklearn.preprocessing import LabelEncoder
+        labelEncoder_Y = LabelEncoder()
+        self.y_train = labelEncoder_Y.fit_transform(self.y_train)
 
-
-
-        pass
+        #save this in file or return to user for testing
+        print(labelEncoder_Y.classes_)
+        #self.y_train = labelEncoder_Y.inverse_transform(self.y_train)
 
     def start(self):
         # training_file = 'wine_data.csv'
         training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
         self.initiate_training(training_file)
 
-        # testing_file  = 'wine_data_test.csv'
-        # self.initiate_testing( testing_file )
+        testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
+        self.initiate_testing(testing_file)
