@@ -51,10 +51,9 @@ class Finding:
         print(' Initiate Training Process')
         self.data_initialization(file)
 
-        # Waleed Part
         self.categorical_fields_handling()
-        self.x_train = self.DSS.data_preprocessing(self)
-        accuracy = self.DSS.training(self)
+        # self.x_train = self.DSS.data_preprocessing(self)
+        # accuracy = self.DSS.training(self)
         print(accuracy)
 
         # To determine best model parameter
@@ -98,7 +97,7 @@ class FDI_ASSESMENT(Fish):
             # "species",
             # "group",
             "fish_no",
-            # "sex",
+            "sex",
             "total_length",  # cm
             "total_weight",  # g
             "latitude",  # [dec deg]
@@ -118,17 +117,14 @@ class FDI_ASSESMENT(Fish):
 
         print(self.data['fdi_assesment'].isnull().sum().sum())
 
-        #count_row = self.data.shape[0]  # gives number of row count
-        #count_col = self.data.shape[1]  # gives number of col count
+        # count_row = self.data.shape[0]  # gives number of row count
+        # count_col = self.data.shape[1]  # gives number of col count
 
         # Drop rows from data in which Y has NaN
-        self.data  = self.data.dropna(how='any', subset=['fdi_assesment'])
+        self.data = self.data.dropna(how='any', subset=['fdi_assesment'])
         print(self.data['fdi_assesment'].isnull().sum().sum())
 
-        #count_row = self.data.shape[0]  # gives number of row count
-        #count_col = self.data.shape[1]  # gives number of col count
-
-        self.x_train = self.data.drop('fdi_assesment', axis=1) #axis 1 for column
+        self.x_train = self.data.drop('fdi_assesment', axis=1)  # axis 1 for column
         self.y_train = self.data['fdi_assesment']
 
         import numpy as np
@@ -139,18 +135,25 @@ class FDI_ASSESMENT(Fish):
 
     def categorical_fields_handling(self):
         print(' Categorical Fields Handling FDI_ASSESMENT')
+
+        ############# Target variable ###############
         from sklearn.preprocessing import LabelEncoder
         labelEncoder_Y = LabelEncoder()
         self.y_train = labelEncoder_Y.fit_transform(self.y_train)
 
-        #save this in file or return to user for testing
+        # save this in file or return to user for testing
         print(labelEncoder_Y.classes_)
-        #self.y_train = labelEncoder_Y.inverse_transform(self.y_train)
+
+        ###########
+        from sklearn.preprocessing import OneHotEncoder
+        onehotencoder = OneHotEncoder(categorical_features=[0])
+        x = onehotencoder.fit_transform(self.x_train).toarray()
+        print(x)
 
     def start(self):
         # training_file = 'wine_data.csv'
         training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
         self.initiate_training(training_file)
 
-        testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
-        self.initiate_testing(testing_file)
+        # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
+        # self.initiate_testing(testing_file)
