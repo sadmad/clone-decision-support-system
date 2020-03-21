@@ -119,10 +119,10 @@ def find_amucad_objects():
 @app.route('/fish/training', methods=['GET'])
 def fish_training():
     
-    model_type = 4 #Random Forest
+    model_type = 2 #Random Forest
     
     #DSS model type is initialized
-    mdObject = md.FDI_ASSESMENT(model_type)
+    mdObject = md.FdiAssessment(model_type)
 
     
     mdObject.start();
