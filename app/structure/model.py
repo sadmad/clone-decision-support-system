@@ -106,6 +106,8 @@ class Finding:
                                                        ('cat', categorical_transformer, self.categoricalColumns)],
                                          remainder="passthrough").fit_transform(self.x_train)
 
+        print(self.x_train)
+
 
 class Fish(Finding):
 

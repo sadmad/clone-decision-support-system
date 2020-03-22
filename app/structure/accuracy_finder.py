@@ -12,7 +12,7 @@ class AccuracyFinder:
 
     @staticmethod
     def stratified_k_fold( model, x ,y ):
-        skfold = StratifiedKFold(n_splits=3, random_state=100)
+        skfold = StratifiedKFold(n_splits=5, random_state=100)
         results_skfold = model_selection.cross_val_score( model, x, y, cv=skfold)
         return results_skfold.mean()*100.0
 
