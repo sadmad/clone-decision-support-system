@@ -135,45 +135,61 @@ def validate_sex(n):
 class CreateRTInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
     assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
+
     station = fields.Int(required=True)
-    # year = fields.Int(required=True)
-    # month  = fields.Int(required=True)
-    # day = fields.Int(required=True)
+    year = fields.Int(required=True)
+    month = fields.Int(required=True)
+    day = fields.Int(required=True)
     group = fields.Str(required=True)
     sex = fields.Str(required=True, validate=validate_sex)
-    # fish_no = fields.Int(required=True)
-    # total_length = fields.Int(required=True)
-    # total_weight  = fields.Int(required=True)
-    # longitude = fields.Int(required=True)
-    # bottom_temperature = fields.Int(required=True)
-    # bottom_salinity  = fields.Int(required=True)
-    # bottom_oxygen_saturation = fields.Int(required=True)
-    # fdi = fields.Int(required=True)
+    fish_no = fields.Int(required=True)
+    total_length = fields.Int(required=True)
+    total_weight = fields.Int(required=True)
+    latitude = fields.Float(required=True)
+    longitude = fields.Float(required=True)
+    bottom_temperature = fields.Float(required=True)
+    bottom_salinity = fields.Float(required=True)
+    bottom_oxygen_saturation = fields.Float(required=True)
+    hydrography_depth = fields.Float(required=True)
+    fdi = fields.Float(required=True)
 
 
 @app.route('/finding/assessment', methods=['POST'])
-def Real_time_data_testing():
-    # station = year = month = day =group = sex = fish_no = total_length =total_weight = longitude = bottom_temperature = bottom_salinity =bottom_oxygen_saturation = fdi = None
+def finding_assessment():
     data = {}
     errors = CreateRTInputSchema().validate(request.form)
     if errors:
         message = {
-            'status': 404,
+            'status': 422,
             'message': str(errors),
         }
         resp = jsonify(message)
-        resp.status_code = 404
+        resp.status_code = 422
         return resp
 
     data['model_id'] = int(request.form.get('model_id'))
     data['assessment_id'] = int(request.form.get('assessment_id'))
-    data['station'] = request.form.get('station')
+
+    data['station'] = int(request.form.get('station'))
+    data['year'] = int(request.form.get('year'))
+    data['month'] = int(request.form.get('month'))
+    data['day'] = int(request.form.get('day'))
     data['group'] = request.form.get('group')
     data['sex'] = request.form.get('sex')
+    data['fish_no'] = request.form.get('fish_no')
+    data['total_length'] = int(request.form.get('total_length'))
+    data['total_weight'] = int(request.form.get('total_weight'))
+    data['latitude'] = float(request.form.get('latitude'))
+    data['longitude'] = float(request.form.get('longitude'))
+    data['bottom_temperature'] = float(request.form.get('bottom_temperature'))
+    data['bottom_salinity'] = float(request.form.get('bottom_salinity'))
+    data['bottom_oxygen_saturation'] = float(request.form.get('bottom_oxygen_saturation'))
+    data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
+    data['fdi'] = float(request.form.get('fdi'))
 
     if data['assessment_id'] == 1:
         mdObject = md.FdiAssessment(model_type=data['model_id'])
-    print(data['model_id'])
+    print(data)
 
     return 'Waleed'
 
