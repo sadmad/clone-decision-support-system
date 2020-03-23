@@ -2,7 +2,7 @@ from app import app
 import os
 from flask import Flask, request, jsonify, render_template
 from app.structure import dss
-#from app.structure import data_transformer as DT
+# from app.structure import data_transformer as DT
 # from marshmallow import Schema, fields
 from flask import abort
 
@@ -10,17 +10,14 @@ from marshmallow import Schema, fields, validate, ValidationError
 from app.structure import model as md
 
 
-
-
 class CreateDSSInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
     training = fields.Int(required=True, validate=validate.Range(min=0, max=1))
-    testing  = fields.Int(required=True, validate=validate.Range(min=0, max=1))
+    testing = fields.Int(required=True, validate=validate.Range(min=0, max=1))
 
 
 @app.route('/dss', methods=['POST'])
 def dss_main():
-
     model = model_name = training = testing = None
     create_dss_schema = CreateDSSInputSchema()
     errors = create_dss_schema.validate(request.form)
@@ -63,7 +60,7 @@ def dss_main():
 
             if modelObject.get_model() is not None:
 
-                DSS.save_model( modelObject.get_model() )
+                DSS.save_model(modelObject.get_model())
                 data = {
                     'model_id': model_id,
                     'model_name': modelObject.get_name(),
@@ -110,7 +107,6 @@ def cross_validation_kfold_main():
     return 'awais'
 
 
-
 @app.route('/amucad/api/find_amucad_objects/', methods=['GET'])
 def find_amucad_objects():
     obj = DT.DataTransformer()
@@ -119,62 +115,65 @@ def find_amucad_objects():
 
 @app.route('/fish/training', methods=['GET'])
 def fish_training():
-    
-    model_type = 1 #Random Forest
-    
-    #DSS model type is initialized
+    model_type = 1  # Random Forest
+
+    # DSS model type is initialized
     mdObject = md.FdiAssessment(model_type)
 
-    
     mdObject.start();
 
     return 'awais'
 
 
+# https://github.com/marshmallow-code/marshmallow
+
+def validate_sex(n):
+    if n != 'm' and n != 'w' and n != 'n':
+        raise ValidationError("Sex should be m,w or n")
+
+
 class CreateRTInputSchema(Schema):
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
     station = fields.Int(required=True)
-    year = fields.Int(required=True)
-    month  = fields.Int(required=True)
-    day = fields.Int(required=True)
-    group = fields.String(required=True)
-    sex  = fields.String(required=True)
-    fish_no = fields.Int(required=True)
-    total_length = fields.Int(required=True)
-    total_weight  = fields.Int(required=True)
-    longitude = fields.Int(required=True)
-    bottom_temperature = fields.Int(required=True)
-    bottom_salinity  = fields.Int(required=True)
-    bottom_oxygen_saturation = fields.Int(required=True)
-    fdi = fields.Int(required=True)
+    # year = fields.Int(required=True)
+    # month  = fields.Int(required=True)
+    # day = fields.Int(required=True)
+    group = fields.Str(required=True)
+    sex = fields.Str(required=True, validate=validate_sex)
+    # fish_no = fields.Int(required=True)
+    # total_length = fields.Int(required=True)
+    # total_weight  = fields.Int(required=True)
+    # longitude = fields.Int(required=True)
+    # bottom_temperature = fields.Int(required=True)
+    # bottom_salinity  = fields.Int(required=True)
+    # bottom_oxygen_saturation = fields.Int(required=True)
+    # fdi = fields.Int(required=True)
+
 
 @app.route('/finding/assessment', methods=['POST'])
 def Real_time_data_testing():
-    station = year = month = day =group = sex = fish_no = total_length =total_weight = longitude = bottom_temperature = bottom_salinity =bottom_oxygen_saturation = fdi = None
+    # station = year = month = day =group = sex = fish_no = total_length =total_weight = longitude = bottom_temperature = bottom_salinity =bottom_oxygen_saturation = fdi = None
+    data = {}
+    errors = CreateRTInputSchema().validate(request.form)
+    if errors:
+        message = {
+            'status': 404,
+            'message': str(errors),
+        }
+        resp = jsonify(message)
+        resp.status_code = 404
+        return resp
 
-    create_dss_schema = CreateRTInputSchema()
-    errors = create_dss_schema.validate(request.form)
-   # if errors:
-   #     message = {
-   #         'status': 404,
-   #         'message': str(errors),
-   #     }
-   #     resp = jsonify(message)
-   #     resp.status_code = 404
-   #     return resp
-    print(request.data)
-    if request.form.get('station'):
-        station = int(request.form.get('station'))
-        print()
-    if request.form.get('year'):
-        year = int(request.form.get('year'))
+    data['model_id'] = int(request.form.get('model_id'))
+    data['assessment_id'] = int(request.form.get('assessment_id'))
+    data['station'] = request.form.get('station')
+    data['group'] = request.form.get('group')
+    data['sex'] = request.form.get('sex')
 
-
-    #model_type = 1  # Random Forest
-
-    # DSS model type is initialized
-    #mdObject = md.FdiAssessment(model_type)
-
-   #mdObject.start();
+    if data['assessment_id'] == 1:
+        mdObject = md.FdiAssessment(model_type=data['model_id'])
+    print(data['model_id'])
 
     return 'Waleed'
 
