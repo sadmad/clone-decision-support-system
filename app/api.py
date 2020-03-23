@@ -157,7 +157,7 @@ class CreateRTInputSchema(Schema):
 @app.route('/finding/assessment', methods=['POST'])
 def finding_assessment():
     data = {}
-    errors = CreateRTInputSchema().validate(request.form)
+    errors = CreateRTInputSchema().validate(request.values.get)
     if errors:
         message = {
             'status': 422,
@@ -167,25 +167,25 @@ def finding_assessment():
         resp.status_code = 422
         return resp
 
-    data['model_id'] = int(request.form.get('model_id'))
-    data['assessment_id'] = int(request.form.get('assessment_id'))
+    data['model_id'] = int(request.values.get('model_id'))
+    data['assessment_id'] = int(request.values.get('assessment_id'))
 
-    data['station'] = int(request.form.get('station'))
-    data['year'] = int(request.form.get('year'))
-    data['month'] = int(request.form.get('month'))
-    data['day'] = int(request.form.get('day'))
-    data['group'] = request.form.get('group')
-    data['sex'] = request.form.get('sex')
-    data['fish_no'] = request.form.get('fish_no')
-    data['total_length'] = int(request.form.get('total_length'))
-    data['total_weight'] = int(request.form.get('total_weight'))
-    data['latitude'] = float(request.form.get('latitude'))
-    data['longitude'] = float(request.form.get('longitude'))
-    data['bottom_temperature'] = float(request.form.get('bottom_temperature'))
-    data['bottom_salinity'] = float(request.form.get('bottom_salinity'))
-    data['bottom_oxygen_saturation'] = float(request.form.get('bottom_oxygen_saturation'))
-    data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
-    data['fdi'] = float(request.form.get('fdi'))
+    data['station'] = int(request.values.get("station"))
+    data['year'] = int(request.values.get('year'))
+    data['month'] = int(request.values.get('month'))
+    data['day'] = int(request.values.get('day'))
+    data['group'] = request.values.get('group')
+    data['sex'] = request.values.get('sex')
+    data['fish_no'] = request.values.get('fish_no')
+    data['total_length'] = int(request.values.get('total_length'))
+    data['total_weight'] = int(request.values.get('total_weight'))
+    data['latitude'] = float(request.values.get('latitude'))
+    data['longitude'] = float(request.values.get('longitude'))
+    data['bottom_temperature'] = float(request.values.get('bottom_temperature'))
+    data['bottom_salinity'] = float(request.values.get('bottom_salinity'))
+    data['bottom_oxygen_saturation'] = float(request.values.get('bottom_oxygen_saturation'))
+    data['hydrography_depth'] = float(request.values.get('hydrography_depth'))
+    data['fdi'] = float(request.values.get('fdi'))
 
     if data['assessment_id'] == 1:
         mdObject = md.FdiAssessment(model_type=data['model_id'])
