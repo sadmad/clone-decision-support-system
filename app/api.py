@@ -11,6 +11,7 @@ from app.structure import model as md
 
 
 
+
 class CreateDSSInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
     training = fields.Int(required=True, validate=validate.Range(min=0, max=1))
@@ -128,6 +129,54 @@ def fish_training():
     mdObject.start();
 
     return 'awais'
+
+
+class CreateRTInputSchema(Schema):
+    station = fields.Int(required=True)
+    year = fields.Int(required=True)
+    month  = fields.Int(required=True)
+    day = fields.Int(required=True)
+    group = fields.String(required=True)
+    sex  = fields.String(required=True)
+    fish_no = fields.Int(required=True)
+    total_length = fields.Int(required=True)
+    total_weight  = fields.Int(required=True)
+    longitude = fields.Int(required=True)
+    bottom_temperature = fields.Int(required=True)
+    bottom_salinity  = fields.Int(required=True)
+    bottom_oxygen_saturation = fields.Int(required=True)
+    fdi = fields.Int(required=True)
+
+@app.route('/finding/assessment', methods=['POST'])
+def Real_time_data_testing():
+    station = year = month = day =group = sex = fish_no = total_length =total_weight = longitude = bottom_temperature = bottom_salinity =bottom_oxygen_saturation = fdi = None
+
+    create_dss_schema = CreateRTInputSchema()
+    errors = create_dss_schema.validate(request.form)
+   # if errors:
+   #     message = {
+   #         'status': 404,
+   #         'message': str(errors),
+   #     }
+   #     resp = jsonify(message)
+   #     resp.status_code = 404
+   #     return resp
+    print(request.data)
+    if request.form.get('station'):
+        station = int(request.form.get('station'))
+        print()
+    if request.form.get('year'):
+        year = int(request.form.get('year'))
+
+
+    #model_type = 1  # Random Forest
+
+    # DSS model type is initialized
+    #mdObject = md.FdiAssessment(model_type)
+
+   #mdObject.start();
+
+    return 'Waleed'
 
 
 from app import errors
