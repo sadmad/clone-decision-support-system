@@ -96,7 +96,7 @@ class Finding:
 
         labelEncoder_Y = LabelEncoder()
         self.y_train = labelEncoder_Y.fit_transform(self.y_train)
-
+        
         print(labelEncoder_Y.classes_)
 
         # Numeric Imputation
