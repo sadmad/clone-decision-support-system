@@ -132,6 +132,11 @@ def validate_sex(n):
         raise ValidationError("Sex should be m,w or n")
 
 
+def validate_group(n):
+    if n != 'EXT' and n != 'LEEXT':
+        raise ValidationError("Group should be EXT or LEEXT")
+
+
 class CreateRTInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
     assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
@@ -140,7 +145,7 @@ class CreateRTInputSchema(Schema):
     year = fields.Int(required=True)
     month = fields.Int(required=True)
     day = fields.Int(required=True)
-    group = fields.Str(required=True)
+    group = fields.Str(required=True, validate=validate_group)
     sex = fields.Str(required=True, validate=validate_sex)
     fish_no = fields.Int(required=True)
     total_length = fields.Int(required=True)
@@ -174,8 +179,10 @@ def finding_assessment():
     data['year'] = int(request.form.get('year'))
     data['month'] = int(request.form.get('month'))
     data['day'] = int(request.form.get('day'))
-    data['group'] = request.form.get('group')
+
     data['sex'] = request.form.get('sex')
+    data['group'] = request.form.get('group')
+
     data['fish_no'] = request.form.get('fish_no')
     data['total_length'] = int(request.form.get('total_length'))
     data['total_weight'] = int(request.form.get('total_weight'))
@@ -188,7 +195,27 @@ def finding_assessment():
     data['fdi'] = float(request.form.get('fdi'))
 
     if data['assessment_id'] == 1:
+        sex_m = sex_n = sex_w = 0
+        if data['sex'] == 'm':
+            sex_m = 1
+        elif data['sex'] == 'n':
+            sex_n = 1
+        elif data['sex'] == 'w':
+            sex_w = 1
+
+        group_EXT = group_LEEXT = 0
+        if data['group'] == 'EXT':
+            group_EXT = 1
+        if data['group'] == 'LEEXT':
+            group_LEEXT = 1
+
         mdObject = md.FdiAssessment(model_type=data['model_id'])
+        mdObject.predict_data([[data['station'], data['year'], data['month'], data['day'], data['fish_no'],
+                                data['total_length'], data['total_weight'], data['latitude'], data['longitude'],
+                                data['bottom_temperature'],
+                                data['bottom_salinity'], data['bottom_oxygen_saturation'], data['hydrography_depth'],
+                                data['fdi'],
+                                sex_m, sex_n, sex_w, group_EXT, group_LEEXT]])
     print(data)
 
     return 'Waleed'

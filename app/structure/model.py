@@ -16,22 +16,22 @@ from sklearn.impute import SimpleImputer
 def setDssNetwork(model_type):
     md = model_config = model_name = None
 
-    if (model_type == 1):
+    if model_type == 1:
         md = dss.NeuralNetwork()
         model_config = app.config['NEURAL_NETWORK_MODEL']
         model_name = 'NEURAL_NETWORK_MODEL'
 
-    elif (model_type == 2):
+    elif model_type == 2:
         md = dss.RandomForest()
         model_config = app.config['RANDOM_FOREST_CLASSIFIER_MODEL']
         model_name = 'RANDOM_FOREST_CLASSIFIER_MODEL'
 
-    elif (model_type == 3):
+    elif model_type == 3:
         md = dss.LinearRegressionM()
         model_config = app.config['LINEAR_REGRESSION_MODEL']
         model_name = 'LINEAR_REGRESSION_MODEL'
 
-    elif (model_type == 4):
+    elif model_type == 4:
         md = dss.LogisticRegressionM()
         model_config = app.config['LOGISTIC_REGRESSION_MODEL']
         model_name = 'LOGISTIC_REGRESSION_MODEL'
@@ -75,6 +75,14 @@ class Finding:
         else:
             print(' Model Not Found')
 
+    def predict_data(self, data):
+
+        if os.path.exists(self.trained_scaler_path) and os.path.exists(self.trained_model_path):
+            response = self.DSS.predict_data(self, data)
+            print(response)
+        else:
+            print(' Model Not Found')
+
     def data_initialization(self, file):
         print(' Data Initialization ')
 
@@ -88,6 +96,8 @@ class Finding:
 
         labelEncoder_Y = LabelEncoder()
         self.y_train = labelEncoder_Y.fit_transform(self.y_train)
+
+        print(labelEncoder_Y.classes_)
 
         # Numeric Imputation
         impute_numerical = SimpleImputer(strategy="mean")
@@ -126,13 +136,13 @@ class FdiAssessment(Fish):
             # "project",
             # "chemsea_sampleid",
             # "sample_id",
-            "station",
             # "cruise",
+            # "fi_area",
+            # "species",
+            "station",
             "year",
             "month",
             "day",
-            # "fi_area",
-            # "species",
             "group",
             "sex",
             "fish_no",
