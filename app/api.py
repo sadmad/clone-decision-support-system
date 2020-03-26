@@ -1,3 +1,5 @@
+import math
+
 from app import app
 import os
 from flask import Flask, request, jsonify, render_template
@@ -8,6 +10,8 @@ from flask import abort
 
 from marshmallow import Schema, fields, validate, ValidationError
 from app.structure import model as md
+import redis
+import json
 
 
 class CreateDSSInputSchema(Schema):
@@ -113,15 +117,28 @@ def find_amucad_objects():
     return obj.get_data()
 
 
-@app.route('/fish/training', methods=['GET'])
+class TrainingAPISchema(Schema):
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+
+
+@app.route('/fish/training', methods=['POST'])
 def fish_training():
-    model_type = 1  # Random Forest
-
+    errors = TrainingAPISchema().validate(request.form)
+    if errors:
+        message = {
+            'status': 422,
+            'message': str(errors),
+        }
+        resp = jsonify(message)
+        resp.status_code = 422
+        return resp
+    model_type = int(request.form.get('model_id'))  # Random Forest
+    assessment_id = int(request.form.get('assessment_id'))
     # DSS model type is initialized
-    mdObject = md.FdiAssessment(model_type)
-
-    mdObject.start();
-
+    if assessment_id == 1:
+        mdObject = md.FdiAssessment(model_type)
+        mdObject.start();
     return 'awais'
 
 
@@ -210,15 +227,44 @@ def finding_assessment():
             group_LEEXT = 1
 
         mdObject = md.FdiAssessment(model_type=data['model_id'])
-        mdObject.predict_data([[data['station'], data['year'], data['month'], data['day'], data['fish_no'],
-                                data['total_length'], data['total_weight'], data['latitude'], data['longitude'],
-                                data['bottom_temperature'],
-                                data['bottom_salinity'], data['bottom_oxygen_saturation'], data['hydrography_depth'],
-                                data['fdi'],
-                                sex_m, sex_n, sex_w, group_EXT, group_LEEXT]])
-    print(data)
+        prediction = mdObject.predict_data([[data['station'], data['year'], data['month'], data['day'], data['fish_no'],
+                                             data['total_length'], data['total_weight'], data['latitude'],
+                                             data['longitude'],
+                                             data['bottom_temperature'],
+                                             data['bottom_salinity'], data['bottom_oxygen_saturation'],
+                                             data['hydrography_depth'],
+                                             data['fdi'],
+                                             sex_m, sex_n, sex_w, group_EXT, group_LEEXT]])
 
-    return 'Waleed'
+        prd_response = status = message = None
+        if prediction is not None:
+            prediction_number = json.loads(prediction)[0]
+            number_dec = prediction_number - int(prediction_number)
+            if number_dec > 0.75:
+                prediction_number = math.ceil(prediction_number)
+            else:
+                prediction_number = math.floor(prediction_number)
+            model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
+            status = 200
+            prd_response = model_response_variable[prediction_number]
+            message = 'success'
+        else:
+            message = 'Please train model first.'
+            status = 422
+
+        message = {
+            'status': status,
+            'data': {
+                'assessment': mdObject.assessment_name,
+                'model': mdObject.model_name,
+                'prediction': prd_response,
+                'message': message
+            },
+        }
+        resp = jsonify(message)
+        resp.status_code = status
+        return resp
+    print(data)
 
 
 from app import errors

@@ -7,9 +7,11 @@ from app.structure import dss
 from app import app
 import os
 import pandas as pd
+import redis
+import json
 
 model_storage_folder = os.path.join(app.root_path, 'storage/models')
-import numpy as np
+
 from sklearn.impute import SimpleImputer
 
 
@@ -47,6 +49,8 @@ class Finding:
         self.data = None
         self.x_train = None
         self.y_train = None
+        self.response_variable_key = "'"+self.model_name + '_' + app.config['MODELS'][assesment_name] + "response"+"'"
+        self.assessment_name = assesment_name
         self.trained_scaler_path = os.path.join(model_storage_folder,
                                                 app.config['MODELS'][assesment_name] + self.model_config['scaler'])
         self.trained_model_path = os.path.join(model_storage_folder,
@@ -80,8 +84,10 @@ class Finding:
         if os.path.exists(self.trained_scaler_path) and os.path.exists(self.trained_model_path):
             response = self.DSS.predict_data(self, data)
             print(response)
+            return response
         else:
             print(' Model Not Found')
+            return None
 
     def data_initialization(self, file):
         print(' Data Initialization ')
@@ -92,12 +98,15 @@ class Finding:
         self.y_train = self.data[self.response_variable]
 
     def data_transformation(self):
-        print(' Data Preprocessing ')
+        print(' Data Prepossessing ')
 
         labelEncoder_Y = LabelEncoder()
         self.y_train = labelEncoder_Y.fit_transform(self.y_train)
-        
-        print(labelEncoder_Y.classes_)
+
+        r = redis.Redis()
+        r.delete(self.response_variable_key)
+        r.mset({self.response_variable_key: json.dumps(labelEncoder_Y.classes_.tolist())})
+
 
         # Numeric Imputation
         impute_numerical = SimpleImputer(strategy="mean")
