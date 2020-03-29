@@ -136,10 +136,32 @@ def fish_training():
     model_type = int(request.form.get('model_id'))  # Random Forest
     assessment_id = int(request.form.get('assessment_id'))
     # DSS model type is initialized
+    mdObject = accuracy = assessment_name = model_name = None
     if assessment_id == 1:
         mdObject = md.FdiAssessment(model_type)
-        mdObject.start();
-    return 'awais'
+        accuracy = mdObject.start();
+
+    if mdObject is not None:
+        assessment_name = mdObject.assessment_name
+        model_name = mdObject.model_name
+        message = 'Model trained successfully'
+        status = 200
+    else:
+        message = 'something went wrong, please contact admin'
+        status = 500
+
+    message = {
+        'status': status,
+        'data': {
+            'assessment': assessment_name,
+            'model': model_name,
+            'message': message,
+            'accuracy': accuracy
+        },
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp
 
 
 # https://github.com/marshmallow-code/marshmallow
@@ -239,13 +261,19 @@ def finding_assessment():
         prd_response = status = message = None
         if prediction is not None:
             prediction_number = json.loads(prediction)[0]
-            number_dec = prediction_number - int(prediction_number)
-            if number_dec > 0.75:
-                prediction_number = math.ceil(prediction_number)
-            else:
-                prediction_number = math.floor(prediction_number)
+
+            print(prediction_number)
+            # number_dec = prediction_number - int(prediction_number)
+            # if number_dec > 0.75:
+            #     prediction_number = math.ceil(prediction_number)
+            # else:
+            #     prediction_number = math.floor(prediction_number)
+
             model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
             status = 200
+
+            print(prediction_number)
+            print(model_response_variable)
             prd_response = model_response_variable[prediction_number]
             message = 'success'
         else:

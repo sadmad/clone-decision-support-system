@@ -65,6 +65,7 @@ class Finding:
         self.x_train = self.DSS.data_preprocessing(self)
         accuracy = self.DSS.training(self)
         print(accuracy)
+        return accuracy
 
         # To determine best model parameter
         # self.DSS.determineBestHyperParameters( self )
@@ -195,7 +196,7 @@ class FdiAssessment(Fish):
     def start(self):
         # training_file = 'wine_data.csv'
         training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
-        self.initiate_training(training_file)
+        return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
         # self.initiate_testing(testing_file)
