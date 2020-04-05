@@ -3,6 +3,8 @@ import math
 from app import app
 import os
 from flask import Flask, request, jsonify, render_template
+
+from app.input_schema import FDIInputSchema, CFInputSchema
 from app.structure import dss
 # from app.structure import data_transformer as DT
 # from marshmallow import Schema, fields
@@ -140,6 +142,9 @@ def fish_training():
     if assessment_id == 1:
         mdObject = md.FdiAssessment(model_type)
         accuracy = mdObject.start();
+    elif assessment_id == 2:
+        mdObject = md.CFAssessment(model_type)
+        accuracy = mdObject.start()
 
     if mdObject is not None:
         assessment_name = mdObject.assessment_name
@@ -164,76 +169,44 @@ def fish_training():
     return resp
 
 
-# https://github.com/marshmallow-code/marshmallow
-
-def validate_sex(n):
-    if n != 'm' and n != 'w' and n != 'n':
-        raise ValidationError("Sex should be m,w or n")
-
-
-def validate_group(n):
-    if n != 'EXT' and n != 'LEEXT':
-        raise ValidationError("Group should be EXT or LEEXT")
-
-
-class CreateRTInputSchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
-
-    station = fields.Int(required=True)
-    year = fields.Int(required=True)
-    month = fields.Int(required=True)
-    day = fields.Int(required=True)
-    group = fields.Str(required=True, validate=validate_group)
-    sex = fields.Str(required=True, validate=validate_sex)
-    fish_no = fields.Int(required=True)
-    total_length = fields.Int(required=True)
-    total_weight = fields.Int(required=True)
-    latitude = fields.Float(required=True)
-    longitude = fields.Float(required=True)
-    bottom_temperature = fields.Float(required=True)
-    bottom_salinity = fields.Float(required=True)
-    bottom_oxygen_saturation = fields.Float(required=True)
-    hydrography_depth = fields.Float(required=True)
-    fdi = fields.Float(required=True)
-
-
 @app.route('/finding/assessment', methods=['POST'])
 def finding_assessment():
     data = {}
-    errors = CreateRTInputSchema().validate(request.form)
-    if errors:
-        message = {
-            'status': 422,
-            'message': str(errors),
-        }
-        resp = jsonify(message)
-        resp.status_code = 422
-        return resp
-
-    data['model_id'] = int(request.form.get('model_id'))
     data['assessment_id'] = int(request.form.get('assessment_id'))
-
-    data['station'] = int(request.form.get('station'))
-    data['year'] = int(request.form.get('year'))
-    data['month'] = int(request.form.get('month'))
-    data['day'] = int(request.form.get('day'))
-
-    data['sex'] = request.form.get('sex')
-    data['group'] = request.form.get('group')
-
-    data['fish_no'] = request.form.get('fish_no')
-    data['total_length'] = int(request.form.get('total_length'))
-    data['total_weight'] = int(request.form.get('total_weight'))
-    data['latitude'] = float(request.form.get('latitude'))
-    data['longitude'] = float(request.form.get('longitude'))
-    data['bottom_temperature'] = float(request.form.get('bottom_temperature'))
-    data['bottom_salinity'] = float(request.form.get('bottom_salinity'))
-    data['bottom_oxygen_saturation'] = float(request.form.get('bottom_oxygen_saturation'))
-    data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
-    data['fdi'] = float(request.form.get('fdi'))
+    prediction = status = message = assessment_name = model_name = prediction_response = None
 
     if data['assessment_id'] == 1:
+        validation = FDIInputSchema().validate(request.form)
+        if validation:
+            message = {
+                'status': 422,
+                'message': str(validation),
+            }
+            resp = jsonify(message)
+            resp.status_code = 422
+            return resp
+
+        data['model_id'] = int(request.form.get('model_id'))
+
+        data['station'] = int(request.form.get('station'))
+        data['year'] = int(request.form.get('year'))
+        data['month'] = int(request.form.get('month'))
+        data['day'] = int(request.form.get('day'))
+
+        data['sex'] = request.form.get('sex')
+        data['group'] = request.form.get('group')
+
+        data['fish_no'] = request.form.get('fish_no')
+        data['total_length'] = int(request.form.get('total_length'))
+        data['total_weight'] = int(request.form.get('total_weight'))
+        data['latitude'] = float(request.form.get('latitude'))
+        data['longitude'] = float(request.form.get('longitude'))
+        data['bottom_temperature'] = float(request.form.get('bottom_temperature'))
+        data['bottom_salinity'] = float(request.form.get('bottom_salinity'))
+        data['bottom_oxygen_saturation'] = float(request.form.get('bottom_oxygen_saturation'))
+        data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
+        data['fdi'] = float(request.form.get('fdi'))
+
         sex_m = sex_n = sex_w = 0
         if data['sex'] == 'm':
             sex_m = 1
@@ -258,40 +231,75 @@ def finding_assessment():
                                              data['fdi'],
                                              sex_m, sex_n, sex_w, group_EXT, group_LEEXT]])
 
-        prd_response = status = message = None
-        if prediction is not None:
-            prediction_number = json.loads(prediction)[0]
+    elif data['assessment_id'] == 2:
+        validation = CFInputSchema().validate(request.form)
+        if validation:
+            message = {
+                'status': 422,
+                'message': str(validation),
+            }
+            resp = jsonify(message)
+            resp.status_code = 422
+            return resp
 
-            print(prediction_number)
-            # number_dec = prediction_number - int(prediction_number)
-            # if number_dec > 0.75:
-            #     prediction_number = math.ceil(prediction_number)
-            # else:
-            #     prediction_number = math.floor(prediction_number)
+        data['model_id'] = int(request.form.get('model_id'))
+        data['Cryp1'] = int(request.form.get('Cryp1'))
+        data['Cryp2'] = int(request.form.get('Cryp2'))
+        data['Cryp3'] = int(request.form.get('Cryp3'))
+        data['EpPap1'] = int(request.form.get('EpPap1'))
+        data['EpPap2'] = int(request.form.get('EpPap2'))
+        data['EpPap3'] = int(request.form.get('EpPap3'))
+        data['FinRot'] = int(request.form.get('FinRot'))
+        data['Locera1'] = int(request.form.get('Locera1'))
+        data['Locera2'] = int(request.form.get('Locera2'))
+        data['Locera3'] = int(request.form.get('Locera3'))
+        data['PBT'] = int(request.form.get('PBT'))
+        data['Skel1'] = int(request.form.get('Skel1'))
+        data['Skel2'] = int(request.form.get('Skel2'))
+        data['Skel3'] = int(request.form.get('Skel3'))
+        data['Ulc1'] = int(request.form.get('Ulc1'))
+        data['Ulc2'] = int(request.form.get('Ulc2'))
+        data['Ulc3'] = int(request.form.get('Ulc3'))
+        data['condition_factor'] = float(request.form.get('condition_factor'))
+        mdObject = md.CFAssessment(model_type=data['model_id'])
+        prediction = mdObject.predict_data(
+            [[data['Cryp1'], data['Cryp2'], data['Cryp3'], data['EpPap1'], data['EpPap2'], data['EpPap3'],
+              data['FinRot'], data['Locera1'], data['Locera2'], data['Locera3'], data['PBT'], data['Skel1'],
+              data['Skel2'], data['Skel3'], data['Ulc1'], data['Ulc2'], data['Ulc3'], data['condition_factor']]])
 
-            model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
-            status = 200
+    if prediction is not None:
+        prediction_number = json.loads(prediction)[0]
 
-            print(prediction_number)
-            print(model_response_variable)
-            prd_response = model_response_variable[prediction_number]
-            message = 'success'
-        else:
-            message = 'Please train model first.'
-            status = 422
+        print(prediction_number)
+        model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
+        status = 200
 
-        message = {
-            'status': status,
-            'data': {
-                'assessment': mdObject.assessment_name,
-                'model': mdObject.model_name,
-                'prediction': prd_response,
-                'message': message
-            },
-        }
-        resp = jsonify(message)
-        resp.status_code = status
-        return resp
+        print(prediction_number)
+        print(model_response_variable)
+        prd_response = model_response_variable[prediction_number]
+        message = 'success'
+
+        assessment_name = mdObject.assessment_name
+        model_name = mdObject.model_name
+        prediction_response = prd_response
+
+    else:
+        message = 'Please train model first.'
+        status = 422
+
+    message = {
+        'status': status,
+        'data': {
+            'assessment': assessment_name,
+            'model_name': model_name,
+            'prediction': prediction_response,
+            'message': message
+        },
+    }
+    resp = jsonify(message)
+    resp.status_code = status
+    return resp
+
     print(data)
 
 

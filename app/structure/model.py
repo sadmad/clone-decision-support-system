@@ -49,7 +49,8 @@ class Finding:
         self.data = None
         self.x_train = None
         self.y_train = None
-        self.response_variable_key = "'"+self.model_name + '_' + app.config['MODELS'][assesment_name] + "response"+"'"
+        self.response_variable_key = "'" + self.model_name + '_' + app.config['MODELS'][
+            assesment_name] + "response" + "'"
         self.assessment_name = assesment_name
         self.trained_scaler_path = os.path.join(model_storage_folder,
                                                 app.config['MODELS'][assesment_name] + self.model_config['scaler'])
@@ -107,7 +108,6 @@ class Finding:
         r = redis.Redis()
         r.delete(self.response_variable_key)
         r.mset({self.response_variable_key: json.dumps(labelEncoder_Y.classes_.tolist())})
-
 
         # Numeric Imputation
         impute_numerical = SimpleImputer(strategy="mean")
@@ -192,6 +192,75 @@ class FdiAssessment(Fish):
 
         # Response Variable
         self.response_variable = 'fdi_assesment'
+
+    def start(self):
+        # training_file = 'wine_data.csv'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        return self.initiate_training(training_file)
+
+        # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
+        # self.initiate_testing(testing_file)
+
+
+########
+
+class CFAssessment(Fish):
+
+    def __init__(self, model_type):
+        print(' FDI_ASSESMENT Constructor')
+        super().__init__(model_type, app.config['MODELS_ID_MAPPING'][1])
+        # All features
+        self.features = [
+            'Cryp1',
+            'Cryp2',
+            'Cryp3',
+            'EpPap1',
+            'EpPap2',
+            'EpPap3',
+            'FinRot',#
+            'Locera1',
+            'Locera2',
+            'Locera3',
+            'PBT', #
+            'Skel1',
+            'Skel2',
+            'Skel3',
+            'Ulc1',
+            'Ulc2',
+            'Ulc3',
+            'condition_factor',#
+            'cf_assessment'
+        ]
+
+        # Categorical Columns
+        self.categoricalColumns = [
+
+        ]
+
+        # Numeric Columns
+        self.numericalColumns = [
+            'Cryp1',
+            'Cryp2',
+            'Cryp3',
+            'EpPap1',
+            'EpPap2',
+            'EpPap3',
+            'FinRot',
+            'Locera1',
+            'Locera2',
+            'Locera3',
+            'PBT',
+            'Skel1',
+            'Skel2',
+            'Skel3',
+            'Ulc1',
+            'Ulc2',
+            'Ulc3',
+            'condition_factor'
+        ]
+
+        # Response Variable
+        self.response_variable = 'cf_assessment'
 
     def start(self):
         # training_file = 'wine_data.csv'
