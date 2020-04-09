@@ -63,6 +63,30 @@ class Finding:
         print(' Initiate Training Process')
         self.data_initialization(file)
         self.data_transformation()
+
+
+        # remove features with low variance 80% no change in below example
+        # from sklearn.feature_selection import VarianceThreshold
+        # sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
+        # test1 = sel.fit_transform(self.x_train)
+        # print('awais')
+
+
+        from numpy import set_printoptions
+        from sklearn.feature_selection import SelectKBest
+        from sklearn.feature_selection import f_classif
+
+        test = SelectKBest(score_func=f_classif, k=4)
+        fit = test.fit(self.x_train, self.y_train)
+        # summarize scores
+        set_printoptions(precision=3)
+        print(fit.scores_)
+        features = fit.transform(self.x_train)
+        # summarize selected features
+        print(features)
+
+
+
         self.x_train = self.DSS.data_preprocessing(self)
         accuracy = self.DSS.training(self)
         print(accuracy)
