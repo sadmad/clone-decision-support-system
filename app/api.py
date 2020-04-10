@@ -121,7 +121,7 @@ def find_amucad_objects():
 
 class TrainingAPISchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
 
 
 @app.route('/fish/training', methods=['POST'])
@@ -144,6 +144,31 @@ def fish_training():
         accuracy = mdObject.start();
     elif assessment_id == 2:
         mdObject = md.CFAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 3:
+        mdObject = md.LHIAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 4:
+        mdObject = md.MuscelCWAAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 5:
+        mdObject = md.LiverCWAAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 6:
+        mdObject = md.ERYAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 7:
+        mdObject = md.HBAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 8:
+        mdObject = md.GLUAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 9:
+        mdObject = md.HCTAssessment(model_type)
+        accuracy = mdObject.start()
+
+    elif assessment_id == 10:
+        mdObject = md.GillCWAAssessment(model_type)
         accuracy = mdObject.start()
 
     if mdObject is not None:
