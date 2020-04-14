@@ -121,7 +121,7 @@ class Finding:
         self.data = pd.read_csv(file, usecols=self.features)
 
         count_total_nan = self.data.isna().sum()
-        count_total_not_nan = self.data.isna().sum()
+        count_total_not_nan = self.data.notnull().sum()
         print(count_total_nan)
         print(count_total_not_nan)
         self.data = self.data.dropna(how='any', subset=[self.response_variable])
@@ -172,12 +172,12 @@ class FdiAssessment(Fish):
         super().__init__(model_type, app.config['MODELS_ID_MAPPING'][0])
         # All features
         self.features = [
-            # "project",
-            # "chemsea_sampleid",
-            # "sample_id",
-            # "cruise",
-            # "fi_area",
-            # "species",
+            "project",
+            "chemsea_sampleid",
+            "sample_id",
+            "cruise",
+            "fi_area",
+            "species",
             "station",
             "year",
             "month",
@@ -224,7 +224,8 @@ class FdiAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -293,7 +294,8 @@ class CFAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -326,7 +328,8 @@ class LHIAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -350,7 +353,7 @@ class MuscelCWAAssessment(Fish):
             'muscle_cryo_sample_ID',
             'liver_cryo_sample_ID',
             'muscle_CWA_sample_ID',
-            'muscelCWA_assessment'
+            #'muscelCWA_assessment'
         ]
 
         # Categorical Columns
@@ -377,7 +380,8 @@ class MuscelCWAAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -393,7 +397,7 @@ class LiverCWAAssessment(Fish):
         self.features = [
             'bile_CWA_sample_ID',
             'liver_CWA_sample_ID',
-            'liver_CWA_assessment'
+            # 'liver_CWA_assessment'
         ]
 
         # Categorical Columns
@@ -411,7 +415,8 @@ class LiverCWAAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -448,7 +453,8 @@ class ERYAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -481,7 +487,8 @@ class HBAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -514,7 +521,8 @@ class GLUAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -547,7 +555,8 @@ class HCTAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
@@ -569,8 +578,8 @@ class GillCWAAssessment(Fish):
             'liver_histo_routine_sample_ID',
             'histo_liver_tumour_sample_ID',
             'Histo_sample_ID',
-            'gill_CWA_sample_ID',
-            'gill_CWA_Assessment ',
+            # 'gill_CWA_sample_ID',
+            # 'gill_CWA_Assessment ',
             'otoliths_sample_ID'
         ]
 
@@ -597,7 +606,8 @@ class GillCWAAssessment(Fish):
 
     def start(self):
         # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        # training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Dorsch_total_CHEMSEA.CSV'
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
