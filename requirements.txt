@@ -3,6 +3,10 @@ joblib
 scikit-learn
 pandas
 marshmallow
+wheel
+pyopenssl
+requests
+requests_hawk
 Click==7.0
 Flask==1.0.2
 itsdangerous==1.1.0
