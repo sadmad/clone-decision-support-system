@@ -1,0 +1,425 @@
+{
+    "limit": 50,
+    "skip": 0,
+    "total": 13,
+    "max_detected_timestamp": "2020-03-10T06:25:00.000Z",
+    "min_detected_timestamp": "2002-06-04T11:00:00.000Z",
+    "data": [
+        {
+            "id": "31562",
+            "version": 1,
+            "name": "No2738",
+            "detected_timestamp": "2010-10-25T10:00:00.000Z",
+            "created": "2020-03-13T12:33:20.968Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 60,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2738,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        9.794817,
+                        54.82465
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "3"
+        },
+        {
+            "id": "31563",
+            "version": 1,
+            "name": "No2739",
+            "detected_timestamp": "2010-10-27T10:00:00.000Z",
+            "created": "2020-03-13T13:42:06.136Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 60,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2739,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        9.783667,
+                        54.814317
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31564",
+            "version": 1,
+            "name": "No2740",
+            "detected_timestamp": "2014-07-01T10:00:00.000Z",
+            "created": "2020-03-13T13:58:43.901Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2740,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.2832,
+                        54.49305
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31565",
+            "version": 1,
+            "name": "No2741",
+            "detected_timestamp": "2013-10-10T10:00:00.000Z",
+            "created": "2020-03-13T14:07:10.083Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2741,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.314797,
+                        54.483817
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31567",
+            "version": 1,
+            "name": "No2745",
+            "detected_timestamp": "2019-06-06T10:00:00.000Z",
+            "created": "2020-03-13T14:21:59.673Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2745,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.2030501,
+                        54.406133
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31568",
+            "version": 1,
+            "name": "No2746",
+            "detected_timestamp": "2017-07-10T10:00:00.000Z",
+            "created": "2020-03-13T14:30:05.901Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2746,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.167383,
+                        54.352367
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31569",
+            "version": 1,
+            "name": "No2747",
+            "detected_timestamp": "2017-05-16T10:00:00.000Z",
+            "created": "2020-03-13T14:44:16.088Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 85,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2747,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.1782,
+                        54.385233
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31570",
+            "version": 1,
+            "name": "No2749",
+            "detected_timestamp": "2019-06-11T10:00:00.000Z",
+            "created": "2020-03-13T14:47:49.195Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2749,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.583964,
+                        54.4917
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "4"
+        },
+        {
+            "id": "31571",
+            "version": 1,
+            "name": "No2750",
+            "detected_timestamp": "2016-09-11T10:00:00.000Z",
+            "created": "2020-03-13T14:52:18.470Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2750,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        10.845427,
+                        54.589407
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "4"
+        },
+        {
+            "id": "31572",
+            "version": 1,
+            "name": "No2751",
+            "detected_timestamp": "2019-09-16T10:00:00.000Z",
+            "created": "2020-03-13T14:55:09.136Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 80,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2751,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        11.077223,
+                        54.588378
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31573",
+            "version": 1,
+            "name": "No2752",
+            "detected_timestamp": "2016-12-14T11:00:00.000Z",
+            "created": "2020-03-13T20:46:22.678Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 100,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2752,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        11.133605,
+                        54.60209
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "0"
+        },
+        {
+            "id": "31574",
+            "version": 1,
+            "name": "No2753",
+            "detected_timestamp": "2016-12-13T11:00:00.000Z",
+            "created": "2020-03-13T20:50:05.013Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 80,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2753,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        11.087193,
+                        54.57396
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        },
+        {
+            "id": "31575",
+            "version": 1,
+            "name": "No2754",
+            "detected_timestamp": "2015-08-15T10:00:00.000Z",
+            "created": "2020-03-13T21:07:42.105Z",
+            "organisations_id": 1,
+            "users_name": "CBoettcher",
+            "confidence_level": 90,
+            "is_training_dataset": false,
+            "finding_object_types_id": 2,
+            "finding": {
+                "id": 2754,
+                "geom": {
+                    "type": "Point",
+                    "coordinates": [
+                        11.049997,
+                        54.582398
+                    ]
+                }
+            },
+            "organisation": {
+                "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+                "abbreviation": "MELUND"
+            },
+            "finding_object_type": {
+                "id": 2,
+                "name": "Ammunitions",
+                "description": null
+            },
+            "assessments_count": "2"
+        }
+    ]
+}

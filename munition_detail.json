@@ -1,0 +1,752 @@
+{
+    "id": "31575",
+    "version": 1,
+    "findings_id": 2754,
+    "finding_object_types_id": 2,
+    "organisations_id": 1,
+    "created": "2020-03-13T21:07:42.105Z",
+    "detected_timestamp": "2015-08-15T10:00:00.000Z",
+    "users_name": "CBoettcher",
+    "last_modifier": "CBoettcher",
+    "name": "No2754",
+    "description": "MSZ016/16",
+    "is_private": false,
+    "confidence_level": 90,
+    "is_training_dataset": false,
+    "finding": {
+        "id": 2754,
+        "geom": {
+            "type": "Point",
+            "coordinates": [
+                11.049997,
+                54.582398
+            ],
+            "crs": {
+                "type": "name",
+                "properties": {
+                    "name": "EPSG:3857"
+                }
+            }
+        },
+        "last_modifier": "CBoettcher"
+    },
+    "organisation": {
+        "id": 1,
+        "name": "Ministerium fuer Energiewende, Landwirtschaft, Umwelt, Natur und Digitalisierung",
+        "abbreviation": "MELUND",
+        "countries_id": 1,
+        "employee_ranges_id": null,
+        "organisation_types_id": null,
+        "logos_id": null,
+        "last_modifier": null
+    },
+    "type": {
+        "id": 2,
+        "geoserver_layer_name": "finding_ammunitions",
+        "last_modifier": null,
+        "finding_object_types_id": 2,
+        "name": "Ammunitions",
+        "description": null
+    },
+    "binaries": [],
+    "videos": [],
+    "user": {
+        "name": "CBoettcher",
+        "departments_id": null,
+        "department": null,
+        "actual_name": null
+    },
+    "risks": [],
+    "parameters": [],
+    "sediments": [],
+    "fishs": [],
+    "ammunitions": [
+        {
+            "id": 27,
+            "count": 1,
+            "ammunition_types_id": 137,
+            "last_modifier": "CBoettcher",
+            "ammunition_type": {
+                "id": 137,
+                "ammunition_categories_id": 1,
+                "ammunition_sub_categories_id": 2,
+                "name": "Unknown - Zylinder 30 - 40 cm (350 cm)",
+                "ammunition_types_id": 137
+            },
+            "object_parameters": [
+                {
+                    "id": 28,
+                    "finding_object_types_id": 2,
+                    "units_id": 1,
+                    "last_modifier": null,
+                    "parameters_values": {
+                        "relation": "equals",
+                        "value": 10
+                    },
+                    "unit": {
+                        "id": 1,
+                        "sibaseunits_id": null,
+                        "factor": null,
+                        "actions_id": null,
+                        "units_id": 1,
+                        "name": "(in %)"
+                    },
+                    "object_parameters_id": 28,
+                    "name": "Corrosion level",
+                    "description": null
+                },
+                {
+                    "id": 29,
+                    "finding_object_types_id": 2,
+                    "units_id": 1,
+                    "last_modifier": null,
+                    "parameters_values": {
+                        "relation": "equals",
+                        "value": 10
+                    },
+                    "unit": {
+                        "id": 1,
+                        "sibaseunits_id": null,
+                        "factor": null,
+                        "actions_id": null,
+                        "units_id": 1,
+                        "name": "(in %)"
+                    },
+                    "object_parameters_id": 29,
+                    "name": "Sediment cover",
+                    "description": null
+                }
+            ]
+        }
+    ],
+    "mussels": [],
+    "water_samples": [],
+    "contacts": [],
+    "assessments": [
+        {
+            "id": 31,
+            "actions_id": 1,
+            "protection_goods_id": 2,
+            "value": 56,
+            "uncertainty": 60,
+            "users_name": "CBoettcher",
+            "created": "2020-03-13T21:09:56.625Z",
+            "last_updated": null,
+            "finding_object": {
+                "version": 1
+            },
+            "finding_action": {
+                "id": 1,
+                "last_modifier": null,
+                "actions_id": 1,
+                "name": "Explosion"
+            },
+            "protection_good": {
+                "id": 2,
+                "last_modifier": null,
+                "protection_goods_id": 2,
+                "name": "Fisheries",
+                "description": null
+            },
+            "is_out_dated": false
+        },
+        {
+            "id": 32,
+            "actions_id": 1,
+            "protection_goods_id": 5,
+            "value": 95,
+            "uncertainty": 20,
+            "users_name": "CBoettcher",
+            "created": "2020-03-13T21:09:56.645Z",
+            "last_updated": null,
+            "finding_object": {
+                "version": 1
+            },
+            "finding_action": {
+                "id": 1,
+                "last_modifier": null,
+                "actions_id": 1,
+                "name": "Explosion"
+            },
+            "protection_good": {
+                "id": 5,
+                "last_modifier": null,
+                "protection_goods_id": 5,
+                "name": "Shipping",
+                "description": null
+            },
+            "is_out_dated": false
+        }
+    ],
+    "assessmentsAverage": [
+        {
+            "id": 2,
+            "name": "Fisheries",
+            "actions": [
+                {
+                    "id": 1,
+                    "name": "Explosion",
+                    "averageValue": 56
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Shipping",
+            "actions": [
+                {
+                    "id": 1,
+                    "name": "Explosion",
+                    "averageValue": 95
+                }
+            ]
+        }
+    ],
+    "environment": {
+        "regional_parameters": [
+            {
+                "id": 3,
+                "internal_name": "traffic_intensity",
+                "classifications": [
+                    {
+                        "id": 4,
+                        "data": "shipping_all_2016",
+                        "sources": [
+                            {
+                                "id": 9,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 4819,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 5,
+                        "data": "shipping_cargo_2016",
+                        "sources": [
+                            {
+                                "id": 10,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 1635,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 6,
+                        "data": "shipping_container_2016",
+                        "sources": [
+                            {
+                                "id": 11,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 1541,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 7,
+                        "data": "shipping_fishing_2016",
+                        "sources": [
+                            {
+                                "id": 12,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 14,
+                                        "classification": [
+                                            1,
+                                            "low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 8,
+                        "data": "shipping_other_2016",
+                        "sources": [
+                            {
+                                "id": 13,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 78,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 9,
+                        "data": "shipping_passenger_2016",
+                        "sources": [
+                            {
+                                "id": 14,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 118,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 10,
+                        "data": "shipping_rorocargo_2016",
+                        "sources": [
+                            {
+                                "id": 15,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 160,
+                                        "classification": [
+                                            3,
+                                            "high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 11,
+                        "data": "shipping_service_2016",
+                        "sources": [
+                            {
+                                "id": 16,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 55,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 12,
+                        "data": "shipping_tanker_2016",
+                        "sources": [
+                            {
+                                "id": 17,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 1219,
+                                        "classification": [
+                                            4,
+                                            "too high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "internal_name": "physical_features",
+                "classifications": [
+                    {
+                        "id": 17,
+                        "data": "current_velocity",
+                        "sources": [
+                            {
+                                "id": 7,
+                                "source": "IOW",
+                                "values": [
+                                    {
+                                        "attribute_name": "std",
+                                        "std": 0.0361044816672802,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    },
+                                    {
+                                        "attribute_name": "mean",
+                                        "mean": 0.0361044816672802,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 22,
+                        "data": "anoxic_level_probabilities",
+                        "sources": [
+                            {
+                                "id": 18,
+                                "source": "IOW",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 0,
+                                        "classification": [
+                                            0,
+                                            "very low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 23,
+                        "data": "oxygen_level_probabilities",
+                        "sources": [
+                            {
+                                "id": 19,
+                                "source": "IOW",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 0.940199335548173,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 18,
+                        "data": "seabed_slope",
+                        "sources": [
+                            {
+                                "id": 20,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 0.870524287223816,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 19,
+                        "data": "salinity",
+                        "sources": [
+                            {
+                                "id": 8,
+                                "source": "IOW",
+                                "values": [
+                                    {
+                                        "attribute_name": "std",
+                                        "std": 20.3035011291504,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    },
+                                    {
+                                        "attribute_name": "mean",
+                                        "mean": 20.3035011291504,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 20,
+                        "data": "temperature",
+                        "sources": [
+                            {
+                                "id": 22,
+                                "source": "IOW",
+                                "values": [
+                                    {
+                                        "attribute_name": "std",
+                                        "std": 9.31294345855713,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    },
+                                    {
+                                        "attribute_name": "mean",
+                                        "mean": 9.31294345855713,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": 1,
+                "internal_name": "biodiversity",
+                "classifications": [
+                    {
+                        "id": 1,
+                        "data": "benthic_habitats",
+                        "sources": [
+                            {
+                                "id": 2,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "bqr",
+                                        "bqr": 0.688,
+                                        "classification": [
+                                            2,
+                                            "medium"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 2,
+                        "data": "pelagic_habitats",
+                        "sources": [
+                            {
+                                "id": 1,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "bqr",
+                                        "bqr": 0.4,
+                                        "classification": [
+                                            1,
+                                            "low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 3,
+                        "data": "integrated_fish_assessments",
+                        "sources": [
+                            {
+                                "id": 3,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "bqr",
+                                        "bqr": 0.391666666667,
+                                        "classification": [
+                                            1,
+                                            "low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 24,
+                        "data": "harbour_porpoises",
+                        "sources": [
+                            {
+                                "id": 23,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 1,
+                                        "classification": [
+                                            3,
+                                            "high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "internal_name": "fisheries",
+                "classifications": [
+                    {
+                        "id": 14,
+                        "data": "fisheries_bottom_trawl",
+                        "sources": [
+                            {
+                                "id": 5,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 1130.492,
+                                        "classification": [
+                                            1,
+                                            "low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 15,
+                        "data": "fisheries_surface_midwater",
+                        "sources": [
+                            {
+                                "id": 4,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 1029,
+                                        "classification": [
+                                            0,
+                                            "very low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 16,
+                        "data": "coastal_and_stationary",
+                        "sources": [
+                            {
+                                "id": 6,
+                                "source": "HELCOM",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": 89.644,
+                                        "classification": [
+                                            0,
+                                            "very low"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": 5,
+                "internal_name": "bathymetry",
+                "classifications": [
+                    {
+                        "id": 21,
+                        "data": "depth",
+                        "sources": [
+                            {
+                                "id": 21,
+                                "source": "EMODnet",
+                                "values": [
+                                    {
+                                        "attribute_name": "value",
+                                        "value": -23.7999992370605,
+                                        "classification": [
+                                            999,
+                                            "unknown"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "infrastructures": {
+            "source": "HELCOM",
+            "data": [
+                {
+                    "name": "pipelines",
+                    "values": []
+                },
+                {
+                    "name": "cables",
+                    "values": []
+                },
+                {
+                    "name": "oil_platforms",
+                    "values": []
+                },
+                {
+                    "name": "bathingDistance",
+                    "values": []
+                },
+                {
+                    "name": "constructions",
+                    "values": []
+                },
+                {
+                    "name": "wind_farms",
+                    "values": []
+                }
+            ]
+        }
+    }
+}
