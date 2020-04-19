@@ -10,7 +10,6 @@ from requests_hawk import HawkAuth
 
 
 def egeos_authentication_api():
-
     base_url = app.config['EGEOS']['base_url']
     r_login_request = requests.post(base_url + '/auth/login_request',
                                     data={'username': app.config['EGEOS']['user_name']})
@@ -61,25 +60,85 @@ class DataTransformer:
 
         # Transforming data into csv format
         data = {}
+        self.__total_assessments = [
+            'Explosion_Fisheries',
+            'Explosion_Flora',
+            'Explosion_Divers',
+            'Explosion_Tourism',
+            'Explosion_Fisheries',
+
+            'Corrosion_Shipping',
+            'Corrosion_Flora',
+            'Corrosion_Divers',
+            'Corrosion_Tourism',
+            'Corrosion_Fisheries'
+        ]
         for key in self.__data:
             data[key] = {}
+
             data[key]['id'] = key
+            data[key]['confidence_level'] = self.__data[key]['confidence_level']
+            data[key]['coordinates_0'] = self.__data[key]['finding']['geom']['coordinates'][0]
+            data[key]['coordinates_1'] = self.__data[key]['finding']['geom']['coordinates'][1]
+            self.extract_ammunitions(key, data)
             self.extract_traffic_intensity(key, data)
             self.extract_physical_features(key, data)
             self.extract_biodiversity(key, data)
             self.extract_fisheries(key, data)
             self.extract_bathymetry(key, data)
-
+            self.extract_assessments(key, data)
         self.export_data_to_csv(data)
+
+    def extract_assessments(self, key, data):
+
+        for assessment in self.__data[key]['assessmentsAverage']:
+            protection_good_name = assessment['name']
+            for action in assessment['actions']:
+                action_name = action['name']
+                data[key][action_name + '_' + protection_good_name] = action['averageValue']
+
+        for item in self.__total_assessments:
+            if item not in data[key]:
+                data[key][item] = None
+
+    def extract_ammunitions(self, key, data):
+
+        data[key]['ammunition_type_id'] = self.__data[key]['ammunitions'][0]['ammunition_types_id']
+        data[key]['ammunition_type_name'] = self.__data[key]['ammunitions'][0]['ammunition_type']['name']
+
+        # we should have names of following two options, id does not make sense
+        data[key]['ammunition_categories_id'] = self.__data[key]['ammunitions'][0]['ammunition_type'][
+            'ammunition_categories_id']
+        data[key]['ammunition_sub_categories_id'] = self.__data[key]['ammunitions'][0]['ammunition_type'][
+            'ammunition_sub_categories_id']
+
+        try:
+            data[key]['corrosion_level'] = \
+                self.__data[key]['ammunitions'][0]['object_parameters'][0]['parameters_values']['value']
+        except IndexError:
+            data[key]['corrosion_level'] = None
+
+        try:
+            data[key]['sediment_cover'] = \
+                self.__data[key]['ammunitions'][0]['object_parameters'][1]['parameters_values']['value']
+        except IndexError:
+            data[key]['sediment_cover'] = None
+
+        try:
+            data[key]['bio_cover'] = self.__data[key]['ammunitions'][0]['object_parameters'][2]['parameters_values'][
+                'value']
+        except IndexError:
+            data[key]['bio_cover'] = None
+
     def extract_traffic_intensity(self, key, data):
 
         entity_name = self.__data[key]['environment']['regional_parameters'][0]['internal_name']
         for ti in self.__data[key]['environment']['regional_parameters'][0]['classifications']:
             data[key][entity_name + '_' + ti['data'] + '_value'] = ti['sources'][0]['values'][0]['value']
             data[key][entity_name + '_' + ti['data'] + '_value_classification_0'] = \
-            ti['sources'][0]['values'][0]['classification'][0]
+                ti['sources'][0]['values'][0]['classification'][0]
             data[key][entity_name + '_' + ti['data'] + '_value_classification_1'] = \
-            ti['sources'][0]['values'][0]['classification'][1]
+                ti['sources'][0]['values'][0]['classification'][1]
 
     def extract_physical_features(self, key, data):
         entity_name = self.__data[key]['environment']['regional_parameters'][1]['internal_name']
@@ -90,24 +149,24 @@ class DataTransformer:
 
                 data[key][entity_name + '_' + pf['data'] + '_std'] = pf['sources'][0]['values'][0]['std']
                 data[key][entity_name + '_' + pf['data'] + '_std_classification_0'] = \
-                pf['sources'][0]['values'][0]['classification'][0]
+                    pf['sources'][0]['values'][0]['classification'][0]
                 data[key][entity_name + '_' + pf['data'] + '_std_classification_1'] = \
-                pf['sources'][0]['values'][0]['classification'][1]
+                    pf['sources'][0]['values'][0]['classification'][1]
 
                 data[key][entity_name + '_' + pf['data'] + '_mean'] = pf['sources'][0]['values'][1]['mean']
                 data[key][entity_name + '_' + pf['data'] + '_mean_classification_0'] = \
-                pf['sources'][0]['values'][1]['classification'][0]
+                    pf['sources'][0]['values'][1]['classification'][0]
                 data[key][entity_name + '_' + pf['data'] + '_mean_classification_1'] = \
-                pf['sources'][0]['values'][1]['classification'][1]
+                    pf['sources'][0]['values'][1]['classification'][1]
 
             elif pf['data'] == "anoxic_level_probabilities" or pf['data'] == "oxygen_level_probabilities" or pf[
                 'data'] == "seabed_slope":
 
                 data[key][entity_name + '_' + pf['data'] + '_value'] = pf['sources'][0]['values'][0]['value']
                 data[key][entity_name + '_' + pf['data'] + '_value_classification_0'] = \
-                pf['sources'][0]['values'][0]['classification'][0]
+                    pf['sources'][0]['values'][0]['classification'][0]
                 data[key][entity_name + '_' + pf['data'] + '_value_classification_1'] = \
-                pf['sources'][0]['values'][0]['classification'][1]
+                    pf['sources'][0]['values'][0]['classification'][1]
 
     def extract_biodiversity(self, key, data):
         entity_name = self.__data[key]['environment']['regional_parameters'][2]['internal_name']
@@ -185,4 +244,3 @@ class DataTransformer:
 
         data_frame = pd.DataFrame.from_dict(data, orient='index')
         data_frame.to_csv(r'amucad_dataset.csv', index=False)
-        
