@@ -1,0 +1,74 @@
+sudo apt-get install libapache2-mod-wsgi-py3
+
+
+sudo apt-get install -y python3-dev
+
+sudo apt install python3-pip
+
+sudo apt install python3-flask
+
+
+
+
+#Virtual Environment
+
+sudo apt install python3-venv
+
+python3 -m venv venv
+
+. venv/bin/activate
+
+
+
+
+pip install Flask
+
+python -m flask --version
+
+
+pip install -r requirements.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://terokarvinen.com/2016/deploy-flask-python3-on-apache2-ubuntu
+
+Created virtual host with following code and enabled it
+
+
+sudo ln -s /etc/apache2/sites-available/FlaskApp.conf /etc/apache2/sites-enabled/
+
+
+
+
+<VirtualHost *>
+	 ServerName dss.test
+	 WSGIDaemonProcess run user=malik group=malik threads=5
+	 WSGIScriptAlias / /home/git/decision-support-system/flaskapp.wsgi
+	<Directory /home/git/decision-support-system/>
+	 WSGIProcessGroup run
+	 WSGIApplicationGroup %{GLOBAL}
+	 WSGIScriptReloading On
+	 Require all granted
+	</Directory>
+</VirtualHost>
