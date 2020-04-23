@@ -1,8 +1,6 @@
 from flask import Flask
 
-
 app = Flask(__name__)
-
 
 if app.config["ENV"] == "production":
 
@@ -15,7 +13,6 @@ elif app.config["ENV"] == "development":
 else:
 
     app.config.from_object("config.ProductionConfig")
-
 
 from app import views
 

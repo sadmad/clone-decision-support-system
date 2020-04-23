@@ -30,13 +30,13 @@ def cross_validation_kfold_main():
     return 'awais'
 
 
-@app.route('/amucad/api/find_amucad_objects/', methods=['GET'])
+@app.route('/amucad/api/data_transformation/', methods=['GET'])
 def find_amucad_objects():
     obj = DT.DataTransformer()
     return obj.get_data()
 
 
-@app.route('/fish/training', methods=['POST'])
+@app.route('/dss/training', methods=['POST'])
 def fish_training():
     errors = TrainingAPISchema().validate(request.form)
     if errors:
@@ -47,7 +47,7 @@ def fish_training():
         resp = jsonify(message)
         resp.status_code = 422
         return resp
-    model_type = int(request.form.get('model_id'))  # Random Forest
+    model_type = int(request.form.get('model_id'))
     assessment_id = int(request.form.get('assessment_id'))
     # DSS model type is initialized
     mdObject = accuracy = assessment_name = model_name = None

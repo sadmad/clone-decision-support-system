@@ -125,11 +125,84 @@ class Finding:
         print(self.x_train)
 
 
+class Munition(Finding):
+
+    def __init__(self, model_type, assessment_name):
+        print(' Munition Constructor')
+        super().__init__(model_type, assessment_name)
+
+
+class ExplosionFisheries(Munition):
+
+    def __init__(self, model_type):
+        print(' ExplosionFisheries ASSESSMENT Constructor')
+        super().__init__(model_type, app.config['MODELS_ID_MAPPING'][1])
+        # All features
+        self.features = [
+            'Cryp1',
+            'Cryp2',
+            'Cryp3',
+            'EpPap1',
+            'EpPap2',
+            'EpPap3',
+            'FinRot',  #
+            'Locera1',
+            'Locera2',
+            'Locera3',
+            'PBT',  #
+            'Skel1',
+            'Skel2',
+            'Skel3',
+            'Ulc1',
+            'Ulc2',
+            'Ulc3',
+            'condition_factor',  #
+            'cf_assessment'
+        ]
+
+        # Categorical Columns
+        self.categoricalColumns = [
+
+        ]
+
+        # Numeric Columns
+        self.numericalColumns = [
+            'Cryp1',
+            'Cryp2',
+            'Cryp3',
+            'EpPap1',
+            'EpPap2',
+            'EpPap3',
+            'FinRot',
+            'Locera1',
+            'Locera2',
+            'Locera3',
+            'PBT',
+            'Skel1',
+            'Skel2',
+            'Skel3',
+            'Ulc1',
+            'Ulc2',
+            'Ulc3',
+            'condition_factor'
+        ]
+
+        # Response Variable
+        self.response_variable = 'cf_assessment'
+
+    def start(self):
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.csv")
+        return self.initiate_training(training_file)
+
+        # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
+        # self.initiate_testing(testing_file)
+
+
 class Fish(Finding):
 
-    def __init__(self, model_type, assesment_name):
+    def __init__(self, model_type, assessment_name):
         print(' Fish Constructor')
-        super().__init__(model_type, assesment_name)
+        super().__init__(model_type, assessment_name)
 
 
 class FdiAssessment(Fish):
