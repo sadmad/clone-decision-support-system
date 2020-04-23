@@ -40,7 +40,7 @@ def setDssNetwork(model_type):
 
 
 class Finding:
-    def __init__(self, model_type, assesment_name):
+    def __init__(self, model_type, assessment_name):
         print(' Findings Constructor')
         # data members
         self.DSS, self.model_config, self.model_name = setDssNetwork(model_type)
@@ -48,12 +48,12 @@ class Finding:
         self.x_train = None
         self.y_train = None
         self.response_variable_key = "'" + self.model_name + '_' + app.config['MODELS'][
-            assesment_name] + "response" + "'"
-        self.assessment_name = assesment_name
+            assessment_name] + "response" + "'"
+        self.assessment_name = assessment_name
         self.trained_scaler_path = os.path.join(app.config['STORAGE_DIRECTORY'],
-                                                app.config['MODELS'][assesment_name] + self.model_config['scaler'])
+                                                app.config['MODELS'][assessment_name] + self.model_config['scaler'])
         self.trained_model_path = os.path.join(app.config['STORAGE_DIRECTORY'],
-                                               app.config['MODELS'][assesment_name] + self.model_config['model'])
+                                               app.config['MODELS'][assessment_name] + self.model_config['model'])
 
     def initiate_training(self, file):
         print(' Initiate Training Process')
@@ -132,70 +132,100 @@ class Munition(Finding):
         super().__init__(model_type, assessment_name)
 
 
-class ExplosionFisheries(Munition):
+class ExplosionFisheriesAssessment(Munition):
 
     def __init__(self, model_type):
         print(' ExplosionFisheries ASSESSMENT Constructor')
-        super().__init__(model_type, app.config['MODELS_ID_MAPPING'][1])
-        # All features
+        super().__init__(model_type, app.config['MODELS_ID_MAPPING'][10])
+        # All features from data set file
         self.features = [
-            'Cryp1',
-            'Cryp2',
-            'Cryp3',
-            'EpPap1',
-            'EpPap2',
-            'EpPap3',
-            'FinRot',  #
-            'Locera1',
-            'Locera2',
-            'Locera3',
-            'PBT',  #
-            'Skel1',
-            'Skel2',
-            'Skel3',
-            'Ulc1',
-            'Ulc2',
-            'Ulc3',
-            'condition_factor',  #
-            'cf_assessment'
+            'confidence_level',
+            'coordinates_0',
+            'coordinates_1',
+            'ammunition_type_id',
+            'ammunition_categories_id',
+            'ammunition_sub_categories_id',
+            'corrosion_level',  #
+            'sediment_cover',
+            'bio_cover',
+            'traffic_intensity_shipping_all_2016_value',
+            'traffic_intensity_shipping_cargo_2016_value',  #
+            'traffic_intensity_shipping_container_2016_value',
+            'traffic_intensity_shipping_fishing_2016_value',
+            'traffic_intensity_shipping_other_2016_value',
+            'traffic_intensity_shipping_passenger_2016_value',
+            'traffic_intensity_shipping_rorocargo_2016_value',
+            'traffic_intensity_shipping_service_2016_value',
+            'traffic_intensity_shipping_tanker_2016_value',  #
+            'physical_features_current_velocity_std',
+            'physical_features_current_velocity_mean',
+            'physical_features_anoxic_level_probabilities_value',
+            'physical_features_oxygen_level_probabilities_value',
+            'physical_features_seabed_slope_value',
+            'physical_features_salinity_std',
+            'physical_features_salinity_mean',
+            'physical_features_temperature_std',
+            'physical_features_temperature_mean',
+            'biodiversity_benthic_habitats_bqr',
+            'biodiversity_pelagic_habitats_bqr',
+            'biodiversity_integrated_fish_assessments_bqr',
+            'biodiversity_harbour_porpoises_value',
+            'fisheries_fisheries_bottom_trawl_value',
+            'fisheries_fisheries_surface_midwater_value',
+            'fisheries_coastal_and_stationary_value',
+            'bathymetry_depth_value',
+            'Explosion_Fisheries',
         ]
 
-        # Categorical Columns
+        # Write only Categorical Columns here i.e strings or columns with ranges
         self.categoricalColumns = [
-
+            'ammunition_type_id',
+            'ammunition_categories_id',
+            'ammunition_sub_categories_id',
         ]
 
-        # Numeric Columns
+        # Write only Numeric Columns here
         self.numericalColumns = [
-            'Cryp1',
-            'Cryp2',
-            'Cryp3',
-            'EpPap1',
-            'EpPap2',
-            'EpPap3',
-            'FinRot',
-            'Locera1',
-            'Locera2',
-            'Locera3',
-            'PBT',
-            'Skel1',
-            'Skel2',
-            'Skel3',
-            'Ulc1',
-            'Ulc2',
-            'Ulc3',
-            'condition_factor'
+            'confidence_level',
+            'coordinates_0',
+            'coordinates_1',
+            'corrosion_level',  #
+            'sediment_cover',
+            'bio_cover',
+            'traffic_intensity_shipping_all_2016_value',
+            'traffic_intensity_shipping_cargo_2016_value',  #
+            'traffic_intensity_shipping_container_2016_value',
+            'traffic_intensity_shipping_fishing_2016_value',
+            'traffic_intensity_shipping_other_2016_value',
+            'traffic_intensity_shipping_passenger_2016_value',
+            'traffic_intensity_shipping_rorocargo_2016_value',
+            'traffic_intensity_shipping_service_2016_value',
+            'traffic_intensity_shipping_tanker_2016_value',  #
+            'physical_features_current_velocity_std',
+            'physical_features_current_velocity_mean',
+            'physical_features_anoxic_level_probabilities_value',
+            'physical_features_oxygen_level_probabilities_value',
+            'physical_features_seabed_slope_value',
+            'physical_features_salinity_std',
+            'physical_features_salinity_mean',
+            'physical_features_temperature_std',
+            'physical_features_temperature_mean',
+            'biodiversity_benthic_habitats_bqr',
+            'biodiversity_pelagic_habitats_bqr',
+            'biodiversity_integrated_fish_assessments_bqr',
+            'biodiversity_harbour_porpoises_value',
+            'fisheries_fisheries_bottom_trawl_value',
+            'fisheries_fisheries_surface_midwater_value',
+            'fisheries_coastal_and_stationary_value',
+            'bathymetry_depth_value'
         ]
 
-        # Response Variable
-        self.response_variable = 'cf_assessment'
+        # Write only Response Variable: should be 1 variable
+        self.response_variable = 'Explosion_Fisheries'
 
     def start(self):
-        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.csv")
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "amucad_dataset.csv")
         return self.initiate_training(training_file)
-
-        # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
-        # self.initiate_testing(testing_file)
 
 
 class Fish(Finding):
@@ -210,7 +240,7 @@ class FdiAssessment(Fish):
     def __init__(self, model_type):
         print(' FDI_ASSESMENT Constructor')
         super().__init__(model_type, app.config['MODELS_ID_MAPPING'][0])
-        # All features
+        # All features from data set file
         self.features = [
             # "project",
             # "chemsea_sampleid",
@@ -238,10 +268,10 @@ class FdiAssessment(Fish):
             # [G: green, good health status; Y: yellow, medium health status; R: red, bad health status]
         ]
 
-        # Categorical Columns
+        # Write only Categorical Columns here i.e strings or columns with ranges
         self.categoricalColumns = ["sex", "group"]
 
-        # Numeric Columns
+        # Write only Numeric Columns here
         self.numericalColumns = [
             "station",
             "year",
@@ -259,7 +289,7 @@ class FdiAssessment(Fish):
             "fdi",  # fish disease index (FDI) (TI-FI)
         ]
 
-        # Response Variable
+        # Write only Response Variable: should be 1 variable
         self.response_variable = 'fdi_assesment'
 
     def start(self):
@@ -269,14 +299,12 @@ class FdiAssessment(Fish):
         # self.initiate_testing(testing_file)
 
 
-########
-
 class CFAssessment(Fish):
 
     def __init__(self, model_type):
         print(' FDI_ASSESMENT Constructor')
         super().__init__(model_type, app.config['MODELS_ID_MAPPING'][1])
-        # All features
+        # All features from data set file
         self.features = [
             'Cryp1',
             'Cryp2',
@@ -299,12 +327,12 @@ class CFAssessment(Fish):
             'cf_assessment'
         ]
 
-        # Categorical Columns
+        # Write only Categorical Columns here i.e strings or columns with ranges
         self.categoricalColumns = [
 
         ]
 
-        # Numeric Columns
+        # Write only Numeric Columns here
         self.numericalColumns = [
             'Cryp1',
             'Cryp2',
@@ -326,7 +354,7 @@ class CFAssessment(Fish):
             'condition_factor'
         ]
 
-        # Response Variable
+        # Write only Response Variable: should be 1 variable
         self.response_variable = 'cf_assessment'
 
     def start(self):

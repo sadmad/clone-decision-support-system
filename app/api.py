@@ -57,7 +57,9 @@ def fish_training():
     elif assessment_id == 2:
         mdObject = md.CFAssessment(model_type)
         accuracy = mdObject.start()
-
+    elif assessment_id == 3:
+        mdObject = md.ExplosionFisheriesAssessment(model_type)
+        accuracy = mdObject.start()
     if mdObject is not None:
         assessment_name = mdObject.assessment_name
         model_name = mdObject.model_name

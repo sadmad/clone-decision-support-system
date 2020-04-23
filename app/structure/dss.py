@@ -26,7 +26,8 @@ class DSS:
     def fit(self, classifier, finding):
         fit_model = classifier.fit(finding.x_train, finding.y_train)
         self.save_model(fit_model, finding)
-        return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
+        return 0
+        #return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
 
     def save_model(self, model, finding):
         print(' DSS Save Model')
