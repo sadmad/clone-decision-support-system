@@ -1,0 +1,30 @@
+
+
+
+AMUCAD URLS:
+
+
+
+
+
+http://www.amucad.org/api/daimon/finding_objects?finding_object_types_id=2
+http://www.amucad.org/api/daimon/finding_objects/31562?$with_regional_params=true
+
+
+
+
+
+
+
+http://www.amucad.org/api/finding_objects/7000?with_regional_params=true
+
+
+to get the available actions and protection goods you need to get them using GET 
+..../api/descision_support_system/protection_goods
+
+
+and ..../api/descision_support_system/actions
+
+the value is the value of the risk
+for this protection good and action
+and the measures array you can ignore for now

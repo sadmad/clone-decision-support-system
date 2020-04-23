@@ -11,10 +11,9 @@ from app.structure import dss
 from flask import abort
 
 from marshmallow import Schema, fields, validate, ValidationError
-from app.structure import model as md
+from app.structure import model as md, data_transformer as DT
 import redis
 import json
-
 
 class CreateDSSInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
