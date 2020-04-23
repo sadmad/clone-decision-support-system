@@ -57,3 +57,8 @@ class CFInputSchema(Schema):
     Ulc2 = fields.Int(required=True)
     Ulc3 = fields.Int(required=True)
     condition_factor = fields.Float(required=True)
+
+
+class TrainingAPISchema(Schema):
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))

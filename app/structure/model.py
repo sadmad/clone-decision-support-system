@@ -10,8 +10,6 @@ import pandas as pd
 import redis
 import json
 
-model_storage_folder = os.path.join(app.root_path, 'storage/models')
-
 from sklearn.impute import SimpleImputer
 
 
@@ -52,12 +50,10 @@ class Finding:
         self.response_variable_key = "'" + self.model_name + '_' + app.config['MODELS'][
             assesment_name] + "response" + "'"
         self.assessment_name = assesment_name
-        self.trained_scaler_path = os.path.join(model_storage_folder,
+        self.trained_scaler_path = os.path.join(app.config['STORAGE_DIRECTORY'],
                                                 app.config['MODELS'][assesment_name] + self.model_config['scaler'])
-        self.trained_model_path = os.path.join(model_storage_folder,
+        self.trained_model_path = os.path.join(app.config['STORAGE_DIRECTORY'],
                                                app.config['MODELS'][assesment_name] + self.model_config['model'])
-        if not os.path.exists(model_storage_folder):
-            os.makedirs(model_storage_folder)
 
     def initiate_training(self, file):
         print(' Initiate Training Process')
@@ -194,10 +190,8 @@ class FdiAssessment(Fish):
         self.response_variable = 'fdi_assesment'
 
     def start(self):
-        # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.csv")
         return self.initiate_training(training_file)
-
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
         # self.initiate_testing(testing_file)
 
@@ -217,18 +211,18 @@ class CFAssessment(Fish):
             'EpPap1',
             'EpPap2',
             'EpPap3',
-            'FinRot',#
+            'FinRot',  #
             'Locera1',
             'Locera2',
             'Locera3',
-            'PBT', #
+            'PBT',  #
             'Skel1',
             'Skel2',
             'Skel3',
             'Ulc1',
             'Ulc2',
             'Ulc3',
-            'condition_factor',#
+            'condition_factor',  #
             'cf_assessment'
         ]
 
@@ -263,8 +257,7 @@ class CFAssessment(Fish):
         self.response_variable = 'cf_assessment'
 
     def start(self):
-        # training_file = 'wine_data.csv'
-        training_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI.CSV'
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.csv")
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'

@@ -73,6 +73,7 @@ class ProductionConfig(Config):
     }
 
     CACHE_API = 1
+    STORAGE_DIRECTORY = './storage/'
 
 class DevelopmentConfig(Config):
     """
@@ -135,5 +136,6 @@ class DevelopmentConfig(Config):
     }
 
     CACHE_API = 1
+    STORAGE_DIRECTORY = './storage/'
 
 

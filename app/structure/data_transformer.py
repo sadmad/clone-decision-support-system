@@ -238,9 +238,10 @@ class DataTransformer:
 
     def export_data_to_csv(self, data):
 
-        file_name = "amucad_dataset.csv"
-        if os.path.exists(file_name):
-            os.remove(file_name)
-
+        directory = app.config['STORAGE_DIRECTORY']
+        filename = "amucad_dataset.csv"
+        file_path = os.path.join(directory, filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
         data_frame = pd.DataFrame.from_dict(data, orient='index')
-        data_frame.to_csv(r'amucad_dataset.csv', index=False)
+        data_frame.to_csv(file_path, index=False)
