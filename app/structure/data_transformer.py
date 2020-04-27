@@ -53,13 +53,8 @@ def egeos_authentication_api():
         return data
 
 
-class DataTransformer:
-
+class Amucad:
     def __init__(self):
-        self.__data = self.load_data()
-
-        # Transforming data into csv format
-        data = {}
         self.__total_assessments = [
             'Explosion_Fisheries',
             'Explosion_Flora',
@@ -73,9 +68,12 @@ class DataTransformer:
             'Corrosion_Tourism',
             'Corrosion_Fisheries'
         ]
+        self.__data = None
+
+    def data_parser(self):
+        data = {}
         for key in self.__data:
             data[key] = {}
-
             data[key]['id'] = key
             data[key]['confidence_level'] = self.__data[key]['confidence_level']
             data[key]['coordinates_0'] = self.__data[key]['finding']['geom']['coordinates'][0]
@@ -87,10 +85,14 @@ class DataTransformer:
             self.extract_fisheries(key, data)
             self.extract_bathymetry(key, data)
             self.extract_assessments(key, data)
-        self.export_data_to_csv(data)
+        return data
+
+    def transform_objects_to_csv(self):
+        self.__data = self.load_data()
+        # Transforming data into csv format
+        self.export_data_to_csv(self.data_parser())
 
     def extract_assessments(self, key, data):
-
         for assessment in self.__data[key]['assessmentsAverage']:
             protection_good_name = assessment['name']
             for action in assessment['actions']:
@@ -102,7 +104,6 @@ class DataTransformer:
                 data[key][item] = None
 
     def extract_ammunitions(self, key, data):
-
         data[key]['ammunition_type_id'] = self.__data[key]['ammunitions'][0]['ammunition_types_id']
         data[key]['ammunition_type_name'] = self.__data[key]['ammunitions'][0]['ammunition_type']['name']
 
@@ -131,7 +132,6 @@ class DataTransformer:
             data[key]['bio_cover'] = None
 
     def extract_traffic_intensity(self, key, data):
-
         entity_name = self.__data[key]['environment']['regional_parameters'][0]['internal_name']
         for ti in self.__data[key]['environment']['regional_parameters'][0]['classifications']:
             data[key][entity_name + '_' + ti['data'] + '_value'] = ti['sources'][0]['values'][0]['value']
@@ -202,15 +202,14 @@ class DataTransformer:
             data[key][entity_name + '_' + fs['data'] + '_value_classification_1'] = \
                 fs['sources'][0]['values'][0]['classification'][1]
 
-    def get_data(self):
-        return self.__data
-
     def load_data(self):
 
         # Loading data from file
-        if app.config['CACHE_API'] == 1 and os.path.exists("objects_regional_params.txt"):
+
+        file = os.path.join(app.config['STORAGE_DIRECTORY'], "objects_regional_params.txt")
+        if app.config['CACHE_API'] == 1 and os.path.exists(file):
             print(' Loading data from File ')
-            with open('objects_regional_params.txt') as json_file:
+            with open(file) as json_file:
                 finding_objects = json.load(json_file)
         else:
 
@@ -231,7 +230,7 @@ class DataTransformer:
                                     auth=hawk_auth, headers=headers).json()
                 finding_objects[data['id']] = data
             if app.config['CACHE_API'] == 1:
-                with open('objects_regional_params.txt', 'w') as outfile:
+                with open(file, 'w') as outfile:
                     json.dump(finding_objects, outfile)
 
         return finding_objects
@@ -245,3 +244,17 @@ class DataTransformer:
             os.remove(file_path)
         data_frame = pd.DataFrame.from_dict(data, orient='index')
         data_frame.to_csv(file_path, index=False)
+
+    def get_object_detail(self, object_id):
+        print(' Loading data from API ')
+        res = egeos_authentication_api()
+        access_token = res['session_id']
+        key = res['key']
+        headers = {"language": "eng", "access_token": access_token}
+        hawk_auth = HawkAuth(id=access_token, key=key, algorithm='sha256')
+
+        response = requests.get(
+            "http://www.amucad.org/api/daimon/finding_objects/" + str(object_id) + "?$with_regional_params=true",
+            auth=hawk_auth, headers=headers).json()
+        self.__data = {object_id: response}
+        return self.data_parser()[object_id]

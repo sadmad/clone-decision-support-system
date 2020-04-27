@@ -92,12 +92,16 @@ class Finding:
 
         self.data = pd.read_csv(file, usecols=self.features)
         self.data = self.data.dropna(how='any', subset=[self.response_variable])
-        self.x_train = self.data.drop(self.response_variable, axis=1)  # axis 1 for column
-        self.y_train = self.data[self.response_variable]
+        self.x_train = self.data.drop(self.response_variable, axis=1)  # axis 1 for column   self.data.iloc[:, :-1].values
+        self.y_train = self.data[self.response_variable] #self.data.iloc[:, -1].values
 
     def data_transformation(self):
         print(' Data Prepossessing ')
 
+        """
+        we can also use simple form for imputation and can define columns in fit 
+         imputer.fit(X[:,1:3]) will impute from 1 to 2
+        """
         labelEncoder_Y = LabelEncoder()
         self.y_train = labelEncoder_Y.fit_transform(self.y_train)
 
