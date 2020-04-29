@@ -15,7 +15,8 @@ from marshmallow import Schema, fields, validate, ValidationError
 from app.structure import model as md, data_transformer as amc
 import redis
 import json
-
+from flasgger import Swagger
+swagger = Swagger(app)
 
 class CreateDSSInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
@@ -39,12 +40,27 @@ def find_amucad_objects():
 
 @app.route('/dss/training', methods=['POST'])
 def fish_training():
-    """
-    fish_training(arg1, arg2=None) --> does training of models
-
-    Parameters:
-    arg1: abc.
-    arg2: edf.
+    """Example endpoint returning a list of colors by palette
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: model_id
+        in: formData
+        type: integer
+        enum: [1, 3, 4]
+        required: true
+        default: 1
+      - name: assessment_id
+        in: formData
+        type: integer
+        enum: [1, 2, 3]
+        required: true
+        default: 1
+    responses:
+      200:
+        description: A list of colors (may be filtered by palette)
+        examples:
+          rgb: ['red', 'green', 'blue']
     """
     errors = TrainingAPISchema().validate(request.form)
     if errors:
