@@ -256,5 +256,10 @@ class Amucad:
         response = requests.get(
             "http://www.amucad.org/api/daimon/finding_objects/" + str(object_id) + "?$with_regional_params=true",
             auth=hawk_auth, headers=headers).json()
-        self.__data = {object_id: response}
-        return self.data_parser()[object_id]
+
+        if 'id' in response:
+            self.__data = {object_id: response}
+            return self.data_parser()[object_id]
+        else:
+            return None
+

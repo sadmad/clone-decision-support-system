@@ -20,12 +20,6 @@ from flasgger import Swagger
 swagger = Swagger(app, app.config['SWAGGER_CONF'])
 
 
-class CreateDSSInputSchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    training = fields.Int(required=True, validate=validate.Range(min=0, max=1))
-    testing = fields.Int(required=True, validate=validate.Range(min=0, max=1))
-
-
 @app.route('/cross-validation/k-fold', methods=['GET'])
 def cross_validation_kfold_main():
     model = dss.LogisticRegressionM(app.config['LOGISTIC_REGRESSION_MODEL'])
@@ -40,9 +34,9 @@ def find_amucad_objects():
         ---
         responses:
           200:
-            description: A list of colors (may be filtered by palette)
+            description: contains status of the action
             examples:
-              rgb: ['red', 'green', 'blue']
+              rgb: []
         """
     obj = amc.Amucad()
     obj.transform_objects_to_csv()
@@ -51,7 +45,7 @@ def find_amucad_objects():
 
 @app.route('/dss/training', methods=['POST'])
 def fish_training():
-    """Example endpoint returning a list of colors by palette
+    """Endpoint for training dss system
     This is using docstrings for specifications.
     ---
     parameters:
@@ -71,9 +65,9 @@ def fish_training():
         description: 1 => Fdi Assessment, 2 => CF Assessment, 3 => Explosion Fisheries Assessment, 4 => Explosion Shipping Assessment
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
+        description: JSON object containing status of the action
         examples:
-          rgb: ['red', 'green', 'blue']
+          rgb: []
     """
     errors = TrainingAPISchema().validate(request.form)
     if errors:
@@ -274,12 +268,12 @@ def ammunition_assessment():
 
     responses:
       200:
-        description: A JSON object containing different assessments
+        description: A JSON object containing different assessments for ammunition
         examples:
-          rgb: ['red', 'green', 'blue']
+          rgb: []
     """
     data = {}
-    prediction = status = message = assessment_name = model_name = prediction_response = None
+    status = message = exFAResponse = exSAResponse = None
 
     validation = MunitionInputSchema().validate(request.form)
     if validation:
@@ -296,27 +290,30 @@ def ammunition_assessment():
     object_id = data['object_id']
     rs = ob.get_object_detail(object_id)
 
-    for key in rs:
-        if rs[key] is None:
-            rs[key] = 0
-    exFA = md.ExplosionFisheriesAssessment(data['model_id'])
-    exFAResponse = exFA.getExplosionFisheriesAssessment(rs)
+    if rs is not None:
+        for key in rs:
+            if rs[key] is None:
+                rs[key] = 0
 
-    exSA = md.ExplosionShippingAssessment(data['model_id'])
-    exSAResponse = exSA.getExplosionShippingAssessment(rs)
-    # status = 200
-    # message = 'success'
-    #
-    # assessment_name = mdObject.assessment_name
-    # model_name = mdObject.model_name
+        status = 200
+        exFA = md.ExplosionFisheriesAssessment(data['model_id'])
+        exFAResponse = exFA.getExplosionFisheriesAssessment(rs)
+
+        exSA = md.ExplosionShippingAssessment(data['model_id'])
+        exSAResponse = exSA.getExplosionShippingAssessment(rs)
+        message = 'OK'
+    else:
+        status = 422
+        message = 'Object not found'
 
     message = {
-        'status': 200,
+        'status': status,
         'data': {
             'ExplosionFisheriesAssessment': exFAResponse,
-            'ExplosionShippingAssessment': exSAResponse
+            'ExplosionShippingAssessment': exSAResponse,
+            'message': message
         },
     }
     resp = jsonify(message)
-    resp.status_code = 200
+    resp.status_code = status
     return resp
