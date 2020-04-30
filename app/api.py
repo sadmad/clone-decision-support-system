@@ -16,7 +16,9 @@ from app.structure import model as md, data_transformer as amc
 import redis
 import json
 from flasgger import Swagger
-swagger = Swagger(app)
+
+swagger = Swagger(app, app.config['SWAGGER_CONF'])
+
 
 class CreateDSSInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
@@ -33,6 +35,15 @@ def cross_validation_kfold_main():
 
 @app.route('/amucad/api/data_transformation/', methods=['GET'])
 def find_amucad_objects():
+    """Transforming AMUCAD data into CSV format
+        This is using docstrings for specifications.
+        ---
+        responses:
+          200:
+            description: A list of colors (may be filtered by palette)
+            examples:
+              rgb: ['red', 'green', 'blue']
+        """
     obj = amc.Amucad()
     obj.transform_objects_to_csv()
     return 'true'
@@ -47,15 +58,17 @@ def fish_training():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 3, 4]
+        enum: [1, 2, 3, 4]
         required: true
         default: 1
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION
       - name: assessment_id
         in: formData
         type: integer
-        enum: [1, 2, 3]
+        enum: [1, 2, 3, 4]
         required: true
         default: 1
+        description: 1 => Fdi Assessment, 2 => CF Assessment, 3 => Explosion Fisheries Assessment, 4 => Explosion Shipping Assessment
     responses:
       200:
         description: A list of colors (may be filtered by palette)
@@ -83,6 +96,9 @@ def fish_training():
         accuracy = mdObject.start()
     elif assessment_id == 3:
         mdObject = md.ExplosionFisheriesAssessment(model_type)
+        accuracy = mdObject.start()
+    elif assessment_id == 4:
+        mdObject = md.ExplosionShippingAssessment(model_type)
         accuracy = mdObject.start()
     if mdObject is not None:
         assessment_name = mdObject.assessment_name
@@ -204,73 +220,13 @@ def finding_assessment():
               data['FinRot'], data['Locera1'], data['Locera2'], data['Locera3'], data['PBT'], data['Skel1'],
               data['Skel2'], data['Skel3'], data['Ulc1'], data['Ulc2'], data['Ulc3'], data['condition_factor']]])
 
-    elif data['assessment_id'] == 3:
-        validation = MunitionInputSchema().validate(request.form)
-        if validation:
-            message = {
-                'status': 422,
-                'message': str(validation),
-            }
-            resp = jsonify(message)
-            resp.status_code = 422
-            return resp
-        data['model_id'] = int(request.form.get('model_id'))
-        data['object_id'] = int(request.form.get('object_id'))
-        ob = amc.Amucad()
-        object_id = data['object_id']
-        rs = ob.get_object_detail(object_id)
-        mdObject = md.ExplosionFisheriesAssessment(model_type=data['model_id'])
-
-        for key in rs:
-            if rs[key] is None:
-                rs[key] = 0
-        col_32 = col_33 = col_34 = col_35 = col_36 = col_37 = col_38 = col_39 = col_40 = 0
-        if rs['ammunition_type_id'] == 137:
-            col_33 = 1
-        if rs['ammunition_type_id'] == 138:
-            col_34 = 1
-        if rs['ammunition_type_id'] == 139:
-            col_35 = 1
-        if rs['ammunition_type_id'] == 140:
-            col_36 = 1
-        if rs['ammunition_type_id'] == 141:
-            col_37 = 1
-        if rs['ammunition_type_id'] == 85:
-            col_32 = 1
-
-        if rs['ammunition_categories_id'] == 1:
-            col_38 = 1
-        if rs['ammunition_sub_categories_id'] == 1:
-            col_39 = 1
-        if rs['ammunition_sub_categories_id'] == 2:
-            col_40 = 1
-        prediction = mdObject.predict_data([[
-            rs['confidence_level'], rs['coordinates_0'], rs['coordinates_1'],
-            rs['corrosion_level'], rs['sediment_cover'], rs['bio_cover'],
-            rs['traffic_intensity_shipping_all_2016_value'], rs['traffic_intensity_shipping_cargo_2016_value'], rs['traffic_intensity_shipping_container_2016_value'],
-            rs['traffic_intensity_shipping_fishing_2016_value'], rs['traffic_intensity_shipping_other_2016_value'], rs['traffic_intensity_shipping_passenger_2016_value'],
-            rs['traffic_intensity_shipping_rorocargo_2016_value'], rs['traffic_intensity_shipping_service_2016_value'], rs['traffic_intensity_shipping_tanker_2016_value'],
-            rs['physical_features_current_velocity_std'], rs['physical_features_current_velocity_mean'], rs['physical_features_anoxic_level_probabilities_value'],
-            rs['physical_features_oxygen_level_probabilities_value'], rs['physical_features_seabed_slope_value'], rs['physical_features_salinity_std'], rs['physical_features_salinity_mean'],
-            rs['physical_features_temperature_std'], rs['physical_features_temperature_mean'], rs['biodiversity_benthic_habitats_bqr'],
-            rs['biodiversity_pelagic_habitats_bqr'], rs['biodiversity_integrated_fish_assessments_bqr'], rs['biodiversity_harbour_porpoises_value'], rs['fisheries_fisheries_bottom_trawl_value'],
-            rs['fisheries_fisheries_surface_midwater_value'], rs['fisheries_coastal_and_stationary_value'], rs['bathymetry_depth_value'],
-            col_32, col_33, col_34,
-            col_35, col_36, col_37,
-            col_38, col_39, col_40
-        ]])
-        print(rs)
-
     if prediction is not None:
         prediction_number = json.loads(prediction)[0]
-
-        print(prediction_number)
-        model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
+        prd_response = prediction_number
+        if mdObject.regression == 0:
+            model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
+            prd_response = model_response_variable[prediction_number]
         status = 200
-
-        print(prediction_number)
-        print(model_response_variable)
-        prd_response = model_response_variable[prediction_number]
         message = 'success'
 
         assessment_name = mdObject.assessment_name
@@ -294,4 +250,73 @@ def finding_assessment():
     resp.status_code = status
     return resp
 
-    print(data)
+
+@app.route('/ammunition/assessment', methods=['POST'])
+def ammunition_assessment():
+    """Endpoint returning different assessments for given ammunition object
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: model_id
+        in: formData
+        type: integer
+        enum: [1, 2, 3, 4]
+        required: true
+        default: 1
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION
+
+      - name: object_id
+        in: formData
+        type: integer
+        required: false
+        default: 31565
+
+
+    responses:
+      200:
+        description: A JSON object containing different assessments
+        examples:
+          rgb: ['red', 'green', 'blue']
+    """
+    data = {}
+    prediction = status = message = assessment_name = model_name = prediction_response = None
+
+    validation = MunitionInputSchema().validate(request.form)
+    if validation:
+        message = {
+            'status': 422,
+            'message': str(validation),
+        }
+        resp = jsonify(message)
+        resp.status_code = 422
+        return resp
+    data['model_id'] = int(request.form.get('model_id'))
+    data['object_id'] = int(request.form.get('object_id'))
+    ob = amc.Amucad()
+    object_id = data['object_id']
+    rs = ob.get_object_detail(object_id)
+
+    for key in rs:
+        if rs[key] is None:
+            rs[key] = 0
+    exFA = md.ExplosionFisheriesAssessment(data['model_id'])
+    exFAResponse = exFA.getExplosionFisheriesAssessment(rs)
+
+    exSA = md.ExplosionShippingAssessment(data['model_id'])
+    exSAResponse = exSA.getExplosionShippingAssessment(rs)
+    # status = 200
+    # message = 'success'
+    #
+    # assessment_name = mdObject.assessment_name
+    # model_name = mdObject.model_name
+
+    message = {
+        'status': 200,
+        'data': {
+            'ExplosionFisheriesAssessment': exFAResponse,
+            'ExplosionShippingAssessment': exSAResponse
+        },
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp

@@ -42,7 +42,8 @@ class Config:
         'GLU_ASSESSMENT': 'glu_assessment_',  # FISH
         'HCT_ASSESSMENT': 'hct_assessment_',  # FISH
         'GILL_CWA_ASSESSMENT': 'gill_cwa_assessment_',  # FISH
-        'EXPLOSION_FISHERIES_ASSESSMENT': 'explosion_fisheries_assessment'  # Munition
+        'EXPLOSION_FISHERIES_ASSESSMENT': 'explosion_fisheries_assessment',  # Munition
+        'EXPLOSION_SHIPPING_ASSESSMENT': 'explosion_shipping_assessment'  # Munition
     }
 
     MODELS_ID_MAPPING = {
@@ -57,12 +58,31 @@ class Config:
         8: 'HCT_ASSESSMENT',
         9: 'GILL_CWA_ASSESSMENT',
         10: 'EXPLOSION_FISHERIES_ASSESSMENT',  # Munition
+        11: 'EXPLOSION_SHIPPING_ASSESSMENT',  # Munition
     }
 
     EGEOS = {
         'base_url': 'https://www.amucad.org',
         'user_name': 'AMushtaq',
         'password': 'lK98hgr&h'
+    }
+
+    SWAGGER_CONF = {
+        "headers": [
+        ],
+        "specs": [
+            {
+                "endpoint": 'apispec_1',
+                "route": '/apispec_1.json',
+                "rule_filter": lambda rule: True,  # all in
+                "model_filter": lambda tag: True,  # all in
+            }
+        ],
+        "static_url_path": "/flasgger_static",
+        # "static_folder": "static",  # must be set by user
+        "swagger_ui": True,
+        "specs_route": "/apidocs/",
+        'title': 'DSS API Documentation'
     }
 
 

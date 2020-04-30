@@ -41,6 +41,7 @@ def setDssNetwork(model_type):
 
 class Finding:
     def __init__(self, model_type, assessment_name):
+
         print(' Findings Constructor')
         # data members
         self.DSS, self.model_config, self.model_name = setDssNetwork(model_type)
@@ -92,8 +93,9 @@ class Finding:
 
         self.data = pd.read_csv(file, usecols=self.features)
         self.data = self.data.dropna(how='any', subset=[self.response_variable])
-        self.x_train = self.data.drop(self.response_variable, axis=1)  # axis 1 for column   self.data.iloc[:, :-1].values
-        self.y_train = self.data[self.response_variable] #self.data.iloc[:, -1].values
+        self.x_train = self.data.drop(self.response_variable,
+                                      axis=1)  # axis 1 for column   self.data.iloc[:, :-1].values
+        self.y_train = self.data[self.response_variable]  # self.data.iloc[:, -1].values
 
     def data_transformation(self):
         print(' Data Prepossessing ')
@@ -102,12 +104,13 @@ class Finding:
         we can also use simple form for imputation and can define columns in fit 
          imputer.fit(X[:,1:3]) will impute from 1 to 2
         """
-        labelEncoder_Y = LabelEncoder()
-        self.y_train = labelEncoder_Y.fit_transform(self.y_train)
+        if self.regression != 1:
+            labelEncoder_Y = LabelEncoder()
+            self.y_train = labelEncoder_Y.fit_transform(self.y_train)
 
-        r = redis.Redis()
-        r.delete(self.response_variable_key)
-        r.mset({self.response_variable_key: json.dumps(labelEncoder_Y.classes_.tolist())})
+            r = redis.Redis()
+            r.delete(self.response_variable_key)
+            r.mset({self.response_variable_key: json.dumps(labelEncoder_Y.classes_.tolist())})
 
         # Numeric Imputation
         impute_numerical = SimpleImputer(strategy="mean")
@@ -139,6 +142,7 @@ class Munition(Finding):
 class ExplosionFisheriesAssessment(Munition):
 
     def __init__(self, model_type):
+        self.regression = 1  # 0 for classification
         print(' ExplosionFisheries ASSESSMENT Constructor')
         super().__init__(model_type, app.config['MODELS_ID_MAPPING'][10])
         # All features from data set file
@@ -152,32 +156,15 @@ class ExplosionFisheriesAssessment(Munition):
             'corrosion_level',  #
             'sediment_cover',
             'bio_cover',
-            'traffic_intensity_shipping_all_2016_value',
-            'traffic_intensity_shipping_cargo_2016_value',  #
-            'traffic_intensity_shipping_container_2016_value',
+
             'traffic_intensity_shipping_fishing_2016_value',
-            'traffic_intensity_shipping_other_2016_value',
-            'traffic_intensity_shipping_passenger_2016_value',
-            'traffic_intensity_shipping_rorocargo_2016_value',
-            'traffic_intensity_shipping_service_2016_value',
-            'traffic_intensity_shipping_tanker_2016_value',  #
-            'physical_features_current_velocity_std',
-            'physical_features_current_velocity_mean',
             'physical_features_anoxic_level_probabilities_value',
-            'physical_features_oxygen_level_probabilities_value',
-            'physical_features_seabed_slope_value',
-            'physical_features_salinity_std',
-            'physical_features_salinity_mean',
-            'physical_features_temperature_std',
-            'physical_features_temperature_mean',
             'biodiversity_benthic_habitats_bqr',
-            'biodiversity_pelagic_habitats_bqr',
             'biodiversity_integrated_fish_assessments_bqr',
-            'biodiversity_harbour_porpoises_value',
             'fisheries_fisheries_bottom_trawl_value',
             'fisheries_fisheries_surface_midwater_value',
             'fisheries_coastal_and_stationary_value',
-            'bathymetry_depth_value',
+
             'Explosion_Fisheries',
         ]
 
@@ -196,32 +183,13 @@ class ExplosionFisheriesAssessment(Munition):
             'corrosion_level',  #
             'sediment_cover',
             'bio_cover',
-            'traffic_intensity_shipping_all_2016_value',
-            'traffic_intensity_shipping_cargo_2016_value',  #
-            'traffic_intensity_shipping_container_2016_value',
             'traffic_intensity_shipping_fishing_2016_value',
-            'traffic_intensity_shipping_other_2016_value',
-            'traffic_intensity_shipping_passenger_2016_value',
-            'traffic_intensity_shipping_rorocargo_2016_value',
-            'traffic_intensity_shipping_service_2016_value',
-            'traffic_intensity_shipping_tanker_2016_value',  #
-            'physical_features_current_velocity_std',
-            'physical_features_current_velocity_mean',
             'physical_features_anoxic_level_probabilities_value',
-            'physical_features_oxygen_level_probabilities_value',
-            'physical_features_seabed_slope_value',
-            'physical_features_salinity_std',
-            'physical_features_salinity_mean',
-            'physical_features_temperature_std',
-            'physical_features_temperature_mean',
             'biodiversity_benthic_habitats_bqr',
-            'biodiversity_pelagic_habitats_bqr',
             'biodiversity_integrated_fish_assessments_bqr',
-            'biodiversity_harbour_porpoises_value',
             'fisheries_fisheries_bottom_trawl_value',
             'fisheries_fisheries_surface_midwater_value',
             'fisheries_coastal_and_stationary_value',
-            'bathymetry_depth_value'
         ]
 
         # Write only Response Variable: should be 1 variable
@@ -230,6 +198,167 @@ class ExplosionFisheriesAssessment(Munition):
     def start(self):
         training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "amucad_dataset.csv")
         return self.initiate_training(training_file)
+
+    def getExplosionFisheriesAssessment(self, rs):
+        col_13 = col_14 = col_15 = col_16 = col_17 = col_18 = col_19 = col_20 = col_21 = 0
+        if rs['ammunition_type_id'] == 137:
+            col_14 = 1
+        if rs['ammunition_type_id'] == 138:
+            col_15 = 1
+        if rs['ammunition_type_id'] == 139:
+            col_16 = 1
+        if rs['ammunition_type_id'] == 140:
+            col_17 = 1
+        if rs['ammunition_type_id'] == 141:
+            col_18 = 1
+        if rs['ammunition_type_id'] == 85:
+            col_13 = 1
+        if rs['ammunition_categories_id'] == 1:
+            col_19 = 1
+        if rs['ammunition_sub_categories_id'] == 1:
+            col_20 = 1
+        if rs['ammunition_sub_categories_id'] == 2:
+            col_21 = 1
+
+        prediction = self.predict_data([[
+            rs['confidence_level'], rs['coordinates_0'], rs['coordinates_1'],
+            rs['corrosion_level'], rs['sediment_cover'], rs['bio_cover'],
+            rs['traffic_intensity_shipping_fishing_2016_value'],
+            rs['physical_features_anoxic_level_probabilities_value'],
+            rs['biodiversity_benthic_habitats_bqr'],
+            rs['biodiversity_integrated_fish_assessments_bqr'],
+            rs['fisheries_fisheries_bottom_trawl_value'],
+            rs['fisheries_fisheries_surface_midwater_value'],
+            rs['fisheries_coastal_and_stationary_value'],
+            col_13, col_14, col_15,
+            col_16, col_17, col_18,
+            col_19, col_20, col_21
+        ]])
+        prediction_number = status = message = 0
+        if prediction is not None:
+            prediction_number = json.loads(prediction)[0]
+            message = ''
+            status = 200
+            if self.regression == 0:
+                model_response_variable = json.loads(redis.Redis().get(self.response_variable_key))
+                prediction_number = model_response_variable[prediction_number]
+
+        else:
+            message = 'Please Train Model First.'
+            status = 422
+        return {
+            'prediction': prediction_number,
+            'status': status,
+            'message': message
+        }
+
+
+class ExplosionShippingAssessment(Munition):
+
+    def __init__(self, model_type):
+        self.regression = 1  # 0 for classification
+        print(' ExplosionFisheries ASSESSMENT Constructor')
+        super().__init__(model_type, app.config['MODELS_ID_MAPPING'][11])
+        # All features from data set file
+        self.features = [
+            'confidence_level',
+            'coordinates_0',
+            'coordinates_1',
+            'ammunition_type_id',
+            'ammunition_categories_id',
+            'ammunition_sub_categories_id',
+            'corrosion_level',  #
+            'sediment_cover',
+            'bio_cover',
+
+            'traffic_intensity_shipping_all_2016_value',
+            'traffic_intensity_shipping_cargo_2016_value',
+            'traffic_intensity_shipping_container_2016_value',
+            'traffic_intensity_shipping_fishing_2016_value',
+            'traffic_intensity_shipping_other_2016_value',
+            'traffic_intensity_shipping_passenger_2016_value',
+            'traffic_intensity_shipping_rorocargo_2016_value',
+            'traffic_intensity_shipping_service_2016_value',
+            'traffic_intensity_shipping_tanker_2016_value',
+            'physical_features_seabed_slope_value',
+            'bathymetry_depth_value',
+
+            'Explosion_Shipping',
+        ]
+
+        # Write only Categorical Columns here i.e strings or columns with ranges
+        self.categoricalColumns = [
+            'ammunition_type_id',
+            'ammunition_categories_id',
+            'ammunition_sub_categories_id',
+        ]
+
+        # Write only Numeric Columns here
+        self.numericalColumns = [
+            'confidence_level',
+            'coordinates_0',
+            'coordinates_1',
+            'corrosion_level',  #
+            'sediment_cover',
+            'bio_cover',
+            'traffic_intensity_shipping_all_2016_value',
+            'traffic_intensity_shipping_cargo_2016_value',
+            'traffic_intensity_shipping_container_2016_value',
+            'traffic_intensity_shipping_fishing_2016_value',
+            'traffic_intensity_shipping_other_2016_value',
+            'traffic_intensity_shipping_passenger_2016_value',
+            'traffic_intensity_shipping_rorocargo_2016_value',
+            'traffic_intensity_shipping_service_2016_value',
+            'traffic_intensity_shipping_tanker_2016_value',
+            'physical_features_seabed_slope_value',
+            'bathymetry_depth_value',
+        ]
+
+        # Write only Response Variable: should be 1 variable
+        self.response_variable = 'Explosion_Shipping'
+
+    def start(self):
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "amucad_dataset.csv")
+        return self.initiate_training(training_file)
+
+    def getExplosionShippingAssessment(self, rs):
+        col_13 = col_14 = col_15 = col_16 = col_17 = col_18 = col_19 = col_20 = col_21 = 0
+
+        prediction = self.predict_data([[
+            rs['confidence_level'], rs['coordinates_0'], rs['coordinates_1'],
+            rs['corrosion_level'], rs['sediment_cover'], rs['bio_cover'],
+            rs['traffic_intensity_shipping_all_2016_value'],
+            rs['traffic_intensity_shipping_cargo_2016_value'],
+            rs['traffic_intensity_shipping_container_2016_value'],
+            rs['traffic_intensity_shipping_fishing_2016_value'],
+            rs['traffic_intensity_shipping_other_2016_value'],
+            rs['traffic_intensity_shipping_passenger_2016_value'],
+            rs['traffic_intensity_shipping_rorocargo_2016_value'],
+            rs['traffic_intensity_shipping_service_2016_value'],
+            rs['traffic_intensity_shipping_tanker_2016_value'],
+            rs['physical_features_seabed_slope_value'],
+            rs['bathymetry_depth_value'],
+            col_13, col_14, col_15,
+            col_16, col_17, col_18,
+            col_19, col_20, col_21
+        ]])
+        prediction_number = status = message = 0
+        if prediction is not None:
+            prediction_number = json.loads(prediction)[0]
+            message = ''
+            status = 200
+            if self.regression == 0:
+                model_response_variable = json.loads(redis.Redis().get(self.response_variable_key))
+                prediction_number = model_response_variable[prediction_number]
+
+        else:
+            message = 'Please Train Model First.'
+            status = 422
+        return {
+            'prediction': prediction_number,
+            'status': status,
+            'message': message
+        }
 
 
 class Fish(Finding):
@@ -242,6 +371,7 @@ class Fish(Finding):
 class FdiAssessment(Fish):
 
     def __init__(self, model_type):
+        self.regression = 0
         print(' FDI_ASSESMENT Constructor')
         super().__init__(model_type, app.config['MODELS_ID_MAPPING'][0])
         # All features from data set file
@@ -306,6 +436,7 @@ class FdiAssessment(Fish):
 class CFAssessment(Fish):
 
     def __init__(self, model_type):
+        self.regression = 0
         print(' FDI_ASSESMENT Constructor')
         super().__init__(model_type, app.config['MODELS_ID_MAPPING'][1])
         # All features from data set file

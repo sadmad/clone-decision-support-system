@@ -1,3 +1,4 @@
+flasgger
 redis
 joblib
 scikit-learn

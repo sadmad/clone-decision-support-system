@@ -2,10 +2,10 @@ import os
 
 import joblib
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 
 from app import app
 from app import scale
@@ -27,7 +27,7 @@ class DSS:
         fit_model = classifier.fit(finding.x_train, finding.y_train)
         self.save_model(fit_model, finding)
         return 0
-        #return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
+        # return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
 
     def save_model(self, model, finding):
         print(' DSS Save Model')
@@ -96,12 +96,15 @@ class DSS:
 
 class NeuralNetwork(DSS):
 
-    def getClassifier(self):
+    def getClassifier(self, is_regression=0):
         print(' NeuralNetwork Return Model')
-        return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
+        if is_regression == 0:
+            return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
+        else:
+            return MLPRegressor(hidden_layer_sizes=(13, 13, 13), max_iter=500)
 
     def training(self, finding):
-        return super().fit(self.getClassifier(), finding)
+        return super().fit(self.getClassifier(finding.regression), finding)
 
     def determineBestHyperParameters(self, finding):
         grid_param = {
@@ -128,18 +131,27 @@ class NeuralNetwork(DSS):
 
 class RandomForest(DSS):
 
-    def getClassifier(self):
+    def getClassifier(self, is_regression=0):
         print(' RandomForest Return Model ')
-        return RandomForestClassifier(
-            n_estimators=100,
-            max_depth=2,
-            random_state=0,
-            criterion='gini',
-            bootstrap=True
-        )
+        if is_regression == 0:
+            return RandomForestClassifier(
+                n_estimators=100,
+                max_depth=2,
+                random_state=0,
+                criterion='gini',
+                bootstrap=True
+            )
+        else:
+            return RandomForestRegressor(
+                n_estimators=100,
+                max_depth=2,
+                random_state=0,
+                criterion='mse',
+                bootstrap=True
+            )
 
     def training(self, finding):
-        return super().fit(self.getClassifier(), finding)
+        return super().fit(self.getClassifier(finding.regression), finding)
 
     def determineBestHyperParameters(self, finding):
         grid_param = {

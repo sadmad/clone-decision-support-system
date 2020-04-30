@@ -66,5 +66,4 @@ class TrainingAPISchema(Schema):
 
 class MunitionInputSchema(Schema):
     model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
     object_id = fields.Int(required=True)
