@@ -1,23 +1,49 @@
-import math
+import json
+from functools import wraps
+
+import datetime
+import jwt
+import redis
+import requests
+from flasgger import Swagger
+from flask import request, jsonify
 
 from app import app
-import os
-from flask import Flask, request, jsonify, render_template
-
-from app.input_schema import FDIInputSchema, CFInputSchema, TrainingAPISchema, MunitionInputSchema
+from app.input_schema import FDIInputSchema, CFInputSchema, TrainingAPISchema, MunitionInputSchema, LoginInputSchema
 from app.structure import dss
-# from app.structure import data_transformer as DT
-# from marshmallow import Schema, fields
-from flask import abort
-from app import errors
-
-from marshmallow import Schema, fields, validate, ValidationError
 from app.structure import model as md, data_transformer as amc
-import redis
-import json
-from flasgger import Swagger
+
 
 swagger = Swagger(app, app.config['SWAGGER_CONF'])
+
+
+# https://www.youtube.com/watch?v=J5bIPtEbS0Q
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'token' not in request.args:
+            message = {
+                'status': 403,
+                'message': 'Token is missing',
+            }
+            resp = jsonify(message)
+            resp.status_code = 403
+            return resp
+        try:
+            token = request.args.get('token')
+            jwt.decode(token, app.config['SECRET_KEY'])
+
+        except:
+            message = {
+                'status': 403,
+                'message': 'Invalid Token',
+            }
+            resp = jsonify(message)
+            resp.status_code = 403
+            return resp
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 @app.route('/cross-validation/k-fold', methods=['GET'])
@@ -28,16 +54,24 @@ def cross_validation_kfold_main():
 
 
 @app.route('/amucad/api/data_transformation/', methods=['GET'])
+@token_required
 def find_amucad_objects():
     """Transforming AMUCAD data into CSV format
-        This is using docstrings for specifications.
-        ---
-        responses:
-          200:
-            description: contains status of the action
-            examples:
-              rgb: []
-        """
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: token
+        in: query
+        type: string
+        required: true
+        description:  ''
+
+    responses:
+      200:
+        description:
+        examples:
+          rgb: []
+    """
     obj = amc.Amucad()
     obj.transform_objects_to_csv()
     return 'true'
@@ -316,4 +350,56 @@ def ammunition_assessment():
     }
     resp = jsonify(message)
     resp.status_code = status
+    return resp
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    """Endpoint to get the token for authentication
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+        description:  ''
+
+      - name: password
+        in: formData
+        type: string
+        format: password
+        required: true
+        description:  ''
+    responses:
+      200:
+        description: A JSON object containing token to access further endpoints
+        examples:
+          rgb: []
+    """
+    validation = LoginInputSchema().validate(request.form)
+    if validation:
+        resp = jsonify({
+            'status': 422,
+            'message': str(validation),
+        })
+        resp.status_code = 422
+        return resp
+    r_login = requests.post('https://mdb.in.tu-clausthal.de/api/v1/auth/login',
+                            data={'email': request.form.get('email'), 'password': request.form.get('password')}).json()
+    if r_login['status'] == 200:
+        token = jwt.encode(
+            {'user': request.form.get('email'), 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+            app.config['SECRET_KEY'])
+        resp = jsonify({
+            'status': 200,
+            'token': token.decode('UTF-8'),
+        })
+        resp.status_code = 200
+    else:
+        resp = jsonify({
+            'status': 422,
+            'message': 'Incorrect email or password',
+        })
+        resp.status_code = 422
     return resp
