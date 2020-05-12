@@ -1,3 +1,6 @@
+import os
+from app import app
+
 class Config:
     """
     Use this class to share any default attributes with any subsequent
@@ -93,7 +96,7 @@ class ProductionConfig(Config):
     as database usernames, passwords, server specific files & directories etc.
     """
     CACHE_API = 1
-    STORAGE_DIRECTORY = './storage/'
+    STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")
 
 
 class DevelopmentConfig(Config):
@@ -104,4 +107,4 @@ class DevelopmentConfig(Config):
     """
     DEBUG = True
     CACHE_API = 1
-    STORAGE_DIRECTORY = './storage/'
+    STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")
