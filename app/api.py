@@ -14,7 +14,7 @@ from app.structure import dss
 from app.structure import model as md, data_transformer as amc
 
 
-swagger = Swagger(app, app.config['SWAGGER_CONF'])
+swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 
 
 # https://www.youtube.com/watch?v=J5bIPtEbS0Q
