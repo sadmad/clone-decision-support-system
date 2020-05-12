@@ -103,7 +103,7 @@ class Config:
             "version": "0.0.1"
         },
         "host": "https://mdb.in.tu-clausthal.de/",  # overrides localhost:500
-        "basePath": "https://mdb.in.tu-clausthal.de/assessment-models/",  # base bash for blueprint registration
+        "basePath": "/assessment-models/",  # base bash for blueprint registration
         "schemes": [
             "http",
             "https"
