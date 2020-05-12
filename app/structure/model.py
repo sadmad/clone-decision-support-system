@@ -427,7 +427,7 @@ class FdiAssessment(Fish):
         self.response_variable = 'fdi_assesment'
 
     def start(self):
-        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.csv")
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.CSV")
         return self.initiate_training(training_file)
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
         # self.initiate_testing(testing_file)
@@ -493,7 +493,7 @@ class CFAssessment(Fish):
         self.response_variable = 'cf_assessment'
 
     def start(self):
-        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.csv")
+        training_file = os.path.join(app.config['STORAGE_DIRECTORY'], "DAIMON_Cod_Data_FDI.CSV")
         return self.initiate_training(training_file)
 
         # testing_file = os.path.dirname(os.path.dirname(__file__)) + '/data/fish/DAIMON_Cod_Data_FDI_TEST.CSV'
