@@ -91,15 +91,15 @@ class Config:
     SWAGGER_TEMPLATE = {
         "swagger": "2.0",
         "info": {
-            "title": "My API",
-            "description": "API for my data",
+            "title": "DAIMON2 Assessment API",
+            "description": "To be written",
             "contact": {
-                "responsibleOrganization": "ME",
-                "responsibleDeveloper": "Me",
-                "email": "me@me.com",
-                "url": "www.me.com",
+                "responsibleOrganization": "Clausthal",
+                "responsibleDeveloper": "Awais Mushtaq",
+                "email": "amus17@tu-clausthal.de",
+                "url": "https://www.tu-clausthal.de/",
             },
-            "termsOfService": "http://me.com/terms",
+            "termsOfService": "https://www.tu-clausthal.de/",
             "version": "0.0.1"
         },
         "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
