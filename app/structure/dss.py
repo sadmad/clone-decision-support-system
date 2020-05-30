@@ -9,7 +9,7 @@ from sklearn.neural_network import MLPClassifier, MLPRegressor
 from keras.models import Sequential
 from keras.layers.core import Dense
 from keras import backend as K
-
+import keras as ker
 from app import app
 from app import scale
 from app.structure import model
@@ -107,7 +107,7 @@ class DSS:
 
         # test=loaded_model.history
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        predictions = loaded_model.predict(data)
+        predictions = loaded_model.model.predict(data)
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
@@ -303,7 +303,7 @@ class DeepNeuralNetwork(DSS):
         model.add(Dense(output_neuron, activation=output_activation_function))
         print(len(model.layers))
         model.compile(loss='mean_squared_error',
-                    optimizer='adam',)
+                    optimizer='adam', metrics=['mse'],)
 
         return model
 
