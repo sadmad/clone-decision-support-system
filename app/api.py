@@ -13,7 +13,6 @@ from app.input_schema import FDIInputSchema, CFInputSchema, TrainingAPISchema, M
 from app.structure import dss
 from app.structure import model as md, data_transformer as amc
 
-
 swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 
 
@@ -188,29 +187,8 @@ def finding_assessment():
         data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
         data['fdi'] = float(request.form.get('fdi'))
 
-        sex_m = sex_n = sex_w = 0
-        if data['sex'] == 'm':
-            sex_m = 1
-        elif data['sex'] == 'n':
-            sex_n = 1
-        elif data['sex'] == 'w':
-            sex_w = 1
-
-        group_EXT = group_LEEXT = 0
-        if data['group'] == 'EXT':
-            group_EXT = 1
-        if data['group'] == 'LEEXT':
-            group_LEEXT = 1
-
         mdObject = md.FdiAssessment(model_type=data['model_id'])
-        prediction = mdObject.predict_data([[data['station'], data['year'], data['month'], data['day'], data['fish_no'],
-                                             data['total_length'], data['total_weight'], data['latitude'],
-                                             data['longitude'],
-                                             data['bottom_temperature'],
-                                             data['bottom_salinity'], data['bottom_oxygen_saturation'],
-                                             data['hydrography_depth'],
-                                             data['fdi'],
-                                             sex_m, sex_n, sex_w, group_EXT, group_LEEXT]])
+        return mdObject.getFdiAssessment(data)
 
     elif data['assessment_id'] == 2:
         validation = CFInputSchema().validate(request.form)
@@ -243,41 +221,8 @@ def finding_assessment():
         data['Ulc3'] = int(request.form.get('Ulc3'))
         data['condition_factor'] = float(request.form.get('condition_factor'))
         mdObject = md.CFAssessment(model_type=data['model_id'])
-        prediction = mdObject.predict_data(
-            [[data['Cryp1'], data['Cryp2'], data['Cryp3'], data['EpPap1'], data['EpPap2'], data['EpPap3'],
-              data['FinRot'], data['Locera1'], data['Locera2'], data['Locera3'], data['PBT'], data['Skel1'],
-              data['Skel2'], data['Skel3'], data['Ulc1'], data['Ulc2'], data['Ulc3'], data['condition_factor']]])
-
-    if prediction is not None:
-        prediction_number = json.loads(prediction)[0]
-        prd_response = prediction_number
-        if mdObject.regression == 0:
-            model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
-            prd_response = model_response_variable[prediction_number]
-        status = 200
-        message = 'success'
-
-        assessment_name = mdObject.assessment_name
-        model_name = mdObject.model_name
-        prediction_response = prd_response
-
-    else:
-        message = 'Please train model first.'
-        status = 422
-
-    message = {
-        'status': status,
-        'data': {
-            'assessment': assessment_name,
-            'model_name': model_name,
-            'prediction': prediction_response,
-            'message': message
-        },
-    }
-    resp = jsonify(message)
-    resp.status_code = status
-    return resp
-
+        return mdObject.getCFAssessment(data)
+    return ''
 
 @app.route('/ammunition/assessment', methods=['POST'])
 def ammunition_assessment():

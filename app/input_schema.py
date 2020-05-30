@@ -14,7 +14,7 @@ def validate_group(n):
 
 
 class FDIInputSchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=5))
     assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
 
     station = fields.Int(required=True)
@@ -36,7 +36,7 @@ class FDIInputSchema(Schema):
 
 
 class CFInputSchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=5))
     assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=10))
 
     Cryp1 = fields.Int(required=True)

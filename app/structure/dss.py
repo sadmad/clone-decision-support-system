@@ -31,48 +31,6 @@ class DSS:
         self.save_model(fit_model, finding)
         return 0
         # return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
-    def fit_deep_neural(self, classifier, finding):
-        # we can define the neural network layers in a sequential manner
-        model = Sequential()
-        # first parameter is output dimension
-        print(len(model.layers))
-        columns = len(finding.x_train[0])
-        print(columns)
-        activation_function = 'relu'
-        output_activation_function = 'sigmoid'
-        if columns is not None:
-            neuron_count = columns
-            model.add(Dense(neuron_count, input_dim=columns, activation=activation_function))
-            hidden_layers = 6
-
-            output_neuron = 1
-            for x in range(hidden_layers):
-                model.add(Dense(neuron_count, input_dim=columns, activation='relu'))
-
-        # For Output layer
-        model.add(Dense(output_neuron, activation=output_activation_function))
-        print(len(model.layers))
-        # we can define the loss function MSE or negative log lokelihood
-        # optimizer will find the right adjustements for the weights: SGD, Adagrad, ADAM ...
-        # model.compile(loss='mean_squared_error',
-        #               optimizer='adam',)
-
-        # epoch is an iteration over the entire dataset
-        # verbose 0 is silent 1 and 2 are showing results
-        # model.fit(finding.x_train, finding.y_train, epochs=2000, verbose=2)
-
-        # of course we can make prediction with the trained neural network
-        # print(model.predict(finding.x_train).round())
-
-        # return super().fit(self.getClassifier(finding.regression), finding)
-        model.compile(loss='mean_squared_error',
-                    optimizer='adam',)
-
-        fit_model = model.fit(finding.x_train, finding.y_train, epochs=2000, verbose=2)
-
-        self.save_model(fit_model, finding)
-        return 0
-        # return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
 
     def save_model(self, model, finding):
         print(' DSS Save Model')
@@ -100,14 +58,12 @@ class DSS:
 
     def predict_data(self, finding, data):
         print(' DSS predict_data')
-        K.clear_session()
+
         data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         loaded_model = joblib.load(finding.trained_model_path)
-
-        # test=loaded_model.history
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        predictions = loaded_model.model.predict(data)
+        predictions = loaded_model.predict(data)
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
@@ -312,9 +268,23 @@ class DeepNeuralNetwork(DSS):
         return self.fit(self.getClassifier(finding), finding)
 
     def fit(self, classifier, finding):
-        fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=2000, verbose=2)
+        fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=10, verbose=2)
         self.save_model(fit_model, finding)
         return 0
+
+    def predict_data(self, finding, data):
+        print(' DSS predict_data')
+        K.clear_session()
+        data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
+
+        loaded_model = joblib.load(finding.trained_model_path)
+
+        predictions = loaded_model.model.predict(data)
+
+        print(predictions)
+
+        return ''.join(map(str, predictions))
+        #return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
     def determineBestHyperParameters(self, finding):
         grid_param = {
