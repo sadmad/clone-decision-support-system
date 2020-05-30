@@ -6,6 +6,9 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
+from keras.models import Sequential
+from keras.layers.core import Dense
+from keras import backend as K
 
 from app import app
 from app import scale
@@ -25,6 +28,48 @@ class DSS:
 
     def fit(self, classifier, finding):
         fit_model = classifier.fit(finding.x_train, finding.y_train)
+        self.save_model(fit_model, finding)
+        return 0
+        # return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
+    def fit_deep_neural(self, classifier, finding):
+        # we can define the neural network layers in a sequential manner
+        model = Sequential()
+        # first parameter is output dimension
+        print(len(model.layers))
+        columns = len(finding.x_train[0])
+        print(columns)
+        activation_function = 'relu'
+        output_activation_function = 'sigmoid'
+        if columns is not None:
+            neuron_count = columns
+            model.add(Dense(neuron_count, input_dim=columns, activation=activation_function))
+            hidden_layers = 6
+
+            output_neuron = 1
+            for x in range(hidden_layers):
+                model.add(Dense(neuron_count, input_dim=columns, activation='relu'))
+
+        # For Output layer
+        model.add(Dense(output_neuron, activation=output_activation_function))
+        print(len(model.layers))
+        # we can define the loss function MSE or negative log lokelihood
+        # optimizer will find the right adjustements for the weights: SGD, Adagrad, ADAM ...
+        # model.compile(loss='mean_squared_error',
+        #               optimizer='adam',)
+
+        # epoch is an iteration over the entire dataset
+        # verbose 0 is silent 1 and 2 are showing results
+        # model.fit(finding.x_train, finding.y_train, epochs=2000, verbose=2)
+
+        # of course we can make prediction with the trained neural network
+        # print(model.predict(finding.x_train).round())
+
+        # return super().fit(self.getClassifier(finding.regression), finding)
+        model.compile(loss='mean_squared_error',
+                    optimizer='adam',)
+
+        fit_model = model.fit(finding.x_train, finding.y_train, epochs=2000, verbose=2)
+
         self.save_model(fit_model, finding)
         return 0
         # return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
@@ -55,10 +100,12 @@ class DSS:
 
     def predict_data(self, finding, data):
         print(' DSS predict_data')
-
+        K.clear_session()
         data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         loaded_model = joblib.load(finding.trained_model_path)
+
+        # test=loaded_model.history
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
         predictions = loaded_model.predict(data)
         # print(confusion_matrix(self.y_test,predictions))
@@ -226,3 +273,60 @@ class LogisticRegressionM(DSS):
             'warm_start': ['True', 'False']
         }
         super().gridSearch(self.getClassifier(), grid_param, finding)
+#######################################################################
+#######################################################################
+#######################################################################
+################### Deep Neural Network Model #########################
+#######################################################################
+#######################################################################
+#######################################################################
+
+class DeepNeuralNetwork(DSS):
+
+    def getClassifier(self, finding ):
+        print(' Deep NeuralNetwork Return Model')
+
+
+        model = Sequential()
+        columns = len(finding.x_train[0])
+        activation_function = 'relu'
+        output_activation_function = 'sigmoid'
+        if columns is not None:
+            neuron_count = columns
+            model.add(Dense(neuron_count, input_dim=columns, activation=activation_function))
+            hidden_layers = 6
+
+            output_neuron = 1
+            for x in range(hidden_layers):
+                model.add(Dense(neuron_count, input_dim=columns, activation='relu'))
+
+        model.add(Dense(output_neuron, activation=output_activation_function))
+        print(len(model.layers))
+        model.compile(loss='mean_squared_error',
+                    optimizer='adam',)
+
+        return model
+
+    def training(self, finding):
+
+        return self.fit(self.getClassifier(finding), finding)
+
+    def fit(self, classifier, finding):
+        fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=2000, verbose=2)
+        self.save_model(fit_model, finding)
+        return 0
+
+    def determineBestHyperParameters(self, finding):
+        grid_param = {
+            'activation': ['identity', 'logistic', 'tanh', 'relu'],
+            'solver': ['lbfgs', 'sgd', 'adam'],
+            'learning_rate': ['constant', 'invscaling', 'adaptive'],
+            'activation': ['identity', 'logistic', 'tanh', 'relu'],
+            # 'shuffle': [True,False],
+            # 'verbose': [True,False],
+            # 'warm_start': [True,False],
+            # 'nesterovs_momentum': [True,False],
+            # 'early_stopping': [True,False]
+        }
+        super().gridSearch(self.getClassifier(), grid_param, finding, model)
+

@@ -33,6 +33,11 @@ class Config:
         'model': 'logistic_regression.sav',
         'scaler': 'logistic_regression_scaler.save'
     }
+    DEEP_NEURAL_NETWORK_MODEL = {
+        'model': 'deep_neural_network.sav',
+        'scaler': 'deep_neural_network_scaler.save'
+    }
+
     MODELS = {
 
         'FDI_ASSESSMENT': 'fdi_assessment_',  # FISH
@@ -102,8 +107,8 @@ class Config:
             "termsOfService": "https://www.tu-clausthal.de/",
             "version": "0.0.1"
         },
-        "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
-        "basePath": "/assessment-models",  # base bash for blueprint registration
+        #"host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
+        #"basePath": "/assessment-models",  # base bash for blueprint registration
         # "schemes": [
         #     "http",
         #     "https"

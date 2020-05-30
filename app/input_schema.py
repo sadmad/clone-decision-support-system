@@ -60,12 +60,12 @@ class CFInputSchema(Schema):
 
 
 class TrainingAPISchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=5))
     assessment_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
 
 
 class MunitionInputSchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=4))
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=5))
     object_id = fields.Int(required=True)
 
 

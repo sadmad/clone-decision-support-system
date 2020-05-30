@@ -86,10 +86,10 @@ def fish_training():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4]
+        enum: [1, 2, 3, 4, 5]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION, 5=> DEEP NEURAL NETWORK
       - name: assessment_id
         in: formData
         type: integer
@@ -288,10 +288,10 @@ def ammunition_assessment():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4]
+        enum: [1, 2, 3, 4, 5]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION, 5=> DEEP NEURAL NETWORK
 
       - name: object_id
         in: formData

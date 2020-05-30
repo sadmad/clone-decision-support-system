@@ -35,6 +35,10 @@ def setDssNetwork(model_type):
         md = dss.LogisticRegressionM()
         model_config = app.config['LOGISTIC_REGRESSION_MODEL']
         model_name = 'LOGISTIC_REGRESSION_MODEL'
+    elif model_type == 5:
+        md = dss.DeepNeuralNetwork()
+        model_config = app.config['DEEP_NEURAL_NETWORK_MODEL']
+        model_name = 'DEEP_NEURAL_NETWORK_MODEL'
 
     return md, model_config, model_name
 
@@ -81,6 +85,9 @@ class Finding:
     def predict_data(self, data):
 
         if os.path.exists(self.trained_scaler_path) and os.path.exists(self.trained_model_path):
+
+            # Before prediction
+
             response = self.DSS.predict_data(self, data)
             print(response)
             return response
