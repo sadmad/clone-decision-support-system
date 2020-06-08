@@ -9,10 +9,13 @@ from sklearn.neural_network import MLPClassifier, MLPRegressor
 from keras.models import Sequential
 from keras.layers.core import Dense
 from keras import backend as K
-import keras as ker
+from keras.optimizers import Adam
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
 from app import app
 from app import scale
 from app.structure import model
+
 from app.structure import accuracy_finder as accuracy
 
 
@@ -240,26 +243,38 @@ class LogisticRegressionM(DSS):
 class DeepNeuralNetwork(DSS):
 
     def getClassifier(self, finding ):
-        print(' Deep NeuralNetwork Return Model')
+        print(' Deep NeuralNetwork  Model')
 
 
         model = Sequential()
-        columns = len(finding.x_train[0])
+        columns_x = len(finding.x_train[0])
+        output_neuron_c=3
         activation_function = 'relu'
-        output_activation_function = 'sigmoid'
-        if columns is not None:
-            neuron_count = columns
-            model.add(Dense(neuron_count, input_dim=columns, activation=activation_function))
+        output_activation_function_r = 'relu'
+        output_activation_function__c = 'softmax'
+
+        if columns_x is not None:
+            neuron_count = columns_x
+            model.add(Dense(neuron_count, input_dim=columns_x, activation=activation_function))
             hidden_layers = 6
 
-            output_neuron = 1
+            output_neuron_r = 1
             for x in range(hidden_layers):
-                model.add(Dense(neuron_count, input_dim=columns, activation='relu'))
+                model.add(Dense(neuron_count, input_dim=columns_x, activation='relu'))
+        if finding.regression == 0:
+            #Classification
+            model.add(Dense(output_neuron_c, activation=output_activation_function__c))
+            print(len(model.layers))
+            optimizer = Adam(lr=0.05)
+            model.compile(loss='categorical_crossentropy',
+                          optimizer=optimizer, metrics=['accuracy'], )
+        else:
+            # Regression
+            model.add(Dense(output_neuron_r, activation=output_activation_function_r))
+            print(len(model.layers))
 
-        model.add(Dense(output_neuron, activation=output_activation_function))
-        print(len(model.layers))
-        model.compile(loss='mean_squared_error',
-                    optimizer='adam', metrics=['mse'],)
+            model.compile(loss='mse',
+                          optimizer='adam', metrics=['accuracy'], )
 
         return model
 
@@ -268,7 +283,26 @@ class DeepNeuralNetwork(DSS):
         return self.fit(self.getClassifier(finding), finding)
 
     def fit(self, classifier, finding):
-        fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=10, verbose=2)
+
+        if finding.regression == 0:
+            #Classification
+            import numpy as np
+            B = finding.y_train.transpose()
+            B = np.reshape(finding.y_train, (-1, 1))
+            encoder = OneHotEncoder()
+            targets = encoder.fit_transform(B)
+            train_features, test_features, train_targets, test_targets = train_test_split(finding.x_train, targets,
+                                                                                          test_size=0.2)
+
+            fit_model = classifier.fit(finding.x_train, targets, epochs=10, batch_size = 200, verbose=2)
+            # results= fit_model.fit_model.evaluate(test_features,test_targets)
+            # print("Accuracy on the test dataset:%.2f" % results[1])
+        else:
+            # Regression
+            # K.clear_session()
+            fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=2)
+
+
         self.save_model(fit_model, finding)
         return 0
 
