@@ -80,3 +80,6 @@ https://linuxhint.com/git_server_ssh_ubuntu/
 
 
 https://medium.com/@esteininger/python-3-5-flask-apache2-mod-wsgi3-on-ubuntu-16-04-67894abf9f70
+
+
+pip3 install pymongo

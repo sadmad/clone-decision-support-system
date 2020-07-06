@@ -9,9 +9,10 @@ import os
 import pandas as pd
 import redis
 import json
-
+from pymongo import MongoClient
+import datetime
 from sklearn.impute import SimpleImputer
-
+client = MongoClient('mongodb://localhost:27017/')
 
 def setDssNetwork(model_type):
     md = model_config = model_name = None
@@ -62,6 +63,7 @@ class Finding:
         self.data_transformation()
         self.x_train = self.DSS.data_preprocessing(self)
         accuracy = self.DSS.training(self)
+        self.training_history_log()
         print(accuracy)
         return accuracy
 
@@ -130,6 +132,27 @@ class Finding:
                                          remainder="passthrough").fit_transform(self.x_train)
 
         print(self.x_train)
+
+    def training_history_log(self):
+        # https://api.mongodb.com/python/current/tutorial.html
+        collection_training = client['dss']['training_history']
+        num_rows, num_cols = self.x_train.shape
+        item = {
+            "user_id": 2,
+            "model_name": self.model_name,
+            "assessment_name": self.assessment_name,
+            "features": self.features,
+            "rows": num_rows,
+            "columns": num_cols+1,
+            "date": datetime.datetime.utcnow()}
+        collection_training.insert_one(item)
+
+        # print(post_id)
+        # mg_data = collection_training.find({"user_id": 2})
+        # for post in mg_data:
+        #     print(post)
+        # print(mg_data)
+        # pass
 
 
 class Munition(Finding):
