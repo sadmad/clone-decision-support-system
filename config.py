@@ -75,6 +75,12 @@ class Config:
         'password': 'lK98hgr&h'
     }
 
+    # EGEOS = {
+    #     'base_url':  'https://development-amucad.egeos.de',
+    #     'user_name': 'AWais',
+    #     'password':  'Kfy$482xx'
+    # }
+
     SWAGGER_CONF = {
         "headers": [
         ],

@@ -89,13 +89,17 @@ def fish_training():
         required: true
         default: 1
         description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION, 5=> DEEP NEURAL NETWORK
-      - name: assessment_id
+      - name: action_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4]
-        required: true
+        required: false
         default: 1
-        description: 1 => Fdi Assessment, 2 => CF Assessment, 3 => Explosion Fisheries Assessment, 4 => Explosion Shipping Assessment
+      - name: protection_goods_id
+        in: formData
+        type: integer
+        required: false
+        default: 2
+
     responses:
       200:
         description: JSON object containing status of the action
@@ -112,42 +116,49 @@ def fish_training():
         resp.status_code = 422
         return resp
     model_type = int(request.form.get('model_id'))
-    assessment_id = int(request.form.get('assessment_id'))
-    # DSS model type is initialized
-    mdObject = accuracy = assessment_name = model_name = None
-    if assessment_id == 1:
-        mdObject = md.FdiAssessment(model_type)
-        accuracy = mdObject.start();
-    elif assessment_id == 2:
-        mdObject = md.CFAssessment(model_type)
-        accuracy = mdObject.start()
-    elif assessment_id == 3:
-        mdObject = md.ExplosionFisheriesAssessment(model_type)
-        accuracy = mdObject.start()
-    elif assessment_id == 4:
-        mdObject = md.ExplosionShippingAssessment(model_type)
-        accuracy = mdObject.start()
-    if mdObject is not None:
-        assessment_name = mdObject.assessment_name
-        model_name = mdObject.model_name
-        message = 'Model trained successfully'
-        status = 200
-    else:
-        message = 'something went wrong, please contact admin'
-        status = 500
+    action_id = int(request.form.get('action_id'))
+    protection_goods_id = int(request.form.get('protection_goods_id'))
 
-    message = {
-        'status': status,
-        'data': {
-            'assessment': assessment_name,
-            'model': model_name,
-            'message': message,
-            'accuracy': accuracy
-        },
-    }
-    resp = jsonify(message)
-    resp.status_code = 200
-    return resp
+    from app.structure import machine_learning as starter
+    obj = starter.MachineLearning(model_type, action_id, protection_goods_id)
+    return obj.process()
+
+    return 'WTF'
+    # DSS model type is initialized
+    # mdObject = accuracy = assessment_name = model_name = None
+    # if assessment_id == 1:
+    #     mdObject = md.FdiAssessment(model_type)
+    #     accuracy = mdObject.start();
+    # elif assessment_id == 2:
+    #     mdObject = md.CFAssessment(model_type)
+    #     accuracy = mdObject.start()
+    # elif assessment_id == 3:
+    #     mdObject = md.ExplosionFisheriesAssessment(model_type)
+    #     accuracy = mdObject.start()
+    # elif assessment_id == 4:
+    #     mdObject = md.ExplosionShippingAssessment(model_type)
+    #     accuracy = mdObject.start()
+    # if mdObject is not None:
+    #     assessment_name = mdObject.assessment_name
+    #     model_name = mdObject.model_name
+    #     message = 'Model trained successfully'
+    #     status = 200
+    # else:
+    #     message = 'something went wrong, please contact admin'
+    #     status = 500
+    #
+    # message = {
+    #     'status': status,
+    #     'data': {
+    #         'assessment': assessment_name,
+    #         'model': model_name,
+    #         'message': message,
+    #         'accuracy': accuracy
+    #     },
+    # }
+    # resp = jsonify(message)
+    # resp.status_code = 200
+    # return resp
 
 
 @app.route('/finding/assessment', methods=['POST'])
@@ -223,6 +234,7 @@ def finding_assessment():
         mdObject = md.CFAssessment(model_type=data['model_id'])
         return mdObject.getCFAssessment(data)
     return ''
+
 
 @app.route('/ammunition/assessment', methods=['POST'])
 def ammunition_assessment():
