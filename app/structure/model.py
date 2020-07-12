@@ -88,7 +88,6 @@ class Finding:
         if os.path.exists(self.trained_scaler_path) and os.path.exists(self.trained_model_path):
 
             # Before prediction
-
             response = self.DSS.predict_data(self, data)
             print(response)
             return response

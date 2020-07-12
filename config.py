@@ -1,6 +1,7 @@
 import os
 from app import app
 
+
 class Config:
     """
     Use this class to share any default attributes with any subsequent
@@ -113,8 +114,8 @@ class Config:
             "termsOfService": "https://www.tu-clausthal.de/",
             "version": "0.0.1"
         },
-        #"host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
-        #"basePath": "/assessment-models",  # base bash for blueprint registration
+        # "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
+        # "basePath": "/assessment-models",  # base bash for blueprint registration
         # "schemes": [
         #     "http",
         #     "https"

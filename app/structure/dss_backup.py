@@ -62,7 +62,7 @@ class DSS:
     def predict_data(self, finding, data):
         print(' DSS predict_data')
 
-        # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
+        data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         loaded_model = joblib.load(finding.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
@@ -70,9 +70,7 @@ class DSS:
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
-        return predictions
-        #return pd.Series(predictions).to_json(orient='values')
-
+        return pd.Series(predictions).to_json(orient='values')
         # return jsonify([{
         #     'status':200,
         #     'message':'Test Obervations are predicted by Neural Network Trained Model.',
