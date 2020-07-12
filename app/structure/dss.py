@@ -30,7 +30,10 @@ class DSS:
         return scale.Scale.StandardScaler(finding.x_train, finding.trained_scaler_path)
 
     def fit(self, classifier, finding):
-        ac = 0 #accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
+        ac = 0  # accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
+        if os.path.exists(finding.trained_model_path):
+            os.remove(finding.trained_model_path)
+
         fit_model = classifier.fit(finding.x_train, finding.y_train)
         self.save_model(fit_model, finding)
         return ac
@@ -72,7 +75,7 @@ class DSS:
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
-        #return pd.Series(predictions).to_json(orient='values')
+        # return pd.Series(predictions).to_json(orient='values')
 
         # return jsonify([{
         #     'status':200,
@@ -85,12 +88,8 @@ class DSS:
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74##targetText=In%20the%20case%20of%20a,each%20node%20learned%20during%20training).
         from sklearn.model_selection import GridSearchCV
 
-
-
-
         from sklearn.multioutput import MultiOutputRegressor
         classifier = GridSearchCV(MultiOutputRegressor(classifier), param_grid=grid_param)
-
 
         gd_sr = GridSearchCV(estimator=classifier,
                              param_grid=grid_param,
@@ -214,6 +213,37 @@ class LinearRegressionM(DSS):
 #######################################################################
 #######################################################################
 #######################################################################
+################### Decision Tree  ###########################
+#######################################################################
+#######################################################################
+#######################################################################
+
+class DecisionTreeRegressor(DSS):
+
+    def getClassifier(self, is_regression=0):
+        print(' DecisionTreeRegressor Return MODEL')
+        from sklearn import tree
+        if is_regression == 0:
+            return tree.DecisionTreeClassifier()
+        else:
+
+            return tree.DecisionTreeRegressor()
+
+    def training(self, finding):
+        return super().fit(self.getClassifier(finding.is_regression), finding)
+
+    def determineBestHyperParameters(self, finding):
+        grid_param = {
+            'fit_intercept': [True, False],
+            'normalize': [True, False],
+            'copy_X': [True, False]
+        }
+        super().gridSearch(self.getClassifier(), grid_param, finding)
+
+
+#######################################################################
+#######################################################################
+#######################################################################
 ################### Logistic Regression Model #########################
 #######################################################################
 #######################################################################
@@ -242,6 +272,8 @@ class LogisticRegressionM(DSS):
             'warm_start': ['True', 'False']
         }
         super().gridSearch(self.getClassifier(), grid_param, finding)
+
+
 #######################################################################
 #######################################################################
 #######################################################################
@@ -252,13 +284,12 @@ class LogisticRegressionM(DSS):
 
 class DeepNeuralNetwork(DSS):
 
-    def getClassifier(self, finding ):
+    def getClassifier(self, finding):
         print(' Deep NeuralNetwork  Model')
-
 
         model = Sequential()
         columns_x = len(finding.x_train[0])
-        output_neuron_c=3
+        output_neuron_c = 3
         activation_function = 'relu'
         output_activation_function_r = 'relu'
         output_activation_function__c = 'softmax'
@@ -272,7 +303,7 @@ class DeepNeuralNetwork(DSS):
             for x in range(hidden_layers):
                 model.add(Dense(neuron_count, input_dim=columns_x, activation='relu'))
         if finding.is_regression == 0:
-            #Classification
+            # Classification
             model.add(Dense(output_neuron_c, activation=output_activation_function__c))
             print(len(model.layers))
             optimizer = Adam(lr=0.05)
@@ -295,7 +326,7 @@ class DeepNeuralNetwork(DSS):
     def fit(self, classifier, finding):
 
         if finding.is_regression == 0:
-            #Classification
+            # Classification
             import numpy as np
             B = finding.y_train.transpose()
             B = np.reshape(finding.y_train, (-1, 1))
@@ -304,14 +335,13 @@ class DeepNeuralNetwork(DSS):
             train_features, test_features, train_targets, test_targets = train_test_split(finding.x_train, targets,
                                                                                           test_size=0.2)
 
-            fit_model = classifier.fit(finding.x_train, targets, epochs=10, batch_size = 200, verbose=2)
+            fit_model = classifier.fit(finding.x_train, targets, epochs=10, batch_size=200, verbose=2)
             # results= fit_model.fit_model.evaluate(test_features,test_targets)
             # print("Accuracy on the test dataset:%.2f" % results[1])
         else:
             # Regression
             # K.clear_session()
             fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=2)
-
 
         self.save_model(fit_model, finding)
         return 0
@@ -328,7 +358,7 @@ class DeepNeuralNetwork(DSS):
         print(predictions)
 
         return ''.join(map(str, predictions))
-        #return predictions[0] #pd.Series(predictions).to_json(orient='values')
+        # return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
     def determineBestHyperParameters(self, finding):
         grid_param = {
@@ -343,4 +373,3 @@ class DeepNeuralNetwork(DSS):
             # 'early_stopping': [True,False]
         }
         super().gridSearch(self.getClassifier(), grid_param, finding, model)
-

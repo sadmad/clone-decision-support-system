@@ -39,6 +39,11 @@ class Config:
         'scaler': 'deep_neural_network_scaler.save'
     }
 
+    DECISIONTREE_REGRESSOR_MODEL = {
+        'model': 'decision_tree.sav',
+        'scaler': 'decision_tree.save'
+    }
+
     MODELS = {
 
         'FDI_ASSESSMENT': 'fdi_assessment_',  # FISH

@@ -60,7 +60,7 @@ class CFInputSchema(Schema):
 
 
 class TrainingAPISchema(Schema):
-    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=5))
+    model_id = fields.Int(required=True, validate=validate.Range(min=1, max=6))
     action_id = fields.Int(required=True)
     protection_goods_id = fields.Int(required=True)
 

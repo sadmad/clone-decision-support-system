@@ -85,10 +85,10 @@ def fish_training():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 5]
+        enum: [1, 2, 3, 5, 6]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 5=> DEEP NEURAL NETWORK
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 5=> DEEP NEURAL NETWORK, , 6=> Decision Tree
       - name: action_id
         in: formData
         type: integer

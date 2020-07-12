@@ -36,6 +36,10 @@ def setDssNetwork(model_type):
         model_config = app.config['DEEP_NEURAL_NETWORK_MODEL']
         model_name = 'DEEP_NEURAL_NETWORK_MODEL'
 
+    elif model_type == 6:
+        md = dss.DecisionTreeRegressor()
+        model_config = app.config['DECISIONTREE_REGRESSOR_MODEL']
+        model_name = 'DecisionTree_Regressor_MODEL'
     return md, model_config, model_name
 
 
