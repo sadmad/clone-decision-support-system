@@ -30,10 +30,12 @@ class DSS:
         return scale.Scale.StandardScaler(finding.x_train, finding.trained_scaler_path)
 
     def fit(self, classifier, finding):
+        ac = 0 #accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
         fit_model = classifier.fit(finding.x_train, finding.y_train)
         self.save_model(fit_model, finding)
-        return 'done'
-        # return accuracy.AccuracyFinder.stratified_k_fold(fit_model, finding.x_train, finding.y_train)
+        return ac
+
+        return
 
     def save_model(self, model, finding):
         print(' DSS Save Model')
@@ -84,6 +86,13 @@ class DSS:
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74##targetText=In%20the%20case%20of%20a,each%20node%20learned%20during%20training).
         from sklearn.model_selection import GridSearchCV
 
+
+
+
+        from sklearn.multioutput import MultiOutputRegressor
+        classifier = GridSearchCV(MultiOutputRegressor(classifier), param_grid=grid_param)
+
+
         gd_sr = GridSearchCV(estimator=classifier,
                              param_grid=grid_param,
                              scoring='accuracy',
@@ -109,10 +118,10 @@ class NeuralNetwork(DSS):
         if is_regression == 0:
             return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
         else:
-            return MLPRegressor(hidden_layer_sizes=(13, 13, 13), max_iter=500)
+            return MLPRegressor(hidden_layer_sizes=(13, 13, 13), activation='logistic', random_state=1, max_iter=500)
 
     def training(self, finding):
-        return super().fit(self.getClassifier(finding.regression), finding)
+        return super().fit(self.getClassifier(finding.is_regression), finding)
 
     def determineBestHyperParameters(self, finding):
         grid_param = {

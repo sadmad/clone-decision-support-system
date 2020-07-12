@@ -49,7 +49,7 @@ class MachineLearning:
         self.output_variables = None
         self.x_train = None
         self.y_train = None
-        self.regression = None
+        self.is_regression = 1
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
                                              str(self.protection_goods_id) + '.save')
 
@@ -57,9 +57,15 @@ class MachineLearning:
                                                str(self.protection_goods_id) + '_' + self.model_name + '.sav')
 
     def process(self):
+
         self.data_intialization()
+
         self.data_preprocessing()
-        self.training()
+
+        # from sklearn.datasets import make_regression
+        # self.x_train, self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2, random_state=1)
+
+        accuracy = self.training()
 
         data = [[
             340,
@@ -73,11 +79,15 @@ class MachineLearning:
         ]]
         response = self.testing(data)
         print(response)
+        return accuracy
 
 
     def data_intialization(self):
+
         amucad = dt.Amucad()
         self.data, self.input_variables, self.output_variables = amucad.amucad_generic_api(self)
+
+        self.data.round(2)
 
         # drop nulls from response variable's columns
         for y in self.output_variables:
@@ -90,6 +100,9 @@ class MachineLearning:
 
         # Separation of output variables
         self.y_train = self.data[self.output_variables]
+        # for y in self.output_variables:
+        #     self.y_train = self.data[y]
+        #     break
 
     def data_preprocessing(self):
 
@@ -114,8 +127,7 @@ class MachineLearning:
         self.x_train = scaler.transform(self.x_train)
 
     def training(self):
-        accuracy = self.DSS.training(self)
-        pass
+        return self.DSS.training(self)
 
     def testing(self, data):
 
