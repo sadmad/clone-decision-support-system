@@ -58,6 +58,8 @@ class MachineLearning:
 
     def process(self):
 
+
+        #https://scikit-learn.org/stable/modules/tree.html
         self.data_intialization()
 
         self.data_preprocessing()
@@ -77,10 +79,7 @@ class MachineLearning:
             390,
             0
         ]]
-        response = self.testing(data)
-        print(response)
-        return accuracy
-
+        return self.testing(data)
 
     def data_intialization(self):
 
@@ -133,9 +132,7 @@ class MachineLearning:
 
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
-            response = self.DSS.predict_data(self, data)
-            print(response)
-            return response
+            return self.DSS.predict_data(self, data)
         else:
             print(' Model Not Found')
             return None

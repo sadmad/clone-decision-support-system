@@ -85,10 +85,10 @@ def fish_training():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4, 5]
+        enum: [1, 2, 3, 5]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION, 5=> DEEP NEURAL NETWORK
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 5=> DEEP NEURAL NETWORK
       - name: action_id
         in: formData
         type: integer
@@ -121,9 +121,18 @@ def fish_training():
 
     from app.structure import machine_learning as starter
     obj = starter.MachineLearning(model_type, action_id, protection_goods_id)
-    return obj.process()
+    res = obj.process()
+    message = {
+        'status': 200,
+        'data': {
+            'assessments': res.tolist(),
+            'message': 'success'
+        },
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp
 
-    return 'WTF'
     # DSS model type is initialized
     # mdObject = accuracy = assessment_name = model_name = None
     # if assessment_id == 1:

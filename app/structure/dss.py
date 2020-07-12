@@ -68,11 +68,10 @@ class DSS:
 
         loaded_model = joblib.load(finding.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        predictions = loaded_model.predict(data)
+        return loaded_model.predict(data)
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
-        return predictions
         #return pd.Series(predictions).to_json(orient='values')
 
         # return jsonify([{
