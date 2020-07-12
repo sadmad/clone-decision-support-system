@@ -168,7 +168,7 @@ class RandomForest(DSS):
             )
 
     def training(self, finding):
-        return super().fit(self.getClassifier(finding.regression), finding)
+        return super().fit(self.getClassifier(finding.is_regression), finding)
 
     def determineBestHyperParameters(self, finding):
         grid_param = {
@@ -272,7 +272,7 @@ class DeepNeuralNetwork(DSS):
             output_neuron_r = 1
             for x in range(hidden_layers):
                 model.add(Dense(neuron_count, input_dim=columns_x, activation='relu'))
-        if finding.regression == 0:
+        if finding.is_regression == 0:
             #Classification
             model.add(Dense(output_neuron_c, activation=output_activation_function__c))
             print(len(model.layers))
@@ -295,7 +295,7 @@ class DeepNeuralNetwork(DSS):
 
     def fit(self, classifier, finding):
 
-        if finding.regression == 0:
+        if finding.is_regression == 0:
             #Classification
             import numpy as np
             B = finding.y_train.transpose()
