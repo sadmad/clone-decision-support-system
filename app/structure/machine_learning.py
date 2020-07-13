@@ -54,6 +54,7 @@ class MachineLearning:
         self.x_train = None
         self.y_train = None
         self.is_regression = 1
+        self.test_data = None
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
                                              str(self.protection_goods_id) + '.save')
 
@@ -62,8 +63,7 @@ class MachineLearning:
 
     def process(self):
 
-
-        #https://scikit-learn.org/stable/modules/tree.html
+        # https://scikit-learn.org/stable/modules/tree.html
         self.data_intialization()
 
         self.data_preprocessing()
@@ -73,17 +73,7 @@ class MachineLearning:
 
         accuracy = self.training()
 
-        data = [[
-            340,
-            0.6,
-            0.37,
-            3.8,
-            290,
-            8.12,
-            390,
-            0
-        ]]
-        return self.testing(data)
+        return self.testing()
 
     def data_intialization(self):
 
@@ -132,11 +122,27 @@ class MachineLearning:
     def training(self):
         return self.DSS.training(self)
 
-    def testing(self, data):
+    def testing(self):
 
+        self.test_data = [[
+            340,
+            0.6,
+            0.37,
+            3.8,
+            290,
+            8.12,
+            390,
+            0
+        ]]
+
+        self.apply_existing_scaler()
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
-            return self.DSS.predict_data(self, data)
+            return self.DSS.predict_data(self, self.test_data)
         else:
             print(' Model Not Found')
             return None
+
+    def apply_existing_scaler(self):
+        scaler = joblib.load(self.scaler_file_path)
+        self.test_data = scaler.transform(self.test_data)

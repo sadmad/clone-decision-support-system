@@ -299,7 +299,7 @@ class DeepNeuralNetwork(DSS):
             model.add(Dense(neuron_count, input_dim=columns_x, activation=activation_function))
             hidden_layers = 6
 
-            output_neuron_r = 1
+            output_neuron_r = 2
             for x in range(hidden_layers):
                 model.add(Dense(neuron_count, input_dim=columns_x, activation='relu'))
         if finding.is_regression == 0:
@@ -348,15 +348,25 @@ class DeepNeuralNetwork(DSS):
 
     def predict_data(self, finding, data):
         print(' DSS predict_data')
+
+
         K.clear_session()
-        data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
+        #data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         loaded_model = joblib.load(finding.trained_model_path)
 
-        predictions = loaded_model.model.predict(data)
+        #Awais
+        #predictions = loaded_model.model.predict(data)
+        import tensorflow as tf
+        global graph
+        graph = tf.get_default_graph()
+        with graph.as_default():
+            predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
+
 
         print(predictions)
-
+        print(predictions[0][0])
+        print(predictions[0][1])
         return ''.join(map(str, predictions))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
