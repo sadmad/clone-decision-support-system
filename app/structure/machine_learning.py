@@ -7,7 +7,8 @@ from app import app
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 import joblib
-
+import redis
+import json
 
 def setDssNetwork(model_type):
     md = model_config = model_name = None
@@ -55,6 +56,7 @@ class MachineLearning:
         self.y_train = None
         self.is_regression = 1
         self.test_data = None
+        self.cache_key = str(self.action_id) + '_' + str(self.protection_goods_id)
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
                                              str(self.protection_goods_id) + '.save')
 
@@ -70,10 +72,8 @@ class MachineLearning:
 
         # from sklearn.datasets import make_regression
         # self.x_train, self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2, random_state=1)
-
-        accuracy = self.training()
-
-        return self.testing()
+        self.training()
+        return 'success'
 
     def data_intialization(self):
 
@@ -120,28 +120,35 @@ class MachineLearning:
         self.x_train = scaler.transform(self.x_train)
 
     def training(self):
+
+        r = redis.Redis()
+        r.delete(self.cache_key)
+        r.mset({self.cache_key: json.dumps(self.output_variables)})
+
         return self.DSS.training(self)
+
+    def set_test_data(self, data):
+        self.test_data = [data]
 
     def testing(self):
 
-        self.test_data = [[
-            340,
-            0.6,
-            0.37,
-            3.8,
-            290,
-            8.12,
-            390,
-            0
-        ]]
+        # self.test_data = [[
+        #     340,
+        #     0.6,
+        #     0.37,
+        #     3.8,
+        #     290,
+        #     8.12,
+        #     390,
+        #     0
+        # ]]
 
         self.apply_existing_scaler()
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
             return self.DSS.predict_data(self, self.test_data)
         else:
-            print(' Model Not Found')
-            return None
+            return  "Model not found"
 
     def apply_existing_scaler(self):
         scaler = joblib.load(self.scaler_file_path)

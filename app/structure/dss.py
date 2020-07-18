@@ -18,6 +18,9 @@ from app.structure import model
 
 from app.structure import accuracy_finder as accuracy
 
+import redis
+import json
+
 
 class DSS:
     def __init__(self):
@@ -71,7 +74,16 @@ class DSS:
 
         loaded_model = joblib.load(finding.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        return loaded_model.predict(data)
+
+        prediction = loaded_model.predict(data)
+        cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
+
+        res = {}
+        i = 0
+        for j in cached_response_variables:
+            res[j] = prediction[0][i]
+            i = i + 1
+        return json.dumps(str(res))
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
@@ -286,10 +298,12 @@ class DeepNeuralNetwork(DSS):
 
     def getClassifier(self, finding):
         print(' Deep NeuralNetwork  Model')
-
+        K.clear_session()
         model = Sequential()
         columns_x = len(finding.x_train[0])
+        columns_y = len(finding.y_train.columns)
         output_neuron_c = 3
+        output_neuron_r = columns_y
         activation_function = 'relu'
         output_activation_function_r = 'relu'
         output_activation_function__c = 'softmax'
@@ -297,9 +311,9 @@ class DeepNeuralNetwork(DSS):
         if columns_x is not None:
             neuron_count = columns_x
             model.add(Dense(neuron_count, input_dim=columns_x, activation=activation_function))
-            hidden_layers = 6
+            hidden_layers = columns_x
 
-            output_neuron_r = 2
+            output_neuron_r = columns_y
             for x in range(hidden_layers):
                 model.add(Dense(neuron_count, input_dim=columns_x, activation='relu'))
         if finding.is_regression == 0:
@@ -311,6 +325,7 @@ class DeepNeuralNetwork(DSS):
                           optimizer=optimizer, metrics=['accuracy'], )
         else:
             # Regression
+            print(len(model.layers))
             model.add(Dense(output_neuron_r, activation=output_activation_function_r))
             print(len(model.layers))
 
@@ -349,25 +364,27 @@ class DeepNeuralNetwork(DSS):
     def predict_data(self, finding, data):
         print(' DSS predict_data')
 
-
         K.clear_session()
-        #data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
+        # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         loaded_model = joblib.load(finding.trained_model_path)
-
-        #Awais
-        #predictions = loaded_model.model.predict(data)
+        # predictions = loaded_model.model.predict(data)
+        # Awais
+        # predictions = loaded_model.model.predict(data)
         import tensorflow as tf
         global graph
         graph = tf.get_default_graph()
         with graph.as_default():
             predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
 
-
-        print(predictions)
-        print(predictions[0][0])
-        print(predictions[0][1])
-        return ''.join(map(str, predictions))
+        cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
+        # Something went wrong in Cache for response variable
+        res = {}
+        i = 0
+        for j in cached_response_variables:
+            res[j] = predictions[0][i]
+            i = i + 1
+        return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
     def determineBestHyperParameters(self, finding):

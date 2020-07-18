@@ -3,6 +3,7 @@ from functools import wraps
 
 import datetime
 import jwt
+import os
 import redis
 import requests
 from flasgger import Swagger
@@ -125,7 +126,6 @@ def fish_training():
     message = {
         'status': 200,
         'data': {
-            'assessments': res.tolist(),
             'message': 'success'
         },
     }
@@ -368,4 +368,32 @@ def login():
             'message': 'Incorrect email or password',
         })
         resp.status_code = 422
+    return resp
+
+
+@app.route('/dss/evaluation', methods=['POST'])
+def dss_evaluation():
+    content = request.get_json(silent=True)
+    from app.structure import machine_learning as starter
+
+    results = []
+    for d in content:
+        obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
+        sample = []
+        single_result = {}
+        single_result['model_id'] = d['model_id']
+        single_result['protection_good_id'] = d['protection_good_id']
+        single_result['action_id'] = d['action_id']
+
+        for key in d['data'][0]:
+            sample.append(d['data'][0][key])
+        obj.set_test_data(sample)
+        single_result['assessment_response'] = obj.testing()
+        results.append(single_result)
+    message = {
+        'status': 200,
+        'data': results,
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
     return resp
