@@ -10,6 +10,7 @@ import joblib
 import redis
 import json
 
+
 def setDssNetwork(model_type):
     md = model_config = model_name = None
 
@@ -56,6 +57,7 @@ class MachineLearning:
         self.y_train = None
         self.is_regression = 1
         self.test_data = None
+
         self.cache_key = str(self.action_id) + '_' + str(self.protection_goods_id)
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
                                              str(self.protection_goods_id) + '.save')
@@ -132,23 +134,13 @@ class MachineLearning:
 
     def testing(self):
 
-        # self.test_data = [[
-        #     340,
-        #     0.6,
-        #     0.37,
-        #     3.8,
-        #     290,
-        #     8.12,
-        #     390,
-        #     0
-        # ]]
 
-        self.apply_existing_scaler()
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
+            self.apply_existing_scaler()
             return self.DSS.predict_data(self, self.test_data)
         else:
-            return  "Model not found"
+            return None
 
     def apply_existing_scaler(self):
         scaler = joblib.load(self.scaler_file_path)

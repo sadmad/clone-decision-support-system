@@ -81,7 +81,7 @@ class DSS:
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = prediction[0][i]
+            res[j] = round(prediction[0][i],2)
             i = i + 1
         return json.dumps(str(res))
         # print(confusion_matrix(self.y_test,predictions))
@@ -305,7 +305,7 @@ class DeepNeuralNetwork(DSS):
         output_neuron_c = 3
         output_neuron_r = columns_y
         activation_function = 'relu'
-        output_activation_function_r = 'relu'
+        output_activation_function_r = 'softmax'
         output_activation_function__c = 'softmax'
 
         if columns_x is not None:
@@ -382,7 +382,7 @@ class DeepNeuralNetwork(DSS):
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = predictions[0][i]
+            res[j] = round(predictions[0][i], 2)
             i = i + 1
         return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')

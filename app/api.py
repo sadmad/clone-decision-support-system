@@ -377,23 +377,54 @@ def dss_evaluation():
     from app.structure import machine_learning as starter
 
     results = []
-    for d in content:
-        obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
-        sample = []
-        single_result = {}
-        single_result['model_id'] = d['model_id']
-        single_result['protection_good_id'] = d['protection_good_id']
-        single_result['action_id'] = d['action_id']
+    counter = 1
+    model_key = 'model_id'
+    action_key = 'action_id'
+    protection_key = 'protection_good_id'
 
-        for key in d['data'][0]:
-            sample.append(d['data'][0][key])
-        obj.set_test_data(sample)
-        single_result['assessment_response'] = obj.testing()
+    status = 200
+    if content is not None:
+        counter = 1
+        for d in content:
+            status = 400
+            single_result = {}
+            if model_key not in d or action_key not in d or protection_key not in d:
+                single_result[
+                    'assessment_' + str(counter)] = "Action ID, Model ID and Protection Good ID must be provided."
+                single_result['status'] = status
+            else:
+                if 0 < d['model_id'] < 7:
+                    obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
+                    single_result['model_id'] = d['model_id']
+                    single_result['protection_good_id'] = d['protection_good_id']
+                    single_result['action_id'] = d['action_id']
+                    sample = []
+                    for key in d['data'][0]:
+                        sample.append(d['data'][0][key])
+
+                    obj.set_test_data(sample)
+                    p_r = obj.testing()
+                    if p_r is not None:
+                        status = 200
+                        single_result['assessment_response'] = obj.testing()
+                        single_result['status'] = status
+                    else:
+                        status = 404
+                        single_result['assessment_response'] = 'Model Does Not Exist'
+                        single_result['status'] = status
+                else:
+                    status = 404
+                    single_result['assessment_response'] = 'Model_id should be between 1 and 6'
+                    single_result['status'] = status
+
+
+            counter = counter + 1
+            results.append(single_result)
+    else:
+        status = 400
+        single_result = {'status': status, 'message': 'Invalid Json Input'}
         results.append(single_result)
-    message = {
-        'status': 200,
-        'data': results,
-    }
-    resp = jsonify(message)
-    resp.status_code = 200
+
+    resp = jsonify(results)
+    resp.status_code = status
     return resp
