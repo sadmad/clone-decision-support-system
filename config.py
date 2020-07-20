@@ -119,12 +119,15 @@ class Config:
             "termsOfService": "https://www.tu-clausthal.de/",
             "version": "0.0.1"
         },
-        # "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
-        # "basePath": "/assessment-models",  # base bash for blueprint registration
-        # "schemes": [
-        #     "http",
-        #     "https"
-        # ],
+
+        # comment for local environment
+        "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
+        "basePath": "/assessment-models",  # base bash for blueprint registration
+        "schemes": [
+            "http",
+            "https"
+        ],
+
         "operationId": "getmyData"
     }
 
