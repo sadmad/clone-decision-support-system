@@ -373,6 +373,23 @@ def login():
 
 @app.route('/dss/evaluation', methods=['POST'])
 def dss_evaluation():
+
+
+    """Endpoint to get the token for authentication
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: Input
+        in: body
+        type: string
+        required: true
+        description:  ''
+
+    responses:
+      200:
+        description: Array of assessment objects
+    """
+
     content = request.get_json(silent=True)
     from app.structure import machine_learning as starter
 
@@ -416,7 +433,6 @@ def dss_evaluation():
                     status = 404
                     single_result['assessment_response'] = 'Model_id should be between 1 and 6'
                     single_result['status'] = status
-
 
             counter = counter + 1
             results.append(single_result)
