@@ -6,10 +6,10 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
-# from keras.models import Sequential
-# from keras.layers.core import Dense
-# from keras import backend as K
-# from keras.optimizers import Adam
+from keras.models import Sequential
+from keras.layers.core import Dense
+from keras import backend as K
+from keras.optimizers import Adam
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from app import app
