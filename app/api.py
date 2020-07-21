@@ -129,13 +129,13 @@ def fish_training():
     obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
     res = obj.process()
     message = {
-        'status': 200,
+        'status': res['status'],
         'data': {
-            'message': 'success'
+            'message': res['message']
         },
     }
     resp = jsonify(message)
-    resp.status_code = 200
+    resp.status_code = res['status']
     return resp
 
 

@@ -69,18 +69,30 @@ class MachineLearning:
     def process(self):
 
         # https://scikit-learn.org/stable/modules/tree.html
+        self.data_load()
+        if self.data.empty:
+            return {
+                'status': 502,
+                'message': 'Data Not Found'
+            }
+
         self.data_intialization()
         self.data_preprocessing()
         # from sklearn.datasets import make_regression
         # self.x_train, self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2, random_state=1)
+
         self.training()
-        #self.training_history_log()
-        return 'success'
+        # self.training_history_log()
+        return {
+            'status': 200,
+            'message': 'Success'
+        }
 
-    def data_intialization(self):
-
+    def data_load(self):
         amucad = dt.Amucad()
         self.data, self.input_variables, self.output_variables = amucad.amucad_generic_api(self)
+
+    def data_intialization(self):
 
         self.data.round(2)
 
