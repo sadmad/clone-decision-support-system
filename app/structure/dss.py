@@ -6,10 +6,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
-from keras.models import Sequential
-from keras.layers.core import Dense
-from keras import backend as K
-from keras.optimizers import Adam
+
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from app import app
@@ -297,6 +294,12 @@ class LogisticRegressionM(DSS):
 class DeepNeuralNetwork(DSS):
 
     def getClassifier(self, finding):
+
+        from keras.models import Sequential
+        from keras.layers.core import Dense
+        from keras import backend as K
+        from keras.optimizers import Adam
+
         print(' Deep NeuralNetwork  Model')
         K.clear_session()
         model = Sequential()
@@ -363,6 +366,11 @@ class DeepNeuralNetwork(DSS):
 
     def predict_data(self, finding, data):
         print(' DSS predict_data')
+        from keras.models import Sequential
+        from keras.layers.core import Dense
+        from keras import backend as K
+        from keras.optimizers import Adam
+
 
         K.clear_session()
         # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)

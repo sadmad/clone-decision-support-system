@@ -74,7 +74,7 @@ class MachineLearning:
         # from sklearn.datasets import make_regression
         # self.x_train, self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2, random_state=1)
         self.training()
-        self.training_history_log()
+        #self.training_history_log()
         return 'success'
 
     def data_intialization(self):
