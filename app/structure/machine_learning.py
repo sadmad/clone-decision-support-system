@@ -46,8 +46,9 @@ def setDssNetwork(model_type):
 
 
 class MachineLearning:
-    def __init__(self, model_type, action_id, protection_goods_id):
+    def __init__(self, model_type, action_id, protection_goods_id, user_id=None):
         self.DSS, self.model_config, self.model_name = setDssNetwork(model_type)
+        self.model_id = model_type
         self.action_id = action_id
         self.protection_goods_id = protection_goods_id
         self.data = None
@@ -57,7 +58,7 @@ class MachineLearning:
         self.y_train = None
         self.is_regression = 1
         self.test_data = None
-
+        self.user_id = user_id
         self.cache_key = str(self.action_id) + '_' + str(self.protection_goods_id)
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
                                              str(self.protection_goods_id) + '.save')
@@ -69,12 +70,11 @@ class MachineLearning:
 
         # https://scikit-learn.org/stable/modules/tree.html
         self.data_intialization()
-
         self.data_preprocessing()
-
         # from sklearn.datasets import make_regression
         # self.x_train, self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2, random_state=1)
         self.training()
+        self.training_history_log()
         return 'success'
 
     def data_intialization(self):
@@ -134,7 +134,6 @@ class MachineLearning:
 
     def testing(self):
 
-
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
             self.apply_existing_scaler()
@@ -145,3 +144,31 @@ class MachineLearning:
     def apply_existing_scaler(self):
         scaler = joblib.load(self.scaler_file_path)
         self.test_data = scaler.transform(self.test_data)
+
+    def training_history_log(self):
+
+        from pymongo import MongoClient
+        import datetime
+        client = MongoClient('mongodb://localhost:27017/')
+
+        # https://api.mongodb.com/python/current/tutorial.html
+        collection_training = client['dss']['training_history']
+        num_rows_x, num_cols_x = self.x_train.shape
+        item = {
+            "user_id": 2,
+            "model_name": self.model_name,
+            "model_id": self.model_id,
+            "action_id": self.action_id,
+            "protection_goods_id": self.protection_goods_id,
+            "training_observations": num_rows_x,
+            "input_features": self.input_variables,
+            "output_variables": self.output_variables,
+            "date": datetime.datetime.utcnow()}
+        collection_training.insert_one(item)
+
+        # print(post_id)
+        # mg_data = collection_training.find({"user_id": 2})
+        # for post in mg_data:
+        #     print(post)
+        # print(mg_data)
+        # pass

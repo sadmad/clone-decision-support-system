@@ -93,14 +93,18 @@ def fish_training():
       - name: action_id
         in: formData
         type: integer
-        required: false
+        required: true
         default: 1
       - name: protection_goods_id
         in: formData
         type: integer
-        required: false
+        required: true
         default: 2
-
+      - name: user_id
+        in: formData
+        type: integer
+        required: true
+        default: 2
     responses:
       200:
         description: JSON object containing status of the action
@@ -119,9 +123,10 @@ def fish_training():
     model_type = int(request.form.get('model_id'))
     action_id = int(request.form.get('action_id'))
     protection_goods_id = int(request.form.get('protection_goods_id'))
+    user_id = int(request.form.get('user_id'))
 
     from app.structure import machine_learning as starter
-    obj = starter.MachineLearning(model_type, action_id, protection_goods_id)
+    obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
     res = obj.process()
     message = {
         'status': 200,
@@ -132,42 +137,6 @@ def fish_training():
     resp = jsonify(message)
     resp.status_code = 200
     return resp
-
-    # DSS model type is initialized
-    # mdObject = accuracy = assessment_name = model_name = None
-    # if assessment_id == 1:
-    #     mdObject = md.FdiAssessment(model_type)
-    #     accuracy = mdObject.start();
-    # elif assessment_id == 2:
-    #     mdObject = md.CFAssessment(model_type)
-    #     accuracy = mdObject.start()
-    # elif assessment_id == 3:
-    #     mdObject = md.ExplosionFisheriesAssessment(model_type)
-    #     accuracy = mdObject.start()
-    # elif assessment_id == 4:
-    #     mdObject = md.ExplosionShippingAssessment(model_type)
-    #     accuracy = mdObject.start()
-    # if mdObject is not None:
-    #     assessment_name = mdObject.assessment_name
-    #     model_name = mdObject.model_name
-    #     message = 'Model trained successfully'
-    #     status = 200
-    # else:
-    #     message = 'something went wrong, please contact admin'
-    #     status = 500
-    #
-    # message = {
-    #     'status': status,
-    #     'data': {
-    #         'assessment': assessment_name,
-    #         'model': model_name,
-    #         'message': message,
-    #         'accuracy': accuracy
-    #     },
-    # }
-    # resp = jsonify(message)
-    # resp.status_code = 200
-    # return resp
 
 
 @app.route('/finding/assessment', methods=['POST'])
@@ -245,80 +214,6 @@ def finding_assessment():
     return ''
 
 
-@app.route('/ammunition/assessment', methods=['POST'])
-def ammunition_assessment():
-    """Endpoint returning different assessments for given ammunition object
-    This is using docstrings for specifications.
-    ---
-    parameters:
-      - name: model_id
-        in: formData
-        type: integer
-        enum: [1, 2, 3, 4, 5]
-        required: true
-        default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION, 5=> DEEP NEURAL NETWORK
-
-      - name: object_id
-        in: formData
-        type: integer
-        required: false
-        default: 31565
-
-
-    responses:
-      200:
-        description: A JSON object containing different assessments for ammunition
-        examples:
-          rgb: []
-    """
-    data = {}
-    status = message = exFAResponse = exSAResponse = None
-
-    validation = MunitionInputSchema().validate(request.form)
-    if validation:
-        message = {
-            'status': 422,
-            'message': str(validation),
-        }
-        resp = jsonify(message)
-        resp.status_code = 422
-        return resp
-    data['model_id'] = int(request.form.get('model_id'))
-    data['object_id'] = int(request.form.get('object_id'))
-    ob = amc.Amucad()
-    object_id = data['object_id']
-    rs = ob.get_object_detail(object_id)
-
-    if rs is not None:
-        for key in rs:
-            if rs[key] is None:
-                rs[key] = 0
-
-        status = 200
-        exFA = md.ExplosionFisheriesAssessment(data['model_id'])
-        exFAResponse = exFA.getExplosionFisheriesAssessment(rs)
-
-        exSA = md.ExplosionShippingAssessment(data['model_id'])
-        exSAResponse = exSA.getExplosionShippingAssessment(rs)
-        message = 'OK'
-    else:
-        status = 422
-        message = 'Object not found'
-
-    message = {
-        'status': status,
-        'data': {
-            'ExplosionFisheriesAssessment': exFAResponse,
-            'ExplosionShippingAssessment': exSAResponse,
-            'message': message
-        },
-    }
-    resp = jsonify(message)
-    resp.status_code = status
-    return resp
-
-
 @app.route('/login', methods=['POST'])
 def login():
     """Endpoint to get the token for authentication
@@ -373,8 +268,6 @@ def login():
 
 @app.route('/dss/evaluation', methods=['POST'])
 def dss_evaluation():
-
-
     """Endpoint to get the token for authentication
     This is using docstrings for specifications.
     ---
@@ -444,3 +337,43 @@ def dss_evaluation():
     resp = jsonify(results)
     resp.status_code = status
     return resp
+
+
+@app.route('/dss/logs', methods=['GET'])
+def dss_logs():
+    """Endpoint to get the token for authentication
+    This is using docstrings for specifications.
+    ---
+    responses:
+      200:
+        description: Array of logs
+    """
+    from pymongo import MongoClient
+    client = MongoClient('mongodb://localhost:27017/')
+    collection_training = client['dss']['training_history']
+    mg_data = collection_training.find()
+    data = []
+    i = 0
+    for post in mg_data:
+
+        data.append({
+            'user_id': post['user_id'],
+            'model_name': post['model_name'],
+            'model_id': post['model_id'],
+            'action_id': post['action_id'],
+            'protection_goods_id': post['protection_goods_id'],
+            'training_observations': post['training_observations'],
+            'input_features': post['input_features'],
+            'output_variables': post['output_variables'],
+            'date': post['date']
+        })
+        i = i + 1
+
+    message = {
+        'status': 200,
+        'data': data
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp
+    return 'hello'
