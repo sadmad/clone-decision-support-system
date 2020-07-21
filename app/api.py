@@ -353,7 +353,6 @@ def dss_logs():
     collection_training = client['dss']['training_history']
     mg_data = collection_training.find()
     data = []
-    i = 0
     for post in mg_data:
 
         data.append({
@@ -367,7 +366,6 @@ def dss_logs():
             'output_variables': post['output_variables'],
             'date': post['date']
         })
-        i = i + 1
 
     message = {
         'status': 200,
@@ -376,4 +374,3 @@ def dss_logs():
     resp = jsonify(message)
     resp.status_code = 200
     return resp
-    return 'hello'
