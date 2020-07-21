@@ -354,7 +354,6 @@ def dss_logs():
     mg_data = collection_training.find()
     data = []
     for post in mg_data:
-
         data.append({
             'user_id': post['user_id'],
             'model_name': post['model_name'],
