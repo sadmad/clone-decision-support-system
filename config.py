@@ -1,6 +1,7 @@
 import os
 from app import app
 
+
 class Config:
     """
     Use this class to share any default attributes with any subsequent
@@ -33,6 +34,16 @@ class Config:
         'model': 'logistic_regression.sav',
         'scaler': 'logistic_regression_scaler.save'
     }
+    DEEP_NEURAL_NETWORK_MODEL = {
+        'model': 'deep_neural_network.sav',
+        'scaler': 'deep_neural_network_scaler.save'
+    }
+
+    DECISIONTREE_REGRESSOR_MODEL = {
+        'model': 'decision_tree.sav',
+        'scaler': 'decision_tree.save'
+    }
+
     MODELS = {
 
         'FDI_ASSESSMENT': 'fdi_assessment_',  # FISH
@@ -70,6 +81,12 @@ class Config:
         'password': 'lK98hgr&h'
     }
 
+    # EGEOS = {
+    #     'base_url':  'https://development-amucad.egeos.de',
+    #     'user_name': 'AWais',
+    #     'password':  'Kfy$482xx'
+    # }
+
     SWAGGER_CONF = {
         "headers": [
         ],
@@ -103,13 +120,10 @@ class Config:
             "version": "0.0.1"
         },
 
-        # #Comment for local
-        # "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
-        # "basePath": "/assessment-models",  # base bash for blueprint registration
-        # "schemes": [
-        #     "http",
-        #     "https"
-        # ],
+        # comment for local environment
+        "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
+        "basePath": "/assessment-models",  # base bash for blueprint registration
+        "schemes": 'https',
         "operationId": "getmyData"
     }
 
@@ -120,7 +134,7 @@ class ProductionConfig(Config):
     Use this class to define production configuration atrributes, such
     as database usernames, passwords, server specific files & directories etc.
     """
-    CACHE_API = 1
+    CACHE_API = 0
     STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")
 
 
@@ -131,5 +145,5 @@ class DevelopmentConfig(Config):
     as local database usernames, passwords, local specific files & directories etc.
     """
     DEBUG = True
-    CACHE_API = 1
+    CACHE_API = 0
     STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")

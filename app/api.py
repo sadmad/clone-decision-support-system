@@ -3,6 +3,7 @@ from functools import wraps
 
 import datetime
 import jwt
+import os
 import redis
 import requests
 from flasgger import Swagger
@@ -12,7 +13,6 @@ from app import app
 from app.input_schema import FDIInputSchema, CFInputSchema, TrainingAPISchema, MunitionInputSchema, LoginInputSchema
 from app.structure import dss
 from app.structure import model as md, data_transformer as amc
-
 
 swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 
@@ -86,17 +86,21 @@ def fish_training():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4]
+        enum: [1, 2, 3, 5, 6]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION
-      - name: assessment_id
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 5=> DEEP NEURAL NETWORK, , 6=> Decision Tree
+      - name: action_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4]
-        required: true
+        required: false
         default: 1
-        description: 1 => Fdi Assessment, 2 => CF Assessment, 3 => Explosion Fisheries Assessment, 4 => Explosion Shipping Assessment
+      - name: protection_goods_id
+        in: formData
+        type: integer
+        required: false
+        default: 2
+
     responses:
       200:
         description: JSON object containing status of the action
@@ -113,42 +117,57 @@ def fish_training():
         resp.status_code = 422
         return resp
     model_type = int(request.form.get('model_id'))
-    assessment_id = int(request.form.get('assessment_id'))
-    # DSS model type is initialized
-    mdObject = accuracy = assessment_name = model_name = None
-    if assessment_id == 1:
-        mdObject = md.FdiAssessment(model_type)
-        accuracy = mdObject.start();
-    elif assessment_id == 2:
-        mdObject = md.CFAssessment(model_type)
-        accuracy = mdObject.start()
-    elif assessment_id == 3:
-        mdObject = md.ExplosionFisheriesAssessment(model_type)
-        accuracy = mdObject.start()
-    elif assessment_id == 4:
-        mdObject = md.ExplosionShippingAssessment(model_type)
-        accuracy = mdObject.start()
-    if mdObject is not None:
-        assessment_name = mdObject.assessment_name
-        model_name = mdObject.model_name
-        message = 'Model trained successfully'
-        status = 200
-    else:
-        message = 'something went wrong, please contact admin'
-        status = 500
+    action_id = int(request.form.get('action_id'))
+    protection_goods_id = int(request.form.get('protection_goods_id'))
 
+    from app.structure import machine_learning as starter
+    obj = starter.MachineLearning(model_type, action_id, protection_goods_id)
+    res = obj.process()
     message = {
-        'status': status,
+        'status': 200,
         'data': {
-            'assessment': assessment_name,
-            'model': model_name,
-            'message': message,
-            'accuracy': accuracy
+            'message': 'success'
         },
     }
     resp = jsonify(message)
     resp.status_code = 200
     return resp
+
+    # DSS model type is initialized
+    # mdObject = accuracy = assessment_name = model_name = None
+    # if assessment_id == 1:
+    #     mdObject = md.FdiAssessment(model_type)
+    #     accuracy = mdObject.start();
+    # elif assessment_id == 2:
+    #     mdObject = md.CFAssessment(model_type)
+    #     accuracy = mdObject.start()
+    # elif assessment_id == 3:
+    #     mdObject = md.ExplosionFisheriesAssessment(model_type)
+    #     accuracy = mdObject.start()
+    # elif assessment_id == 4:
+    #     mdObject = md.ExplosionShippingAssessment(model_type)
+    #     accuracy = mdObject.start()
+    # if mdObject is not None:
+    #     assessment_name = mdObject.assessment_name
+    #     model_name = mdObject.model_name
+    #     message = 'Model trained successfully'
+    #     status = 200
+    # else:
+    #     message = 'something went wrong, please contact admin'
+    #     status = 500
+    #
+    # message = {
+    #     'status': status,
+    #     'data': {
+    #         'assessment': assessment_name,
+    #         'model': model_name,
+    #         'message': message,
+    #         'accuracy': accuracy
+    #     },
+    # }
+    # resp = jsonify(message)
+    # resp.status_code = 200
+    # return resp
 
 
 @app.route('/finding/assessment', methods=['POST'])
@@ -188,29 +207,8 @@ def finding_assessment():
         data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
         data['fdi'] = float(request.form.get('fdi'))
 
-        sex_m = sex_n = sex_w = 0
-        if data['sex'] == 'm':
-            sex_m = 1
-        elif data['sex'] == 'n':
-            sex_n = 1
-        elif data['sex'] == 'w':
-            sex_w = 1
-
-        group_EXT = group_LEEXT = 0
-        if data['group'] == 'EXT':
-            group_EXT = 1
-        if data['group'] == 'LEEXT':
-            group_LEEXT = 1
-
         mdObject = md.FdiAssessment(model_type=data['model_id'])
-        prediction = mdObject.predict_data([[data['station'], data['year'], data['month'], data['day'], data['fish_no'],
-                                             data['total_length'], data['total_weight'], data['latitude'],
-                                             data['longitude'],
-                                             data['bottom_temperature'],
-                                             data['bottom_salinity'], data['bottom_oxygen_saturation'],
-                                             data['hydrography_depth'],
-                                             data['fdi'],
-                                             sex_m, sex_n, sex_w, group_EXT, group_LEEXT]])
+        return mdObject.getFdiAssessment(data)
 
     elif data['assessment_id'] == 2:
         validation = CFInputSchema().validate(request.form)
@@ -243,40 +241,8 @@ def finding_assessment():
         data['Ulc3'] = int(request.form.get('Ulc3'))
         data['condition_factor'] = float(request.form.get('condition_factor'))
         mdObject = md.CFAssessment(model_type=data['model_id'])
-        prediction = mdObject.predict_data(
-            [[data['Cryp1'], data['Cryp2'], data['Cryp3'], data['EpPap1'], data['EpPap2'], data['EpPap3'],
-              data['FinRot'], data['Locera1'], data['Locera2'], data['Locera3'], data['PBT'], data['Skel1'],
-              data['Skel2'], data['Skel3'], data['Ulc1'], data['Ulc2'], data['Ulc3'], data['condition_factor']]])
-
-    if prediction is not None:
-        prediction_number = json.loads(prediction)[0]
-        prd_response = prediction_number
-        if mdObject.regression == 0:
-            model_response_variable = json.loads(redis.Redis().get(mdObject.response_variable_key))
-            prd_response = model_response_variable[prediction_number]
-        status = 200
-        message = 'success'
-
-        assessment_name = mdObject.assessment_name
-        model_name = mdObject.model_name
-        prediction_response = prd_response
-
-    else:
-        message = 'Please train model first.'
-        status = 422
-
-    message = {
-        'status': status,
-        'data': {
-            'assessment': assessment_name,
-            'model_name': model_name,
-            'prediction': prediction_response,
-            'message': message
-        },
-    }
-    resp = jsonify(message)
-    resp.status_code = status
-    return resp
+        return mdObject.getCFAssessment(data)
+    return ''
 
 
 @app.route('/ammunition/assessment', methods=['POST'])
@@ -288,10 +254,10 @@ def ammunition_assessment():
       - name: model_id
         in: formData
         type: integer
-        enum: [1, 2, 3, 4]
+        enum: [1, 2, 3, 4, 5]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION
+        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 4 => LOGISTIC REGRESSION, 5=> DEEP NEURAL NETWORK
 
       - name: object_id
         in: formData
@@ -402,4 +368,79 @@ def login():
             'message': 'Incorrect email or password',
         })
         resp.status_code = 422
+    return resp
+
+
+@app.route('/dss/evaluation', methods=['POST'])
+def dss_evaluation():
+
+
+    """Endpoint to get the token for authentication
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: Input
+        in: body
+        type: string
+        required: true
+        description:  ''
+
+    responses:
+      200:
+        description: Array of assessment objects
+    """
+
+    content = request.get_json(silent=True)
+    from app.structure import machine_learning as starter
+
+    results = []
+    counter = 1
+    model_key = 'model_id'
+    action_key = 'action_id'
+    protection_key = 'protection_good_id'
+
+    status = 200
+    if content is not None:
+        counter = 1
+        for d in content:
+            status = 400
+            single_result = {}
+            if model_key not in d or action_key not in d or protection_key not in d:
+                single_result[
+                    'assessment_' + str(counter)] = "Action ID, Model ID and Protection Good ID must be provided."
+                single_result['status'] = status
+            else:
+                if 0 < d['model_id'] < 7:
+                    obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
+                    single_result['model_id'] = d['model_id']
+                    single_result['protection_good_id'] = d['protection_good_id']
+                    single_result['action_id'] = d['action_id']
+                    sample = []
+                    for key in d['data'][0]:
+                        sample.append(d['data'][0][key])
+
+                    obj.set_test_data(sample)
+                    p_r = obj.testing()
+                    if p_r is not None:
+                        status = 200
+                        single_result['assessment_response'] = obj.testing()
+                        single_result['status'] = status
+                    else:
+                        status = 404
+                        single_result['assessment_response'] = 'Model Does Not Exist'
+                        single_result['status'] = status
+                else:
+                    status = 404
+                    single_result['assessment_response'] = 'Model_id should be between 1 and 6'
+                    single_result['status'] = status
+
+            counter = counter + 1
+            results.append(single_result)
+    else:
+        status = 400
+        single_result = {'status': status, 'message': 'Invalid Json Input'}
+        results.append(single_result)
+
+    resp = jsonify(results)
+    resp.status_code = status
     return resp
