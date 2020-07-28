@@ -1,5 +1,6 @@
 import os
-
+import os.path
+from os import path
 from app.structure import data_transformer as dt, dss
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -123,11 +124,11 @@ class MachineLearning:
         self.data_scaling()
 
     def data_scaling(self):
-
         # Data Scaling
         scaler = StandardScaler()
         scaler.fit(self.x_train)
-        # https://stackoverflow.com/questions/41993565/save-minmaxscaler-model-in-sklearn
+        if not path.exists(self.scaler_file_path):
+            os.mkdir(app.config['STORAGE_DIRECTORY'])
         if os.path.exists(self.scaler_file_path):
             os.remove(self.scaler_file_path)
         joblib.dump(scaler, self.scaler_file_path)
@@ -145,7 +146,6 @@ class MachineLearning:
         self.test_data = [data]
 
     def testing(self):
-
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
             self.apply_existing_scaler()

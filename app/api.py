@@ -13,6 +13,7 @@ from app import app
 from app.input_schema import FDIInputSchema, CFInputSchema, TrainingAPISchema, MunitionInputSchema, LoginInputSchema
 from app.structure import dss
 from app.structure import model as md, data_transformer as amc
+import sys
 
 swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 
@@ -126,16 +127,24 @@ def fish_training():
     user_id = int(request.form.get('user_id'))
 
     from app.structure import machine_learning as starter
-    obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
-    res = obj.process()
+    try:
+        obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
+        res = obj.process()
+        status = res['status']
+        ret = res['message']
+
+    except Exception as e:
+        status = 500
+        ret = str(e)
+
     message = {
-        'status': res['status'],
+        'status': status,
         'data': {
-            'message': res['message']
+            'message': ret
         },
     }
     resp = jsonify(message)
-    resp.status_code = res['status']
+    resp.status_code = status
     return resp
 
 
@@ -282,57 +291,61 @@ def dss_evaluation():
       200:
         description: Array of assessment objects
     """
+    try:
+        content = request.get_json(silent=True)
+        from app.structure import machine_learning as starter
 
-    content = request.get_json(silent=True)
-    from app.structure import machine_learning as starter
-
-    results = []
-    counter = 1
-    model_key = 'model_id'
-    action_key = 'action_id'
-    protection_key = 'protection_good_id'
-
-    status = 200
-    if content is not None:
+        results = []
         counter = 1
-        for d in content:
-            status = 400
-            single_result = {}
-            if model_key not in d or action_key not in d or protection_key not in d:
-                single_result[
-                    'assessment_' + str(counter)] = "Action ID, Model ID and Protection Good ID must be provided."
-                single_result['status'] = status
-            else:
-                if 0 < d['model_id'] < 7:
-                    obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
-                    single_result['model_id'] = d['model_id']
-                    single_result['protection_good_id'] = d['protection_good_id']
-                    single_result['action_id'] = d['action_id']
-                    sample = []
-                    for key in d['data'][0]:
-                        sample.append(d['data'][0][key])
+        model_key = 'model_id'
+        action_key = 'action_id'
+        protection_key = 'protection_good_id'
 
-                    obj.set_test_data(sample)
-                    p_r = obj.testing()
-                    if p_r is not None:
-                        status = 200
-                        single_result['assessment_response'] = obj.testing()
-                        single_result['status'] = status
+        status = 200
+        if content is not None:
+            counter = 1
+            for d in content:
+                status = 400
+                single_result = {}
+                if model_key not in d or action_key not in d or protection_key not in d:
+                    single_result[
+                        'assessment_' + str(counter)] = "Action ID, Model ID and Protection Good ID must be provided."
+                    single_result['status'] = status
+                else:
+                    if 0 < d['model_id'] < 7:
+                        obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
+                        single_result['model_id'] = d['model_id']
+                        single_result['protection_good_id'] = d['protection_good_id']
+                        single_result['action_id'] = d['action_id']
+                        sample = []
+                        for key in d['data'][0]:
+                            sample.append(d['data'][0][key])
+
+                        obj.set_test_data(sample)
+                        p_r = obj.testing()
+                        if p_r is not None:
+                            status = 200
+                            single_result['assessment_response'] = obj.testing()
+                            single_result['status'] = status
+                        else:
+                            status = 404
+                            single_result['assessment_response'] = 'Model Does Not Exist'
+                            single_result['status'] = status
                     else:
                         status = 404
-                        single_result['assessment_response'] = 'Model Does Not Exist'
+                        single_result['assessment_response'] = 'Model_id should be between 1 and 6'
                         single_result['status'] = status
-                else:
-                    status = 404
-                    single_result['assessment_response'] = 'Model_id should be between 1 and 6'
-                    single_result['status'] = status
 
-            counter = counter + 1
+                counter = counter + 1
+                results.append(single_result)
+        else:
+            status = 400
+            single_result = {'status': status, 'message': 'Invalid Json Input'}
             results.append(single_result)
-    else:
-        status = 400
-        single_result = {'status': status, 'message': 'Invalid Json Input'}
-        results.append(single_result)
+
+    except Exception as e:
+        status = 500
+        results.append({'message':str(e)})
 
     resp = jsonify(results)
     resp.status_code = status
