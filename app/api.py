@@ -140,7 +140,7 @@ def fish_training():
     message = {
         'status': status,
         'data': {
-            'message': ret
+            'message': sys.version
         },
     }
     resp = jsonify(message)

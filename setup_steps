@@ -34,6 +34,30 @@ pip install -r requirements.txt
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo less /var/log/apache2/error.log
+sudo less /var/log/apache2/access.log
+sudo systemctl start apache2.service
+sudo systemctl stop apache2.service
+sudo systemctl status apache2.service
+sudo systemctl reload apache2.service
+
+
+
+
+
 https://stackoverflow.com/questions/59104396/error-tensorboard-2-0-2-has-requirement-setuptools-41-0-0-but-youll-have-set
 
 
