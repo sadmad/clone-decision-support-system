@@ -127,7 +127,7 @@ class MachineLearning:
         # Data Scaling
         scaler = StandardScaler()
         scaler.fit(self.x_train)
-        if not path.exists(self.scaler_file_path):
+        if not path.exists(app.config['STORAGE_DIRECTORY']):
             os.mkdir(app.config['STORAGE_DIRECTORY'])
         if os.path.exists(self.scaler_file_path):
             os.remove(self.scaler_file_path)
