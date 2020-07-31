@@ -1,6 +1,7 @@
 import os
 
 import joblib
+
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
@@ -78,7 +79,7 @@ class DSS:
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = round(prediction[0][i],2)
+            res[j] = round(prediction[0][i], 2)
             i = i + 1
         return json.dumps(str(res))
         # print(confusion_matrix(self.y_test,predictions))
@@ -299,6 +300,8 @@ class DeepNeuralNetwork(DSS):
         from keras.layers.core import Dense
         from keras import backend as K
         from keras.optimizers import Adam
+        import tensorflow as tf
+        print(tf.__version__)
 
         print(' Deep NeuralNetwork  Model')
         K.clear_session()
@@ -359,31 +362,44 @@ class DeepNeuralNetwork(DSS):
         else:
             # Regression
             # K.clear_session()
-            fit_model = classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=2)
+            classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=2)
 
-        self.save_model(fit_model, finding)
+        self.save_model(classifier, finding)
         return 0
+
+    def save_model(self, model, finding):
+        print(' DSS Save Model')
+        if os.path.exists(finding.trained_model_path):
+            os.remove(finding.trained_model_path)
+        model.save(finding.trained_model_path)
+
+        # joblib.dump(model, finding.trained_model_path)
 
     def predict_data(self, finding, data):
         print(' DSS predict_data')
+
+        import keras
         from keras.models import Sequential
         from keras.layers.core import Dense
         from keras import backend as K
         from keras.optimizers import Adam
 
-
         K.clear_session()
         # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
-        loaded_model = joblib.load(finding.trained_model_path)
+        # loaded_model = joblib.load(finding.trained_model_path)
+
+        reconstructed_model = keras.models.load_model(finding.trained_model_path)
+        predictions = reconstructed_model.predict(data)
         # predictions = loaded_model.model.predict(data)
         # Awais
         # predictions = loaded_model.model.predict(data)
-        import tensorflow as tf
-        global graph
-        graph = tf.get_default_graph()
-        with graph.as_default():
-            predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
+
+        # import tensorflow as tf
+        # global graph
+        # graph = tf.get_default_graph()
+        # with graph.as_default():
+        #     predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
 
         cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
         # Something went wrong in Cache for response variable

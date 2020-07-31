@@ -127,20 +127,24 @@ def fish_training():
     user_id = int(request.form.get('user_id'))
 
     from app.structure import machine_learning as starter
-    try:
-        obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
-        res = obj.process()
-        status = res['status']
-        ret = res['message']
-
-    except Exception as e:
-        status = 500
-        ret = str(e)
+    obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
+    res = obj.process()
+    status = res['status']
+    ret = res['message']
+    # try:
+    #     obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
+    #     res = obj.process()
+    #     status = res['status']
+    #     ret = res['message']
+    #
+    # except Exception as e:
+    #     status = 500
+    #     ret = str(e)
 
     message = {
         'status': status,
         'data': {
-            'message': sys.version
+            'message': ret
         },
     }
     resp = jsonify(message)

@@ -12,8 +12,8 @@ requests
 requests_hawk
 Click==7.0
 Flask==1.1.2
-keras==2.2.5
-tensorflow==1.14
+keras==2.4.0
+tensorflow==2.2.0
 itsdangerous==1.1.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
