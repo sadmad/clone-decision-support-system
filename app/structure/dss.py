@@ -399,16 +399,12 @@ class DeepNeuralNetwork(DSS):
 
     def save_model(self, model, finding):
         print(' DSS Save Model')
-        import os
-        import win32api
-        import win32.lib.win32con as win32con
-
-
+        import shutil
 
         if os.path.exists(finding.trained_model_path):
             # Force deletion of a file set it to normal
-            win32api.SetFileAttributes(finding.trained_model_path, win32con.FILE_ATTRIBUTE_NORMAL)
-            os.remove(finding.trained_model_path)
+            #os.remove(finding.trained_model_path)
+            shutil.rmtree(finding.trained_model_path)
         model.save(finding.trained_model_path)
 
         # joblib.dump(model, finding.trained_model_path)
