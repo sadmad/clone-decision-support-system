@@ -90,7 +90,7 @@ class MachineLearning:
 
 
         self.training()
-        # self.training_history_log()
+        self.training_history_log()
         return {
             'status': 200,
             'message': 'Success'
