@@ -278,8 +278,9 @@ class Amucad:
         output_variables = {}
         assessments_avg = {}
         i = 0
-
-        file = os.path.join(app.config['STORAGE_DIRECTORY'], "dynamic_data.txt")
+        # obj.action_id, obj.protection_goods_id
+        fileName = str(obj.action_id) + "_" + str(obj.protection_goods_id)+ "_dynamic_data.txt"
+        file = os.path.join(app.config['STORAGE_DIRECTORY'], fileName)
         if app.config['CACHE_API'] == 1 and os.path.exists(file):
             print(' Loading data from File ')
             with open(file) as json_file:

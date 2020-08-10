@@ -1,3 +1,4 @@
+pypiwin32
 pymongo
 PyJWT
 flasgger

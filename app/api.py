@@ -121,6 +121,9 @@ def fish_training():
         resp = jsonify(message)
         resp.status_code = 422
         return resp
+
+
+
     model_type = int(request.form.get('model_id'))
     action_id = int(request.form.get('action_id'))
     protection_goods_id = int(request.form.get('protection_goods_id'))
@@ -326,7 +329,7 @@ def dss_evaluation():
                         p_r = obj.testing()
                         if p_r is not None:
                             status = 200
-                            single_result['assessment_response'] = obj.testing()
+                            single_result['assessment_response'] = p_r
                             single_result['status'] = status
                         else:
                             status = 404

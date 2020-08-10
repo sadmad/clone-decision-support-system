@@ -13,7 +13,8 @@ from sklearn.model_selection import train_test_split
 from app import app
 from app import scale
 from app.structure import model
-
+from keras.layers import Input
+from keras.models import Model
 from app.structure import accuracy_finder as accuracy
 
 import redis
@@ -298,6 +299,7 @@ class DeepNeuralNetwork(DSS):
 
         from keras.models import Sequential
         from keras.layers.core import Dense
+
         from keras import backend as K
         from keras.optimizers import Adam
         import tensorflow as tf
@@ -307,12 +309,14 @@ class DeepNeuralNetwork(DSS):
         K.clear_session()
         model = Sequential()
         columns_x = len(finding.x_train[0])
+        # columns_x = len(finding.x_train[0])
         columns_y = len(finding.y_train.columns)
         output_neuron_c = 3
-        output_neuron_r = columns_y
+        # output_neuron_r = columns_yasaaaaaaaaaaaaaa
         activation_function = 'relu'
-        output_activation_function_r = 'softmax'
-        output_activation_function__c = 'softmax'
+        output_activation_function_r = 'relu'
+        output_activation_function__c = 'relu'
+        optimizer = Adam(lr=0.01)
 
         if columns_x is not None:
             neuron_count = columns_x
@@ -326,19 +330,45 @@ class DeepNeuralNetwork(DSS):
             # Classification
             model.add(Dense(output_neuron_c, activation=output_activation_function__c))
             print(len(model.layers))
-            optimizer = Adam(lr=0.05)
+
             model.compile(loss='categorical_crossentropy',
                           optimizer=optimizer, metrics=['accuracy'], )
+            return model
         else:
             # Regression
-            print(len(model.layers))
-            model.add(Dense(output_neuron_r, activation=output_activation_function_r))
-            print(len(model.layers))
+            # print(len(model.layers))
+            # model.add(Dense(output_neuron_r, activation=output_activation_function_r))
+            # print(len(model.layers))
+            #
+            # model.compile(loss='mse',
+            #               optimizer=optimizer, metrics=['accuracy'], )
+            # model.summary()
 
-            model.compile(loss='mse',
-                          optimizer='adam', metrics=['accuracy'], )
 
-        return model
+            # Output_Layer = 2#len(finding.y_train[1])
+            Output_Layer = len(set(finding.y_train))
+            layer_1 = Input(shape=(columns_x,))
+            Dense_Layers = Dense(500, activation = 'relu')(layer_1)
+            Dense_Layers = Dense(256, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(128, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(64, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(2, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(Output_Layer, activation = 'linear')(Dense_Layers)
+            modelReg = Model(inputs = layer_1, outputs = Dense_Layers)
+            from keras import metrics
+            modelReg.compile(
+                loss = 'mean_squared_error',
+                optimizer = optimizer,
+                metrics=[metrics.mean_squared_error,
+                         metrics.mean_absolute_error,
+                         metrics.mean_absolute_percentage_error]
+                # metrics = ['accuracy']
+            )
+            modelReg.summary()
+            print(len(modelReg.layers))
+            return modelReg
+
+        # return model1
 
     def training(self, finding):
 
@@ -369,7 +399,15 @@ class DeepNeuralNetwork(DSS):
 
     def save_model(self, model, finding):
         print(' DSS Save Model')
+        import os
+        import win32api
+        import win32.lib.win32con as win32con
+
+
+
         if os.path.exists(finding.trained_model_path):
+            # Force deletion of a file set it to normal
+            win32api.SetFileAttributes(finding.trained_model_path, win32con.FILE_ATTRIBUTE_NORMAL)
             os.remove(finding.trained_model_path)
         model.save(finding.trained_model_path)
 
@@ -394,7 +432,6 @@ class DeepNeuralNetwork(DSS):
         # predictions = loaded_model.model.predict(data)
         # Awais
         # predictions = loaded_model.model.predict(data)
-
         # import tensorflow as tf
         # global graph
         # graph = tf.get_default_graph()

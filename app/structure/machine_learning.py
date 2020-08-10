@@ -67,9 +67,13 @@ class MachineLearning:
         self.trained_model_path = os.path.join(app.config['STORAGE_DIRECTORY'], str(self.action_id) + '_' +
                                                str(self.protection_goods_id) + '_' + self.model_name + '.sav')
 
+
     def process(self):
 
         # https://scikit-learn.org/stable/modules/tree.html
+
+        if not path.exists(app.config['STORAGE_DIRECTORY']):
+            os.mkdir(app.config['STORAGE_DIRECTORY'])
         self.data_load()
         if self.data.empty:
             return {
@@ -78,9 +82,12 @@ class MachineLearning:
             }
 
         self.data_intialization()
-        self.data_preprocessing()
+
         # from sklearn.datasets import make_regression
-        # self.x_train, self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2, random_state=1)
+        # self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2,
+        #                                random_state=1)
+        self.data_preprocessing()
+
 
         self.training()
         # self.training_history_log()
@@ -120,18 +127,21 @@ class MachineLearning:
             steps=[('impute_numerical', impute_numerical)])
         self.x_train = ColumnTransformer(transformers=[('numerical', numerical_transformer, self.input_variables)],
                                          remainder="passthrough").fit_transform(self.x_train)
+        # from sklearn.datasets import make_regression
+        # self.x_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2,
+        #                                random_state=1)
 
         self.data_scaling()
 
     def data_scaling(self):
         # Data Scaling
         scaler = StandardScaler()
+        # scaler.fit(self.x_train[0])
         scaler.fit(self.x_train)
-        if not path.exists(app.config['STORAGE_DIRECTORY']):
-            os.mkdir(app.config['STORAGE_DIRECTORY'])
         if os.path.exists(self.scaler_file_path):
             os.remove(self.scaler_file_path)
         joblib.dump(scaler, self.scaler_file_path)
+        # self.x_train = scaler.transform(self.x_train[0])
         self.x_train = scaler.transform(self.x_train)
 
     def training(self):
