@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from app import app
 from app import scale
 from app.structure import model
-from keras.layers import Input
+from keras.layers import Input, Concatenate
 from keras.models import Model
 from app.structure import accuracy_finder as accuracy
 
@@ -316,7 +316,7 @@ class DeepNeuralNetwork(DSS):
         activation_function = 'relu'
         output_activation_function_r = 'relu'
         output_activation_function__c = 'relu'
-        optimizer = Adam(lr=0.01)
+        optimizer = Adam(lr=0.05)
 
         if columns_x is not None:
             neuron_count = columns_x
@@ -347,14 +347,18 @@ class DeepNeuralNetwork(DSS):
 
             # Output_Layer = 2#len(finding.y_train[1])
             Output_Layer = len(set(finding.y_train))
-            layer_1 = Input(shape=(columns_x,))
-            Dense_Layers = Dense(500, activation = 'relu')(layer_1)
-            Dense_Layers = Dense(256, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(128, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(64, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(2, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(Output_Layer, activation = 'linear')(Dense_Layers)
-            modelReg = Model(inputs = layer_1, outputs = Dense_Layers)
+            Input_layer = Input(shape=(columns_x,))
+            Dense_Layers = Dense(1024, activation = 'relu')(Input_layer)
+            Dense_Layers = Dense(512, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(512, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(512, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Dense(1024, activation = 'relu')(Dense_Layers)
+            Dense_Layers = Concatenate()([Input_layer, Dense_Layers])
+            # Dense_Layers = Dense(Output_Layer, activation = 'relu')(Dense_Layers)
+            out1 = Dense(1)(Dense_Layers)
+            out2 = Dense(1)(Dense_Layers)
+
+            modelReg = Model(inputs = Input_layer, outputs = [out1,out2])
             from keras import metrics
             modelReg.compile(
                 loss = 'mean_squared_error',
@@ -392,7 +396,7 @@ class DeepNeuralNetwork(DSS):
         else:
             # Regression
             # K.clear_session()
-            classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=2)
+            classifier.fit(finding.x_train, finding.y_train, epochs=500)
 
         self.save_model(classifier, finding)
         return 0
@@ -438,12 +442,15 @@ class DeepNeuralNetwork(DSS):
         # with graph.as_default():
         #     predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
 
+
+
+
         cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
         # Something went wrong in Cache for response variable
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = round(predictions[0][i], 2)
+            res[j] = round(predictions[i][0][0], 2)
             i = i + 1
         return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')

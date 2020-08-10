@@ -304,7 +304,7 @@ def dss_evaluation():
         model_key = 'model_id'
         action_key = 'action_id'
         protection_key = 'protection_good_id'
-
+        sample_data = [80,40,1000,0.4546,0,4,1324,0,43.347,0]
         status = 200
         if content is not None:
             counter = 1
