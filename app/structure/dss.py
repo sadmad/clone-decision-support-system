@@ -348,17 +348,20 @@ class DeepNeuralNetwork(DSS):
             # Output_Layer = 2#len(finding.y_train[1])
             Output_Layer = len(set(finding.y_train))
             Input_layer = Input(shape=(columns_x,))
-            Dense_Layers = Dense(1024, activation = 'relu')(Input_layer)
-            Dense_Layers = Dense(512, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(512, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(512, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Dense(1024, activation = 'relu')(Dense_Layers)
-            Dense_Layers = Concatenate()([Input_layer, Dense_Layers])
-            # Dense_Layers = Dense(Output_Layer, activation = 'relu')(Dense_Layers)
-            out1 = Dense(1)(Dense_Layers)
-            out2 = Dense(1)(Dense_Layers)
+            Dense_Layers = Dense(500, activation='relu')(Input_layer)
+            Dense_Layers = Dense(256, activation='relu')(Dense_Layers)
+            Dense_Layers = Dense(128, activation='relu')(Dense_Layers)
+            Dense_Layers = Dense(500, activation='relu')(Dense_Layers)
+            Dense_Layers = Dense(1000, activation='relu')(Dense_Layers)
 
-            modelReg = Model(inputs = Input_layer, outputs = [out1,out2])
+            # Dense_Layers = Concatenate()([Input_layer, Dense_Layers])
+            Dense_Layers = Dense(Output_Layer, activation='relu')(Dense_Layers)
+            modelReg = Model(inputs=Input_layer, outputs=Dense_Layers)
+
+            # out1 = Dense(1)(Dense_Layers)
+            # out2 = Dense(1)(Dense_Layers)
+
+            # modelReg = Model(inputs = Input_layer, outputs = [out1,out2])
             from keras import metrics
             modelReg.compile(
                 loss = 'mean_squared_error',
@@ -446,7 +449,7 @@ class DeepNeuralNetwork(DSS):
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = round(predictions[i][0][0], 2)
+            res[j] = round(predictions[0][i], 2)
             i = i + 1
         return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')
