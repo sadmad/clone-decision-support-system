@@ -10,11 +10,11 @@ from sklearn.neural_network import MLPClassifier, MLPRegressor
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
-
+from app import app
 from app import scale
 from app.structure import model
-# from keras.layers import Input, Concatenate
-# from keras.models import Model
+from keras.layers import Input, Concatenate
+from keras.models import Model
 from app.structure import accuracy_finder as accuracy
 
 import redis
@@ -302,8 +302,6 @@ class DeepNeuralNetwork(DSS):
 
         from keras import backend as K
         from keras.optimizers import Adam
-        import tensorflow as tf
-        print(tf.__version__)
 
         print(' Deep NeuralNetwork  Model')
         K.clear_session()
@@ -409,21 +407,16 @@ class DeepNeuralNetwork(DSS):
         import shutil
 
         if os.path.exists(finding.trained_model_path):
-            # Force deletion of a file set it to normal
-            #os.remove(finding.trained_model_path)
             shutil.rmtree(finding.trained_model_path)
         model.save(finding.trained_model_path)
 
-        # joblib.dump(model, finding.trained_model_path)
-
     def predict_data(self, finding, data):
-        print(' DSS predict_data')
 
         import keras
-        from keras.models import Sequential
-        from keras.layers.core import Dense
+        # from keras.models import Sequential
+        # from keras.layers.core import Dense
         from keras import backend as K
-        from keras.optimizers import Adam
+        # from keras.optimizers import Adam
 
         K.clear_session()
         # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
