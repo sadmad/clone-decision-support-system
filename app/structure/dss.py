@@ -356,7 +356,7 @@ class DeepNeuralNetwork(DSS):
             Dense_Layers = keras.layers.Dense(1000, activation='relu')(Dense_Layers)
 
             # Dense_Layers = Concatenate()([Input_layer, Dense_Layers])
-            Dense_Layers = keras.layers.Dense(Output_Layer, activation='relu')(Dense_Layers)
+            Dense_Layers = keras.layers.Dense(Output_Layer, activation='linear')(Dense_Layers)
             modelReg = keras.Model(inputs=Input_layer, outputs=Dense_Layers)
 
             # out1 = Dense(1)(Dense_Layers)
