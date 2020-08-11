@@ -295,16 +295,18 @@ class DeepNeuralNetwork(DSS):
 
     def getClassifier(self, finding):
 
-        from keras.models import Sequential
-        from keras.layers.core import Dense
+        from tensorflow import keras
+
+        # from keras.models import Sequential
+        # from keras.layers.core import Dense
 
         from keras import backend as K
-        from keras.optimizers import Adam
-        from keras.layers import Input
-        from keras.models import Model
+        # from keras.optimizers import Adam
+        # from keras.layers import Input
+        # from keras.models import Model
         print(' Deep NeuralNetwork  Model')
-        K.clear_session()
-        model = Sequential()
+        # K.clear_session()
+
         columns_x = len(finding.x_train[0])
         # columns_x = len(finding.x_train[0])
         columns_y = len(finding.y_train.columns)
@@ -313,19 +315,22 @@ class DeepNeuralNetwork(DSS):
         activation_function = 'relu'
         output_activation_function_r = 'relu'
         output_activation_function__c = 'relu'
-        optimizer = Adam(lr=0.05)
+        optimizer = keras.optimizers.Adam(lr=0.05)
 
-        if columns_x is not None:
-            neuron_count = columns_x
-            model.add(Dense(neuron_count, input_dim=columns_x, activation=activation_function))
-            hidden_layers = columns_x
-
-            output_neuron_r = columns_y
-            for x in range(hidden_layers):
-                model.add(Dense(neuron_count, input_dim=columns_x, activation='relu'))
         if finding.is_regression == 0:
             # Classification
-            model.add(Dense(output_neuron_c, activation=output_activation_function__c))
+
+            if columns_x is not None:
+                model = keras.Sequential()
+                neuron_count = columns_x
+                model.add(keras.layers.Dense(neuron_count, input_dim=columns_x, activation=activation_function))
+                hidden_layers = columns_x
+
+                output_neuron_r = columns_y
+                for x in range(hidden_layers):
+                    model.add(keras.layers.Dense(neuron_count, input_dim=columns_x, activation='relu'))
+
+            model.add(keras.layers.Dense(output_neuron_c, activation=output_activation_function__c))
             print(len(model.layers))
 
             model.compile(loss='categorical_crossentropy',
@@ -341,19 +346,18 @@ class DeepNeuralNetwork(DSS):
             #               optimizer=optimizer, metrics=['accuracy'], )
             # model.summary()
 
-
             # Output_Layer = 2#len(finding.y_train[1])
             Output_Layer = len(set(finding.y_train))
-            Input_layer = Input(shape=(columns_x,))
-            Dense_Layers = Dense(500, activation='relu')(Input_layer)
-            Dense_Layers = Dense(256, activation='relu')(Dense_Layers)
-            Dense_Layers = Dense(128, activation='relu')(Dense_Layers)
-            Dense_Layers = Dense(500, activation='relu')(Dense_Layers)
-            Dense_Layers = Dense(1000, activation='relu')(Dense_Layers)
+            Input_layer = keras.Input(shape=(columns_x,))
+            Dense_Layers = keras.layers.Dense(500, activation='relu')(Input_layer)
+            Dense_Layers = keras.layers.Dense(256, activation='relu')(Dense_Layers)
+            Dense_Layers = keras.layers.Dense(128, activation='relu')(Dense_Layers)
+            Dense_Layers = keras.layers.Dense(500, activation='relu')(Dense_Layers)
+            Dense_Layers = keras.layers.Dense(1000, activation='relu')(Dense_Layers)
 
             # Dense_Layers = Concatenate()([Input_layer, Dense_Layers])
-            Dense_Layers = Dense(Output_Layer, activation='relu')(Dense_Layers)
-            modelReg = Model(inputs=Input_layer, outputs=Dense_Layers)
+            Dense_Layers = keras.layers.Dense(Output_Layer, activation='relu')(Dense_Layers)
+            modelReg = keras.Model(inputs=Input_layer, outputs=Dense_Layers)
 
             # out1 = Dense(1)(Dense_Layers)
             # out2 = Dense(1)(Dense_Layers)
@@ -361,8 +365,8 @@ class DeepNeuralNetwork(DSS):
             # modelReg = Model(inputs = Input_layer, outputs = [out1,out2])
             from keras import metrics
             modelReg.compile(
-                loss = 'mean_squared_error',
-                optimizer = optimizer,
+                loss='mean_squared_error',
+                optimizer=optimizer,
                 metrics=[metrics.mean_squared_error,
                          metrics.mean_absolute_error,
                          metrics.mean_absolute_percentage_error]
@@ -411,13 +415,13 @@ class DeepNeuralNetwork(DSS):
 
     def predict_data(self, finding, data):
 
-        import keras
+        from tensorflow import keras
         # from keras.models import Sequential
         # from keras.layers.core import Dense
-        from keras import backend as K
+        # from keras import backend as K
         # from keras.optimizers import Adam
 
-        K.clear_session()
+        # K.clear_session()
         # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         # loaded_model = joblib.load(finding.trained_model_path)
@@ -432,9 +436,6 @@ class DeepNeuralNetwork(DSS):
         # graph = tf.get_default_graph()
         # with graph.as_default():
         #     predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
-
-
-
 
         cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
         # Something went wrong in Cache for response variable
