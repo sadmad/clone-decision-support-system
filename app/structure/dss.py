@@ -10,11 +10,11 @@ from sklearn.neural_network import MLPClassifier, MLPRegressor
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
-from app import app
+
 from app import scale
 from app.structure import model
-from keras.layers import Input, Concatenate
-from keras.models import Model
+# from keras.layers import Input, Concatenate
+# from keras.models import Model
 from app.structure import accuracy_finder as accuracy
 
 import redis
