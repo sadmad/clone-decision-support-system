@@ -4,6 +4,7 @@ flasgger
 redis
 joblib
 scikit-learn
+scipy==1.4.1
 pandas
 marshmallow
 wheel
