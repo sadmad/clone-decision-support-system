@@ -128,6 +128,10 @@ class Config:
         "operationId": "getmyData"
     }
 
+    MONGO_DB_USERNAME = "mdbadmin"
+    MONGO_DB_PASSWORD = "69bPc2%?LpP(g5"
+    MONGO_DB_AUTHSOURCE = "dss"
+
 
 class ProductionConfig(Config):
     """

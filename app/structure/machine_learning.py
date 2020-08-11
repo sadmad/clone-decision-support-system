@@ -1,6 +1,8 @@
 import os
 import os.path
 from os import path
+
+
 from app.structure import data_transformer as dt, dss
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -171,10 +173,9 @@ class MachineLearning:
 
         from pymongo import MongoClient
         import datetime
-        client = MongoClient('mongodb://localhost:27017/')
-
+        from app.commons.mongo_connector import MongoConnector
         # https://api.mongodb.com/python/current/tutorial.html
-        collection_training = client['dss']['training_history']
+        collection_training = MongoConnector.get_logsdb()
         num_rows_x, num_cols_x = self.x_train.shape
         item = {
             "user_id": 2,

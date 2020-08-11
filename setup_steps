@@ -63,6 +63,18 @@ https://stackoverflow.com/questions/59104396/error-tensorboard-2-0-2-has-require
 
 
 
+How to create Mongo DB User and database
+
+step 1
+mongo mongodb://localhost:27017/ -u "mdbadmin" -p "zEpzw-W9G33-e4+0b-Z09C9-la65v-0#9ew" --authenticationDatabase "admin"
+
+step2
+use dss
+
+step3
+db.createUser({user: "mdbadmin", pwd: "69bPc2%?LpP(g5", roles:["dbOwner"]})
+
+
 
 
 

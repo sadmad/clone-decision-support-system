@@ -122,8 +122,6 @@ def fish_training():
         resp.status_code = 422
         return resp
 
-
-
     model_type = int(request.form.get('model_id'))
     action_id = int(request.form.get('action_id'))
     protection_goods_id = int(request.form.get('protection_goods_id'))
@@ -304,7 +302,7 @@ def dss_evaluation():
         model_key = 'model_id'
         action_key = 'action_id'
         protection_key = 'protection_good_id'
-        sample_data = [80,40,1000,0.4546,0,4,1324,0,43.347,0]
+        sample_data = [80, 40, 1000, 0.4546, 0, 4, 1324, 0, 43.347, 0]
         status = 200
         if content is not None:
             counter = 1
@@ -349,7 +347,7 @@ def dss_evaluation():
 
     except Exception as e:
         status = 500
-        results.append({'message':str(e)})
+        results.append({'message': str(e)})
 
     resp = jsonify(results)
     resp.status_code = status
@@ -365,9 +363,8 @@ def dss_logs():
       200:
         description: Array of logs
     """
-    from pymongo import MongoClient
-    client = MongoClient('mongodb://localhost:27017/')
-    collection_training = client['dss']['training_history']
+    from app.commons.mongo_connector import MongoConnector
+    collection_training = MongoConnector.get_logsdb()
     mg_data = collection_training.find()
     data = []
     for post in mg_data:
