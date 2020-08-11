@@ -13,8 +13,6 @@ from sklearn.model_selection import train_test_split
 from app import app
 from app import scale
 from app.structure import model
-from keras.layers import Input, Concatenate
-from keras.models import Model
 from app.structure import accuracy_finder as accuracy
 
 import redis
@@ -302,7 +300,8 @@ class DeepNeuralNetwork(DSS):
 
         from keras import backend as K
         from keras.optimizers import Adam
-
+        from keras.layers import Input
+        from keras.models import Model
         print(' Deep NeuralNetwork  Model')
         K.clear_session()
         model = Sequential()
