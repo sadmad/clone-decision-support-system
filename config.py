@@ -121,16 +121,16 @@ class Config:
         },
 
         # comment for local environment
-        # "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
-        # "basePath": "/assessment-models",  # base bash for blueprint registration
-        # "schemes": 'https',
+        "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
+        "basePath": "/assessment-models",  # base bash for blueprint registration
+        "schemes": 'https',
 
         "operationId": "getmyData"
     }
 
-    # MONGO_DB_USERNAME = "mdbadmin"
-    # MONGO_DB_PASSWORD = "69bPc2%?LpP(g5"
-    # MONGO_DB_AUTHSOURCE = "dss"
+    MONGO_DB_USERNAME = "mdbadmin"
+    MONGO_DB_PASSWORD = "69bPc2%?LpP(g5"
+    MONGO_DB_AUTHSOURCE = "dss"
 
 
 class ProductionConfig(Config):
