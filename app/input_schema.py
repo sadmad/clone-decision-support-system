@@ -64,6 +64,7 @@ class TrainingAPISchema(Schema):
     action_id = fields.Int(required=True)
     protection_goods_id = fields.Int(required=True)
     user_id = fields.Int(required=True)
+    token = fields.Str(required=True)
 
 
 class MunitionInputSchema(Schema):

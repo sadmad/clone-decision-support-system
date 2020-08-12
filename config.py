@@ -3,7 +3,7 @@ from app import app
 
 
 class Config:
-    """
+    """SECRET_KEY
     Use this class to share any default attributes with any subsequent
     classes that inherit from Config.
     """

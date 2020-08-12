@@ -22,7 +22,21 @@ swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if 'token' not in request.args:
+        if 'token' in request.args or request.form.get('token') is not None:
+
+            try:
+                token = request.args.get('token') if 'token' in request.args else request.form.get('token')
+                jwt.decode(token, app.config['SECRET_KEY'])
+
+            except:
+                message = {
+                    'status': 403,
+                    'message': 'Invalid Token',
+                }
+                resp = jsonify(message)
+                resp.status_code = 403
+                return resp
+        else:
             message = {
                 'status': 403,
                 'message': 'Token is missing',
@@ -30,56 +44,15 @@ def token_required(f):
             resp = jsonify(message)
             resp.status_code = 403
             return resp
-        try:
-            token = request.args.get('token')
-            jwt.decode(token, app.config['SECRET_KEY'])
 
-        except:
-            message = {
-                'status': 403,
-                'message': 'Invalid Token',
-            }
-            resp = jsonify(message)
-            resp.status_code = 403
-            return resp
         return f(*args, **kwargs)
 
     return decorated
 
 
-@app.route('/cross-validation/k-fold', methods=['GET'])
-def cross_validation_kfold_main():
-    model = dss.LogisticRegressionM(app.config['LOGISTIC_REGRESSION_MODEL'])
-    accuracy = model.kfold()
-    return 'awais'
-
-
-@app.route('/amucad/api/data_transformation/', methods=['GET'])
-@token_required
-def find_amucad_objects():
-    """Transforming AMUCAD data into CSV format
-    This is using docstrings for specifications.
-    ---
-    parameters:
-      - name: token
-        in: query
-        type: string
-        required: true
-        description:  ''
-
-    responses:
-      200:
-        description:
-        examples:
-          rgb: []
-    """
-    obj = amc.Amucad()
-    obj.transform_objects_to_csv()
-    return 'true'
-
-
 @app.route('/dss/training', methods=['POST'])
-def fish_training():
+@token_required
+def dss_training():
     """Endpoint for training dss system
     This is using docstrings for specifications.
     ---
@@ -90,28 +63,37 @@ def fish_training():
         enum: [1, 2, 3, 5, 6]
         required: true
         default: 1
-        description:  1 => Neural Network, 2 => RANDOM FOREST, 3 => LINEAR REGRESSION, 5=> DEEP NEURAL NETWORK, , 6=> Decision Tree
+        description:  User can choose any of the given model for training. System will override the existing model for selected model_id, action_id and protection_goods_id. Neural Network(scikit learn)=1, RANDOM FOREST(scikit learn)=2, LINEAR REGRESSION(scikit learn)=3, DEEP NEURAL NETWORK(Keras+tensorflow)=5, Decision Tree(scikit learn)=6
       - name: action_id
         in: formData
         type: integer
         required: true
+        description: Value from AMUCAD application. Possible values corrosion=1, explosion=2
         default: 1
       - name: protection_goods_id
         in: formData
         type: integer
         required: true
+        description: Value from AMUCAD application. Possible values 1,2,3,4,5
         default: 2
       - name: user_id
         in: formData
         type: integer
         required: true
+        description: 'User id of logged in user in AMUCAD application should be given'
         default: 2
+      - name: token
+        in: formData
+        type: string
+        required: true
+        description:  'JSON Web Token, should be generated from login API using email and password'
     responses:
       200:
         description: JSON object containing status of the action
         examples:
           rgb: []
     """
+
     errors = TrainingAPISchema().validate(request.form)
     if errors:
         message = {
@@ -150,134 +132,8 @@ def fish_training():
     return resp
 
 
-@app.route('/finding/assessment', methods=['POST'])
-def finding_assessment():
-    data = {'assessment_id': int(request.form.get('assessment_id'))}
-    prediction = status = message = assessment_name = model_name = prediction_response = None
-
-    if data['assessment_id'] == 1:
-        validation = FDIInputSchema().validate(request.form)
-        if validation:
-            message = {
-                'status': 422,
-                'message': str(validation),
-            }
-            resp = jsonify(message)
-            resp.status_code = 422
-            return resp
-
-        data['model_id'] = int(request.form.get('model_id'))
-
-        data['station'] = int(request.form.get('station'))
-        data['year'] = int(request.form.get('year'))
-        data['month'] = int(request.form.get('month'))
-        data['day'] = int(request.form.get('day'))
-
-        data['sex'] = request.form.get('sex')
-        data['group'] = request.form.get('group')
-
-        data['fish_no'] = request.form.get('fish_no')
-        data['total_length'] = int(request.form.get('total_length'))
-        data['total_weight'] = int(request.form.get('total_weight'))
-        data['latitude'] = float(request.form.get('latitude'))
-        data['longitude'] = float(request.form.get('longitude'))
-        data['bottom_temperature'] = float(request.form.get('bottom_temperature'))
-        data['bottom_salinity'] = float(request.form.get('bottom_salinity'))
-        data['bottom_oxygen_saturation'] = float(request.form.get('bottom_oxygen_saturation'))
-        data['hydrography_depth'] = float(request.form.get('hydrography_depth'))
-        data['fdi'] = float(request.form.get('fdi'))
-
-        mdObject = md.FdiAssessment(model_type=data['model_id'])
-        return mdObject.getFdiAssessment(data)
-
-    elif data['assessment_id'] == 2:
-        validation = CFInputSchema().validate(request.form)
-        if validation:
-            message = {
-                'status': 422,
-                'message': str(validation),
-            }
-            resp = jsonify(message)
-            resp.status_code = 422
-            return resp
-
-        data['model_id'] = int(request.form.get('model_id'))
-        data['Cryp1'] = int(request.form.get('Cryp1'))
-        data['Cryp2'] = int(request.form.get('Cryp2'))
-        data['Cryp3'] = int(request.form.get('Cryp3'))
-        data['EpPap1'] = int(request.form.get('EpPap1'))
-        data['EpPap2'] = int(request.form.get('EpPap2'))
-        data['EpPap3'] = int(request.form.get('EpPap3'))
-        data['FinRot'] = int(request.form.get('FinRot'))
-        data['Locera1'] = int(request.form.get('Locera1'))
-        data['Locera2'] = int(request.form.get('Locera2'))
-        data['Locera3'] = int(request.form.get('Locera3'))
-        data['PBT'] = int(request.form.get('PBT'))
-        data['Skel1'] = int(request.form.get('Skel1'))
-        data['Skel2'] = int(request.form.get('Skel2'))
-        data['Skel3'] = int(request.form.get('Skel3'))
-        data['Ulc1'] = int(request.form.get('Ulc1'))
-        data['Ulc2'] = int(request.form.get('Ulc2'))
-        data['Ulc3'] = int(request.form.get('Ulc3'))
-        data['condition_factor'] = float(request.form.get('condition_factor'))
-        mdObject = md.CFAssessment(model_type=data['model_id'])
-        return mdObject.getCFAssessment(data)
-    return ''
-
-
-@app.route('/login', methods=['POST'])
-def login():
-    """Endpoint to get the token for authentication
-    This is using docstrings for specifications.
-    ---
-    parameters:
-      - name: email
-        in: formData
-        type: string
-        required: true
-        description:  ''
-
-      - name: password
-        in: formData
-        type: string
-        format: password
-        required: true
-        description:  ''
-    responses:
-      200:
-        description: A JSON object containing token to access further endpoints
-        examples:
-          rgb: []
-    """
-    validation = LoginInputSchema().validate(request.form)
-    if validation:
-        resp = jsonify({
-            'status': 422,
-            'message': str(validation),
-        })
-        resp.status_code = 422
-        return resp
-    r_login = requests.post('https://mdb.in.tu-clausthal.de/api/v1/auth/login',
-                            data={'email': request.form.get('email'), 'password': request.form.get('password')}).json()
-    if r_login['status'] == 200:
-        token = jwt.encode(
-            {'user': request.form.get('email'), 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
-            app.config['SECRET_KEY'])
-        resp = jsonify({
-            'status': 200,
-            'token': token.decode('UTF-8'),
-        })
-        resp.status_code = 200
-    else:
-        resp = jsonify({
-            'status': 422,
-            'message': 'Incorrect email or password',
-        })
-        resp.status_code = 422
-    return resp
-
-
 @app.route('/dss/evaluation', methods=['POST'])
+@token_required
 def dss_evaluation():
     """Endpoint to get the token for authentication
     This is using docstrings for specifications.
@@ -287,11 +143,28 @@ def dss_evaluation():
         in: body
         type: string
         required: true
-        description:  ''
-
+        description:  ' Array of findings; USER can also input multiple findings. For Data array, please follow the same sequence of features in which model was trained i.e [{
+        "model_id":2,
+        "protection_good_id": 2,
+        "action_id": 1,
+        "data": [{
+                "tnt_equivalent": 1000,
+                "RP_benthic_habitats": 0.4546,
+                "RP_integrated_fish_assessments": 0,
+                "RP_shipping_fishing_2016": 4,
+                "RP_fisheries_bottom_trawl": 1324,
+                "RP_fisheries_surface_midwater": 0,
+                "RP_coastal_and_stationary": 43.347,
+                "RP_anoxic_level_probabilities": 0
+            }]}]'
+      - name: token
+        in: query
+        type: string
+        required: true
+        description:  'JSON Web Token, should be generated from login API using email and password'
     responses:
       200:
-        description: Array of assessment objects
+        description: The response body contains the array of assessment objects for given data, action_id and protection_goods_id.
     """
     try:
         content = request.get_json(silent=True)
@@ -355,13 +228,21 @@ def dss_evaluation():
 
 
 @app.route('/dss/logs', methods=['GET'])
+@token_required
 def dss_logs():
     """Endpoint to get the token for authentication
     This is using docstrings for specifications.
     ---
+    parameters:
+      - name: token
+        in: query
+        type: string
+        required: true
+        description:  'JSON Web Token, should be generated from login API using email and password'
+
     responses:
       200:
-        description: Array of logs
+        description: The response body contains the history of models training with  user_id.
     """
     from app.commons.mongo_connector import MongoConnector
     collection_training = MongoConnector.get_logsdb()
@@ -386,4 +267,55 @@ def dss_logs():
     }
     resp = jsonify(message)
     resp.status_code = 200
+    return resp
+
+@app.route('/login', methods=['POST'])
+def login():
+    """Endpoint to get the token for authentication
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: email
+        in: formData
+        type: string
+        required: true
+        description:  ''
+
+      - name: password
+        in: formData
+        type: string
+        format: password
+        required: true
+        description:  ''
+    responses:
+      200:
+        description: A JSON object containing token to access further endpoints
+        examples:
+          rgb: []
+    """
+    validation = LoginInputSchema().validate(request.form)
+    if validation:
+        resp = jsonify({
+            'status': 422,
+            'message': str(validation),
+        })
+        resp.status_code = 422
+        return resp
+    r_login = requests.post('https://mdb.in.tu-clausthal.de/api/v1/auth/login',
+                            data={'email': request.form.get('email'), 'password': request.form.get('password')}).json()
+    if r_login['status'] == 200:
+        token = jwt.encode(
+            {'user': request.form.get('email'), 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+            app.config['SECRET_KEY'])
+        resp = jsonify({
+            'status': 200,
+            'token': token.decode('UTF-8'),
+        })
+        resp.status_code = 200
+    else:
+        resp = jsonify({
+            'status': 422,
+            'message': 'Incorrect email or password',
+        })
+        resp.status_code = 422
     return resp
