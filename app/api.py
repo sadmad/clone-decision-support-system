@@ -53,7 +53,7 @@ def token_required(f):
 @app.route('/dss/training', methods=['POST'])
 @token_required
 def dss_training():
-    """Endpoint for training dss system
+    """Endpoint for training dss system for munitions
     This is using docstrings for specifications.
     ---
     parameters:
@@ -135,7 +135,7 @@ def dss_training():
 @app.route('/dss/evaluation', methods=['POST'])
 @token_required
 def dss_evaluation():
-    """Endpoint to get the token for authentication
+    """Endpoint for the assessment of the finding/findings.
     This is using docstrings for specifications.
     ---
     parameters:
@@ -230,7 +230,7 @@ def dss_evaluation():
 @app.route('/dss/logs', methods=['GET'])
 @token_required
 def dss_logs():
-    """Endpoint to get the token for authentication
+    """Endpoint to get history of actions for training by users.
     This is using docstrings for specifications.
     ---
     parameters:
@@ -269,6 +269,7 @@ def dss_logs():
     resp.status_code = 200
     return resp
 
+
 @app.route('/login', methods=['POST'])
 def login():
     """Endpoint to get the token for authentication
@@ -279,7 +280,7 @@ def login():
         in: formData
         type: string
         required: true
-        description:  ''
+        description:  'Contact TUC for the Email and password'
 
       - name: password
         in: formData
@@ -290,8 +291,6 @@ def login():
     responses:
       200:
         description: A JSON object containing token to access further endpoints
-        examples:
-          rgb: []
     """
     validation = LoginInputSchema().validate(request.form)
     if validation:
