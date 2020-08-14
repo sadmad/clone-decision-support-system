@@ -9,6 +9,8 @@ logging.basicConfig(stream=sys.stderr)
 
 if sys.version_info[0]<3:       # require python3
  raise Exception("Python3 required! Current (wrong) version: '%s'" % sys.version_info)
-sys.path.insert(0, '/home/mdbadmin/decision-support-system/')
+#sys.path.insert(0, '/home/mdbadmin/decision-support-system/')
+sys.path.insert(0, '/home/mdbadmin/decision-support-system/venv/lib/python3.7/site-packages/')
+
 from run import app as application
 application.secret_key = 'Add your secret key'
