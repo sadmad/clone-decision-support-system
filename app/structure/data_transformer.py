@@ -15,7 +15,7 @@ def egeos_authentication_api():
                                     data={'username': app.config['EGEOS']['user_name']})
     data = r_login_request.json()
     if "code" not in data or data["code"] != 401005:
-        print(r_login_request.json())
+
         challenge = data['challenge']
         login_id = data['login_id']
         salt = data['salt']
@@ -208,12 +208,12 @@ class Amucad:
 
         file = os.path.join(app.config['STORAGE_DIRECTORY'], "objects_regional_params.txt")
         if app.config['CACHE_API'] == 1 and os.path.exists(file):
-            print(' Loading data from File ')
+
             with open(file) as json_file:
                 finding_objects = json.load(json_file)
         else:
 
-            print(' Loading data from API ')
+
             res = egeos_authentication_api()
             access_token = res['session_id']
             key = res['key']
@@ -246,7 +246,7 @@ class Amucad:
         data_frame.to_csv(file_path, index=False)
 
     def get_object_detail(self, object_id):
-        print(' Loading data from API ')
+
         res = egeos_authentication_api()
         access_token = res['session_id']
         key = res['key']
@@ -282,7 +282,7 @@ class Amucad:
         fileName = str(obj.action_id) + "_" + str(obj.protection_goods_id)+ "_dynamic_data.txt"
         file = os.path.join(app.config['STORAGE_DIRECTORY'], fileName)
         if app.config['CACHE_API'] == 1 and os.path.exists(file):
-            print(' Loading data from File ')
+
             with open(file) as json_file:
                 api_response = json.load(json_file)
 
