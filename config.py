@@ -77,8 +77,8 @@ class Config:
 
     EGEOS = {
         'base_url': 'https://www.amucad.org',
-        'user_name': 'AMushtaq',
-        'password': 'lK98hgr&h'
+        'user_name': 'amus17@tu-clausthal.de',
+        'password': 'Kfy$482xx'
     }
 
     # EGEOS = {
