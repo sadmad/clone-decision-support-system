@@ -21,12 +21,11 @@ import json
 
 class DSS:
     def __init__(self):
-        print(' DSS Constructor')
 
         pass
 
     def data_preprocessing(self, finding):
-        print(' DSS Data Preprocessing')
+
         return scale.Scale.StandardScaler(finding.x_train, finding.trained_scaler_path)
 
     def fit(self, classifier, finding):
@@ -41,13 +40,13 @@ class DSS:
         return
 
     def save_model(self, model, finding):
-        print(' DSS Save Model')
+
         if os.path.exists(finding.trained_model_path):
             os.remove(finding.trained_model_path)
         joblib.dump(model, finding.trained_model_path)
 
     def testing(self, finding):
-        print(' DSS testing')
+
 
         finding.x_train = scale.Scale.LoadScalerAndScaleTestData(finding.x_train, finding.trained_scaler_path)
 
@@ -65,7 +64,7 @@ class DSS:
         # }])
 
     def predict_data(self, finding, data):
-        print(' DSS predict_data')
+
 
         # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
@@ -107,7 +106,7 @@ class DSS:
                              n_jobs=-1)
         gd_sr.fit(finding.x_train, finding.y_train)
         best_parameters = gd_sr.best_params_
-        print(best_parameters)
+
 
 
 #######################################################################
@@ -121,7 +120,7 @@ class DSS:
 class NeuralNetwork(DSS):
 
     def getClassifier(self, is_regression=0):
-        print(' NeuralNetwork Return Model')
+
         if is_regression == 0:
             return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
         else:
@@ -156,7 +155,7 @@ class NeuralNetwork(DSS):
 class RandomForest(DSS):
 
     def getClassifier(self, is_regression=0):
-        print(' RandomForest Return Model ')
+
         if is_regression == 0:
             return RandomForestClassifier(
                 n_estimators=100,
@@ -204,7 +203,7 @@ class RandomForest(DSS):
 class LinearRegressionM(DSS):
 
     def getClassifier(self):
-        print(' LinearRegressionM Return MODEL')
+
         return LinearRegression()
 
     def training(self, finding):
@@ -230,7 +229,7 @@ class LinearRegressionM(DSS):
 class DecisionTreeRegressor(DSS):
 
     def getClassifier(self, is_regression=0):
-        print(' DecisionTreeRegressor Return MODEL')
+
         from sklearn import tree
         if is_regression == 0:
             return tree.DecisionTreeClassifier()
@@ -261,7 +260,7 @@ class DecisionTreeRegressor(DSS):
 class LogisticRegressionM(DSS):
 
     def getClassifier(self):
-        print(' LogisticRegressionM Return Model')
+
         return LogisticRegression()
 
     def training(self, finding):
@@ -296,7 +295,6 @@ class DeepNeuralNetwork(DSS):
     def getClassifier(self, finding):
 
         from tensorflow import keras
-
         # from keras.models import Sequential
         # from keras.layers.core import Dense
 
@@ -304,7 +302,7 @@ class DeepNeuralNetwork(DSS):
         # from keras.optimizers import Adam
         # from keras.layers import Input
         # from keras.models import Model
-        print(' Deep NeuralNetwork  Model')
+
         # K.clear_session()
 
         columns_x = len(finding.x_train[0])
@@ -331,7 +329,7 @@ class DeepNeuralNetwork(DSS):
                     model.add(keras.layers.Dense(neuron_count, input_dim=columns_x, activation='relu'))
 
             model.add(keras.layers.Dense(output_neuron_c, activation=output_activation_function__c))
-            print(len(model.layers))
+
 
             model.compile(loss='categorical_crossentropy',
                           optimizer=optimizer, metrics=['accuracy'], )
@@ -372,8 +370,7 @@ class DeepNeuralNetwork(DSS):
                          metrics.mean_absolute_percentage_error]
                 # metrics = ['accuracy']
             )
-            modelReg.summary()
-            print(len(modelReg.layers))
+            #modelReg.summary()
             return modelReg
 
         # return model1
@@ -400,13 +397,14 @@ class DeepNeuralNetwork(DSS):
         else:
             # Regression
             # K.clear_session()
-            classifier.fit(finding.x_train, finding.y_train, epochs=500)
+            # verbose=2 , 0 for not printing epocs
+            classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=0)
 
         self.save_model(classifier, finding)
         return 0
 
     def save_model(self, model, finding):
-        print(' DSS Save Model')
+
         import shutil
 
         if os.path.exists(finding.trained_model_path):

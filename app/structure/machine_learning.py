@@ -188,10 +188,3 @@ class MachineLearning:
             "output_variables": self.output_variables,
             "date": datetime.datetime.utcnow()}
         collection_training.insert_one(item)
-
-        # print(post_id)
-        # mg_data = collection_training.find({"user_id": 2})
-        # for post in mg_data:
-        #     print(post)
-        # print(mg_data)
-        # pass
