@@ -111,9 +111,11 @@ class MachineLearning:
             self.data = self.data.dropna(how='any', subset=[y])
 
         # Separation of input variables
-        self.x_train = self.data
-        for y in self.output_variables:
-            self.x_train = self.x_train.drop(y, axis=1)
+        # self.x_train = self.data
+        # for y in self.output_variables:
+        #     self.x_train = self.x_train.drop(y, axis=1)
+
+        self.x_train = self.data[self.input_variables]
 
         # Separation of output variables
         self.y_train = self.data[self.output_variables]
