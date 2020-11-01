@@ -119,15 +119,18 @@ class DSS:
 
 class NeuralNetwork(DSS):
 
-    def getClassifier(self, is_regression=0):
+    def getClassifier(self, finding):
 
-        if is_regression == 0:
+        if finding.is_regression == 0:
             return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
         else:
-            return MLPRegressor(hidden_layer_sizes=(13, 13, 13), activation='logistic', random_state=1, max_iter=500)
+            columns_x = len(finding.x_train[0])
+            hidden_layers = columns_x/2;
+            columns_y = len(finding.y_train.columns)
+            return MLPRegressor(hidden_layer_sizes=(columns_x, columns_x, columns_x), activation='logistic', random_state=1, max_iter=500)
 
     def training(self, finding):
-        return super().fit(self.getClassifier(finding.is_regression), finding)
+        return super().fit(self.getClassifier(finding), finding)
 
     def determineBestHyperParameters(self, finding):
         grid_param = {
@@ -308,7 +311,7 @@ class DeepNeuralNetwork(DSS):
         columns_x = len(finding.x_train[0])
         # columns_x = len(finding.x_train[0])
         columns_y = len(finding.y_train.columns)
-        output_neuron_c = 3
+        output_neuron_c = columns_y
         # output_neuron_r = columns_yasaaaaaaaaaaaaaa
         activation_function = 'relu'
         output_activation_function_r = 'relu'
@@ -347,11 +350,13 @@ class DeepNeuralNetwork(DSS):
             # Output_Layer = 2#len(finding.y_train[1])
             Output_Layer = len(set(finding.y_train))
             Input_layer = keras.Input(shape=(columns_x,))
-            Dense_Layers = keras.layers.Dense(500, activation='relu')(Input_layer)
-            Dense_Layers = keras.layers.Dense(256, activation='relu')(Dense_Layers)
-            Dense_Layers = keras.layers.Dense(128, activation='relu')(Dense_Layers)
-            Dense_Layers = keras.layers.Dense(500, activation='relu')(Dense_Layers)
-            Dense_Layers = keras.layers.Dense(1000, activation='relu')(Dense_Layers)
+            Hidden_Layers = int(float((columns_y +1) / 2))
+
+
+            for x in range(Hidden_Layers):
+                Dense_Layers = keras.layers.Dense(512, activation='relu')(Input_layer)
+                Dense_Layers = keras.layers.Dense(512, activation='relu')(Dense_Layers)
+
 
             # Dense_Layers = Concatenate()([Input_layer, Dense_Layers])
             Dense_Layers = keras.layers.Dense(Output_Layer, activation='linear')(Dense_Layers)
@@ -370,7 +375,7 @@ class DeepNeuralNetwork(DSS):
                          metrics.mean_absolute_percentage_error]
                 # metrics = ['accuracy']
             )
-            #modelReg.summary()
+            modelReg.summary()
             return modelReg
 
         # return model1
