@@ -194,7 +194,10 @@ def dss_evaluation():
                         single_result['action_id'] = d['action_id']
                         sample = []
                         for key in d['data'][0]:
-                            sample.append(d['data'][0][key])
+                            if d['data'][0][key] is None:
+                                sample.append(0)
+                            else:
+                                sample.append(d['data'][0][key])
 
                         obj.set_test_data(sample)
                         p_r = obj.testing()
