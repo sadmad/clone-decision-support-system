@@ -2,6 +2,8 @@ import os
 import os.path
 from os import path
 
+import pandas as pd
+from pandas import np
 
 from app.structure import data_transformer as dt, dss
 from sklearn.pipeline import Pipeline
@@ -85,6 +87,7 @@ class MachineLearning:
 
         self.data_intialization()
 
+        self.analysis()
         # from sklearn.datasets import make_regression
         # self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2,
         #                                random_state=1)
@@ -97,6 +100,91 @@ class MachineLearning:
             'status': 200,
             'message': 'Success'
         }
+
+    def analysis(self):
+
+        df = pd.DataFrame(self.data, columns=[
+            'RP_shipping_fishing_2016',
+            'RP_fisheries_bottom_trawl',
+            "RP_fisheries_surface_midwater",
+            "RP_coastal_and_stationary",
+            "RP_depth",
+            "OP_corrosion_level",
+            "OP_sediment_cover",
+            "OP_bio_cover",
+            "OP_tnt_equivalent",
+
+            "assessments_avg",
+            "assessments_uncertainty_avg",
+
+            "MEASURE_2",
+            "MEASURE_3",
+            "MEASURE_4",
+            "MEASURE_5",
+            "MEASURE_6",
+            "MEASURE_7",
+            "MEASURE_8",
+            "MEASURE_10",
+            "CHARGE_113",
+            "CHARGE_114",
+            "CHARGE_115",
+            "CHARGE_117",
+            "CHARGE_118",
+            "CHARGE_119",
+            "CHARGE_120",
+            "CHARGE_121",
+            "CHARGE_124",
+            "CHARGE_125",
+            "CHARGE_126",
+            "CHARGE_127",
+            "CHARGE_128",
+            "CHARGE_129",
+            "CHARGE_130",
+            "CHARGE_131",
+            "CHARGE_132",
+            "CHARGE_135",
+            "CHARGE_136",
+            "CHARGE_137",
+            "CHARGE_138",
+            "CHARGE_139",
+            "CHARGE_140",
+            "CHARGE_141",
+            "CHARGE_142",
+            "CHARGE_143",
+            "CHARGE_144",
+            "CHARGE_145",
+            "CHARGE_146",
+            "CHARGE_147",
+            "CHARGE_148",
+            "CHARGE_154",
+            "CHARGE_155",
+            "CHARGE_156",
+            "CHARGE_157",
+            "CHARGE_158",
+            "CHARGE_159",
+            "CHARGE_160"
+
+
+        ])
+
+        corrMatrix = df.corr()
+        print(corrMatrix)
+
+        # import matplotlib.pyplot as plt
+        #
+        # plt.matshow(self.data.corr())
+        # plt.show()
+
+
+        import matplotlib.pyplot as plt
+
+        #RP_depth -
+        x = self.x_train['RP_depth']
+        y = self.y_train["assessments_avg"]
+
+        plt.scatter(x, y)
+        plt.show()
+        pass
 
     def data_load(self):
         amucad = dt.Amucad()

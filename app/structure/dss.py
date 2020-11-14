@@ -346,7 +346,7 @@ class DeepNeuralNetwork(DSS):
 
             # Output_Layer = 2#len(finding.y_train[1])
             Output_Layer = len(set(finding.y_train))
-            Input_layer = keras.Input(shape=(columns_x,))
+            Input_layer  = keras.Input(shape=(columns_x,))
             Dense_Layers = keras.layers.Dense(500, activation='relu')(Input_layer)
             Dense_Layers = keras.layers.Dense(256, activation='relu')(Dense_Layers)
             Dense_Layers = keras.layers.Dense(128, activation='relu')(Dense_Layers)
