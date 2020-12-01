@@ -1,0 +1,47 @@
+[{
+  "action_id":1,
+  "protection_good_id":1,
+  "features":[
+    {
+      "feature_name": "corrosion",
+      "min_value":0,
+      "max_value":100,
+      "threshold":30,
+      "relation":-1,
+      "unit":"%"
+    },
+     {
+      "feature_name": "sediment_cover",
+      "min_value":0,
+      "max_value":100,
+      "threshold":30,
+      "relation":-1,
+      "unit":"%"
+    },
+     {
+      "feature_name": "shipping_intensity",
+      "min_value":0,
+      "max_value":6158,
+      "threshold":100,
+      "relation":1,
+      "unit":"per_year"
+    },
+     {
+      "feature_name": "depth",
+      "min_value":0,
+      "max_value":450,
+      "threshold":100,
+      "relation":-1,
+      "unit":"m"
+    },
+     {
+      "feature_name": "tnt",
+      "min_value":0,
+      "max_value":250,
+      "threshold":100,
+      "relation":1,
+      "unit":"kg"
+    }
+    ]
+  }
+]

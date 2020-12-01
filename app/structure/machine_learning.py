@@ -1,7 +1,8 @@
 import os
 import os.path
 from os import path
-
+import random as random
+import pandas as pd
 
 from app.structure import data_transformer as dt, dss
 from sklearn.pipeline import Pipeline
@@ -76,7 +77,6 @@ class MachineLearning:
 
         if not path.exists(app.config['STORAGE_DIRECTORY']):
             os.mkdir(app.config['STORAGE_DIRECTORY'])
-        self.data_load()
         if self.data.empty:
             return {
                 'status': 502,
@@ -96,6 +96,49 @@ class MachineLearning:
         return {
             'status': 200,
             'message': 'Success'
+        }
+
+    def data_generation(self):
+
+        # https://scikit-learn.org/stable/modules/tree.html
+
+        if not path.exists(app.config['STORAGE_DIRECTORY']):
+            os.mkdir(app.config['STORAGE_DIRECTORY'])
+        self.data_load()
+        # Opening JSON file
+        f = open('data_config.json', )
+
+        # returns JSON object as
+        # a dictionary
+        data = json.load(f)
+        main_data = []
+        features_key = 'features'
+        action_key = 'action_id'
+        protection_key = 'protection_good_id'
+        # Iterating through the json
+        # list
+        observations = 20000
+        main_data = {}
+        directory = app.config['STORAGE_DIRECTORY']
+        if data is not None:
+            for conf_item in data:
+                counter = 0
+                feature_data = {}
+                while counter < observations:
+                    feature_data[counter] = {}
+                    for item in conf_item['features']:
+                        feature_data[counter][item['feature_name']] =  random.uniform(item['min_value'], item['max_value'])
+                    counter += 1
+                data_frame = pd.DataFrame.from_dict(feature_data, orient='index')
+                filename = str(conf_item['action_id']) +'_'+ str(conf_item['protection_good_id'])+"_generated_.csv"
+                file_path = os.path.join(directory, filename)
+                main_data[ str(conf_item['action_id']) +'_'+ str(conf_item['protection_good_id'])] = feature_data
+
+                data_frame.to_csv(file_path, index=False)
+        f.close()
+        return {
+            'status': 200,
+            'message': 'Data Generated Successfully.'
         }
 
     def data_load(self):
