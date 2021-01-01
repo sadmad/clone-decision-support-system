@@ -3,7 +3,7 @@ import os.path
 from os import path
 import random as random
 import pandas as pd
-
+from sklearn import preprocessing
 from app.structure import data_transformer as dt, dss
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -105,37 +105,180 @@ class MachineLearning:
         if not path.exists(app.config['STORAGE_DIRECTORY']):
             os.mkdir(app.config['STORAGE_DIRECTORY'])
         self.data_load()
+        min_max_scaler = preprocessing.MinMaxScaler()
         # Opening JSON file
+
+
+        initial_obs = pd.read_csv("initial_observations.csv")
+        initial_obs = pd.DataFrame(min_max_scaler.fit_transform(initial_obs), columns=initial_obs.columns,
+                                 index=initial_obs.index)
         f = open('data_config.json', )
+        config_file = json.load(f)
+        main_Obs = {}
+        column_names =[]
+        feature_data = {}
+        # if data is not None:
+        #     for item in data[0]['features']:
+        #         test =item['feature_name']
+        #         column_names.append(str("alfa_"+item['feature_name']))
+
+        # column_names = ["alfa_corrossion", "alfa_sediment_cover", "alfa_shipping_intensity","alfa_depth","alfa_tnt"]
+
+
+
+        # alfa_df = pd.DataFrame(columns=column_names)
+        # data_ = pd.DataFrame(columns=column_names)
+        for index, row in initial_obs.iterrows():
+            for key in initial_obs.columns:
+                if key in config_file['features'].keys():
+                    obj = config_file['features'][key]
+                    alpha = None
+                    if (obj['relation'] == 'inverse'):
+                        alpha = row[key] * row.risk
+                    else :
+                        temp = row.risk
+                        if temp == 0:
+                            temp = 0.1
+                            alpha = row[key] / temp
+                        else:
+                            if temp == 0:
+                                temp = 0.1
+                            alpha = row[key] / temp
+
+
+                    config_file['features'][key]['alpha'].append(alpha)
+
+        for key in initial_obs.columns:
+            if key in config_file['features'].keys():
+                alpha_avg = sum(config_file['features'][key]['alpha']) / len(config_file['features'][key]['alpha'])
+                config_file['features'][key]['alpha_avg'] = alpha_avg
+
+        # data_alfas = []
+        # for row in initial_obs.itertuples(index=True, name='Pandas'):
+        #     alfa_corrossion = row.corrosion * row.risk
+        #     alfa_sediment_cover = row.sediment_cover * row.risk
+        #     alfa_shipping_intensity = row.shipping_intensity / row.risk
+        #     alfa_depth = row.depth * row.risk
+        #     alfa_tnt = row.tnt / row.risk
+        #     values = [alfa_corrossion, alfa_sediment_cover, alfa_shipping_intensity, alfa_depth, alfa_tnt]
+        #     zipped = zip(column_names, values)
+        #     a_dictionary = dict(zipped)
+        #     print(a_dictionary)
+        #     data_alfas.append(a_dictionary)
+        #
+        #     # print(row.corrosion, row.sediment_cover,row.shipping_intensity, row.depth,row.tnt, row.risk)
+        # alfa_df = alfa_df.append(data_alfas, True)
+        # counter_colnames = 0
+        # alfa_calculations = {}
+        # for col in column_names:
+        #     alfa_calculations[str(col)] = alfa_df[col].sum(axis=0) / len(alfa_df)
+        #     counter_colnames += 1
+        # for label, row in initial_obs.iterrows():
+        #     print(label)
+        #     print(row)
+
+
 
         # returns JSON object as
         # a dictionary
-        data = json.load(f)
-        main_data = []
+
+
         features_key = 'features'
         action_key = 'action_id'
         protection_key = 'protection_good_id'
-        # Iterating through the json
-        # list
-        observations = 20000
+        # Iterating through the json list
+        observations = 5
+        feature_data = {}
         main_data = {}
         directory = app.config['STORAGE_DIRECTORY']
-        if data is not None:
-            for conf_item in data:
-                counter = 0
-                feature_data = {}
-                while counter < observations:
-                    feature_data[counter] = {}
-                    for item in conf_item['features']:
-                        feature_data[counter][item['feature_name']] =  random.uniform(item['min_value'], item['max_value'])
-                    counter += 1
-                data_frame = pd.DataFrame.from_dict(feature_data, orient='index')
-                filename = str(conf_item['action_id']) +'_'+ str(conf_item['protection_good_id'])+"_generated_.csv"
-                file_path = os.path.join(directory, filename)
-                main_data[ str(conf_item['action_id']) +'_'+ str(conf_item['protection_good_id'])] = feature_data
 
-                data_frame.to_csv(file_path, index=False)
-        f.close()
+        # if config_file is not None:
+        #     counter = 0
+        #     while counter < observations:
+        #         feature_data[counter] = []
+        #         for key in config_file['features']:
+        #             feature_data[counter][key] = random.uniform(config_file['features'][key]['min_value'], config_file['features'][key]['max_value'])
+        #             counter += 1
+
+        # data_frame = pd.DataFrame.from_dict(feature_data, orient='index')
+        # filename = str(config_file['action_id']) +'_'+ str(config_file['protection_good_id'])+"_generated_.csv"
+        # file_path = os.path.join(directory, filename)
+        # main_data[ str(config_file['action_id']) +'_'+ str(config_file['protection_good_id'])] = feature_data
+        #
+        # data_frame.to_csv(file_path, index=False)
+
+        if config_file is not None:
+            # for conf_item in config_file:
+            counter = 0
+            feature_data = {}
+            while counter < observations:
+                feature_data[counter] = {}
+                for key in config_file['features'].keys():
+                    item = config_file['features'].get(key)
+                    feature_data[counter][key] =  random.uniform(item['min_value'], item['max_value'])
+                counter += 1
+
+            data_frame = pd.DataFrame.from_dict(feature_data, orient='index')
+
+            data_frame = pd.DataFrame(min_max_scaler.fit_transform(data_frame.T), columns=data_frame.columns, index=data_frame.index)
+            risk_key = 'risk'
+            risk_final = []
+
+            for row in data_frame.itertuples(index=True, name='Pandas'):
+                temp_risk = []
+                for key in config_file['features'].keys():
+                    key_item = config_file['features'].get(key)
+                    val = key_item['relation']
+                    test_item = getattr(row, str(key))
+                    weighted_sum = key_item['weight']
+                    alpha = key_item['alpha_avg']
+                    risk = 0
+                    risk_scaled = 0
+                    if (val == 'inverse'):
+                        if test_item == 0:
+                            test_item = 0.1
+                        risk = (alpha / test_item)* (weighted_sum)
+                        # risk_scaled = (risk / 100) * (weighted_sum)
+                    else:
+                        if test_item == 0:
+                            test_item = 0.1
+                        risk = (test_item / alpha)* (weighted_sum)
+                        # risk_scaled = (risk / 100) * (weighted_sum)
+                    temp_risk.append(risk)
+                row_risk = sum(temp_risk)
+                risk_final.append(row_risk)
+            data_frame[risk_key] = risk_final
+
+            # data_frame = pd.DataFrame(x_scaled)
+            filename = str(config_file['action_id']) +'_'+ str(config_file['protection_good_id'])+"_generated_.csv"
+            file_path = os.path.join(directory, filename)
+            main_data[str(config_file['action_id']) +'_'+ str(config_file['protection_good_id'])] = feature_data
+
+            data_frame.to_csv(file_path, index=False)
+            f.close()
+        # old file
+        # feature_data = {}
+        # if config_file is not None:
+        #     counter = 0
+        #     feature_data[counter] = {}
+        #     while counter < observations:
+        #
+        #
+        #
+        #         for key in config_file['features'].keys():
+        #             item = config_file['features'].get(key)
+        #             # for item in config_file['features'].get(conf_item):
+        #             feature_data[counter][key] =  random.uniform(item['min_value'], item['max_value'])
+        #         counter += 1
+        #     data_frame = pd.DataFrame.from_dict(feature_data, orient='index')
+        #     filename = str(config_file['action_id']) +'_'+ str(config_file['protection_good_id'])+"_generated_.csv"
+        #     file_path = os.path.join(di`rectory, filename)
+        #     main_data[str(config_file['action_id']) +'_'+ str(config_file['protection_good_id'])] = feature_data
+        #
+        #     data_frame.to_csv(file_path, index=False)
+        # f.close()
+        # old file
+
         return {
             'status': 200,
             'message': 'Data Generated Successfully.'
