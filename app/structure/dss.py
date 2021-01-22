@@ -79,7 +79,9 @@ class DSS:
         for j in cached_response_variables:
             res[j] = round(prediction[0][i], 2)
             i = i + 1
-        return json.dumps(str(res))
+
+        return res
+        #return json.dumps(str(res))
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 

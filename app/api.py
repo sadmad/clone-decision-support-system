@@ -68,7 +68,7 @@ def dss_training():
         in: formData
         type: integer
         required: true
-        description: Value from AMUCAD application. Possible values corrosion=1, explosion=2
+        description: Value from AMUCAD application. Possible values corrosion=2, explosion=1
         default: 1
       - name: protection_goods_id
         in: formData
