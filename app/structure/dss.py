@@ -444,7 +444,7 @@ class DeepNeuralNetwork(DSS):
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = data[0][i]
+            res[j] = round(data[0][i], 2)
             i = i + 1
 
         return res
