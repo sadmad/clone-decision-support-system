@@ -28,10 +28,12 @@ class MachineLearning:
         self.test_data = None
         self.user_id = user_id
         self.cache_key = str(self.action_id) + '_' + str(self.protection_goods_id)
-        self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
+        self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'],
+                                             'scaler_' + str(self.user_id) + str(self.action_id) +
                                              str(self.protection_goods_id) + '_' + self.DSS.scaler_file_name)
 
-        self.trained_model_path = os.path.join(app.config['STORAGE_DIRECTORY'], str(self.action_id) + '_' +
+        self.trained_model_path = os.path.join(app.config['STORAGE_DIRECTORY'],
+                                               str(self.user_id) + str(self.action_id) +
                                                str(self.protection_goods_id) + '_' + self.DSS.model_file_name)
 
     def process(self):
