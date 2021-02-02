@@ -487,13 +487,17 @@ class DeepNeuralNetwork(DSS):
         #     predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
 
         cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
+
+        data = pd.np.array(predictions.tolist())
         # Something went wrong in Cache for response variable
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = round(predictions[0][i], 2)
+            res[j] = round(data[0][i], 2)
             i = i + 1
-        return json.dumps(str(res))
+
+        return res
+        #return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
     def determineBestHyperParameters(self, finding):
