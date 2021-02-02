@@ -17,62 +17,37 @@ class Config:
 
     NEURAL_NETWORK_MODEL = {
         'model': 'neural_network.sav',
-        'scaler': 'neural_network_scaler.save'
+        'scaler': 'neural_network.save',
+        'name': 'NEURAL_NETWORK'
     }
 
-    RANDOM_FOREST_CLASSIFIER_MODEL = {
-        'model': 'random_forest_classifier.sav',
-        'scaler': 'random_forest_classifier_scaler.save'
+    RANDOM_FOREST_MODEL = {
+        'model': 'random_forest.sav',
+        'scaler': 'random_forest.save',
+        'name': 'RANDOM_FOREST'
     }
 
     LINEAR_REGRESSION_MODEL = {
         'model': 'linear_regression.sav',
-        'scaler': 'linear_regression_scaler.save'
+        'scaler': 'linear_regression.save',
+        'name': 'LINEAR_REGRESSION'
     }
 
     LOGISTIC_REGRESSION_MODEL = {
         'model': 'logistic_regression.sav',
-        'scaler': 'logistic_regression_scaler.save'
+        'scaler': 'logistic_regression.save',
+        'name': 'LOGISTIC_REGRESSION'
     }
     DEEP_NEURAL_NETWORK_MODEL = {
         'model': 'deep_neural_network.sav',
-        'scaler': 'deep_neural_network_scaler.save'
+        'scaler': 'deep_neural_network.save',
+        'name': 'DEEP_NEURAL_NETWORK'
     }
 
-    DECISIONTREE_REGRESSOR_MODEL = {
+    DECISION_TREE_MODEL = {
         'model': 'decision_tree.sav',
-        'scaler': 'decision_tree.save'
-    }
-
-    MODELS = {
-
-        'FDI_ASSESSMENT': 'fdi_assessment_',  # FISH
-        'CF_ASSESSMENT': 'cf_assessment_',  # FISH
-        'LHI_ASSESSMENT': 'lhi_assessment_',  # FISH
-        'MUSCEL_CWA_ASSESSMENT': 'muscel_cwa_assessment_',  # FISH
-        'LIVER_CWA_ASSESSMENT': 'liver_cwa_assessment_',  # FISH
-        'ERY_ASSESSMENT': 'ery_assessment_',  # FISH
-        'HB_ASSESSMENT': 'hb_assessment_',  # FISH
-        'GLU_ASSESSMENT': 'glu_assessment_',  # FISH
-        'HCT_ASSESSMENT': 'hct_assessment_',  # FISH
-        'GILL_CWA_ASSESSMENT': 'gill_cwa_assessment_',  # FISH
-        'EXPLOSION_FISHERIES_ASSESSMENT': 'explosion_fisheries_assessment',  # Munition
-        'EXPLOSION_SHIPPING_ASSESSMENT': 'explosion_shipping_assessment'  # Munition
-    }
-
-    MODELS_ID_MAPPING = {
-        0: 'FDI_ASSESSMENT',
-        1: 'CF_ASSESSMENT',
-        2: 'LHI_ASSESSMENT',
-        3: 'MUSCEL_CWA_ASSESSMENT',
-        4: 'LIVER_CWA_ASSESSMENT',
-        5: 'ERY_ASSESSMENT',
-        6: 'HB_ASSESSMENT',
-        7: 'GLU_ASSESSMENT',
-        8: 'HCT_ASSESSMENT',
-        9: 'GILL_CWA_ASSESSMENT',
-        10: 'EXPLOSION_FISHERIES_ASSESSMENT',  # Munition
-        11: 'EXPLOSION_SHIPPING_ASSESSMENT',  # Munition
+        'scaler': 'decision_tree.save',
+        'name': 'DECISION_TREE'
     }
 
     EGEOS = {

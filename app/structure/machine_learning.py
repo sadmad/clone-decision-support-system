@@ -2,8 +2,7 @@ import os
 import os.path
 from os import path
 
-
-from app.structure import data_transformer as dt, dss
+from app.structure import data_transformer as dt, factory
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from app import app
@@ -14,43 +13,9 @@ import redis
 import json
 
 
-def setDssNetwork(model_type):
-    md = model_config = model_name = None
-
-    if model_type == 1:
-        md = dss.NeuralNetwork()
-        model_config = app.config['NEURAL_NETWORK_MODEL']
-        model_name = 'NEURAL_NETWORK_MODEL'
-
-    elif model_type == 2:
-        md = dss.RandomForest()
-        model_config = app.config['RANDOM_FOREST_CLASSIFIER_MODEL']
-        model_name = 'RANDOM_FOREST_CLASSIFIER_MODEL'
-
-    elif model_type == 3:
-        md = dss.LinearRegressionM()
-        model_config = app.config['LINEAR_REGRESSION_MODEL']
-        model_name = 'LINEAR_REGRESSION_MODEL'
-
-    elif model_type == 4:
-        md = dss.LogisticRegressionM()
-        model_config = app.config['LOGISTIC_REGRESSION_MODEL']
-        model_name = 'LOGISTIC_REGRESSION_MODEL'
-    elif model_type == 5:
-        md = dss.DeepNeuralNetwork()
-        model_config = app.config['DEEP_NEURAL_NETWORK_MODEL']
-        model_name = 'DEEP_NEURAL_NETWORK_MODEL'
-
-    elif model_type == 6:
-        md = dss.DecisionTreeRegressor()
-        model_config = app.config['DECISIONTREE_REGRESSOR_MODEL']
-        model_name = 'DecisionTree_Regressor_MODEL'
-    return md, model_config, model_name
-
-
 class MachineLearning:
     def __init__(self, model_type, action_id, protection_goods_id, user_id=None):
-        self.DSS, self.model_config, self.model_name = setDssNetwork(model_type)
+        self.DSS = factory.ModelFactory.get_model(model_type)
         self.model_id = model_type
         self.action_id = action_id
         self.protection_goods_id = protection_goods_id
@@ -64,11 +29,10 @@ class MachineLearning:
         self.user_id = user_id
         self.cache_key = str(self.action_id) + '_' + str(self.protection_goods_id)
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'], 'scaler_' + str(self.action_id) + '_' +
-                                             str(self.protection_goods_id) + '.save')
+                                             str(self.protection_goods_id) + '_' + self.DSS.scaler_file_name)
 
         self.trained_model_path = os.path.join(app.config['STORAGE_DIRECTORY'], str(self.action_id) + '_' +
-                                               str(self.protection_goods_id) + '_' + self.model_name + '.sav')
-
+                                               str(self.protection_goods_id) + '_' + self.DSS.model_file_name)
 
     def process(self):
 
@@ -89,7 +53,6 @@ class MachineLearning:
         # self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2,
         #                                random_state=1)
         self.data_preprocessing()
-
 
         self.training()
         # self.training_history_log()

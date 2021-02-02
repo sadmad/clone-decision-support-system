@@ -43,13 +43,9 @@ class DSS:
         ac = accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
         return ac
 
-
-
     def evaluate_accuracy_dnn(self, classifier, finding):
         ac = accuracy.AccuracyFinder.stratified_k_fold_dnn(classifier, finding.x_train, finding.y_train, finding)
         return ac
-
-
 
     def save_model(self, model, finding):
 
@@ -58,7 +54,6 @@ class DSS:
         joblib.dump(model, finding.trained_model_path)
 
     def testing(self, finding):
-
 
         finding.x_train = scale.Scale.LoadScalerAndScaleTestData(finding.x_train, finding.trained_scaler_path)
 
@@ -77,7 +72,6 @@ class DSS:
 
     def predict_data(self, finding, data):
 
-
         # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
 
         loaded_model = joblib.load(finding.trained_model_path)
@@ -93,7 +87,7 @@ class DSS:
             i = i + 1
 
         return res
-        #return json.dumps(str(res))
+        # return json.dumps(str(res))
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
 
@@ -122,7 +116,6 @@ class DSS:
         best_parameters = gd_sr.best_params_
 
 
-
 #######################################################################
 #######################################################################
 #######################################################################
@@ -132,6 +125,13 @@ class DSS:
 #######################################################################
 
 class NeuralNetwork(DSS):
+
+    def __init__(self):
+
+        self.model_name = app.config['NEURAL_NETWORK_MODEL']['name']
+        self.model_file_name = app.config['NEURAL_NETWORK_MODEL']['model']
+        self.scaler_file_name = app.config['NEURAL_NETWORK_MODEL']['scaler']
+        pass
 
     def getClassifier(self, is_regression=0):
 
@@ -160,6 +160,7 @@ class NeuralNetwork(DSS):
     def accuracy_evaluation(self, finding):
         return super().evaluate_accuracy(self.getClassifier(finding), finding)
 
+
 #######################################################################
 #######################################################################
 #######################################################################
@@ -169,6 +170,13 @@ class NeuralNetwork(DSS):
 #######################################################################
 
 class RandomForest(DSS):
+
+    def __init__(self):
+
+        self.model_name = app.config['RANDOM_FOREST_MODEL']['name']
+        self.model_file_name = app.config['RANDOM_FOREST_MODEL']['model']
+        self.scaler_file_name = app.config['RANDOM_FOREST_MODEL']['scaler']
+        pass
 
     def getClassifier(self, is_regression=0):
 
@@ -218,8 +226,13 @@ class RandomForest(DSS):
 
 class LinearRegressionM(DSS):
 
-    def getClassifier(self):
+    def __init__(self):
+        self.model_name = app.config['LINEAR_REGRESSION_MODEL']['name']
+        self.model_file_name = app.config['LINEAR_REGRESSION_MODEL']['model']
+        self.scaler_file_name = app.config['LINEAR_REGRESSION_MODEL']['scaler']
+        pass
 
+    def getClassifier(self):
         return LinearRegression()
 
     def training(self, finding):
@@ -243,6 +256,13 @@ class LinearRegressionM(DSS):
 #######################################################################
 
 class DecisionTreeRegressor(DSS):
+
+    def __init__(self):
+
+        self.model_name = app.config['DECISION_TREE_MODEL']['name']
+        self.model_file_name = app.config['DECISION_TREE_MODEL']['model']
+        self.scaler_file_name = app.config['DECISION_TREE_MODEL']['scaler']
+        pass
 
     def getClassifier(self, is_regression=0):
 
@@ -275,8 +295,14 @@ class DecisionTreeRegressor(DSS):
 
 class LogisticRegressionM(DSS):
 
-    def getClassifier(self):
+    def __init__(self):
 
+        self.model_name = app.config['LOGISTIC_REGRESSION_MODEL']['name']
+        self.model_file_name = app.config['LOGISTIC_REGRESSION_MODEL']['model']
+        self.scaler_file_name = app.config['LOGISTIC_REGRESSION_MODEL']['scaler']
+        pass
+
+    def getClassifier(self):
         return LogisticRegression()
 
     def training(self, finding):
@@ -307,6 +333,13 @@ class LogisticRegressionM(DSS):
 #######################################################################
 
 class DeepNeuralNetwork(DSS):
+
+    def __init__(self):
+
+        self.model_name = app.config['DEEP_NEURAL_NETWORK_MODEL']['name']
+        self.model_file_name = app.config['DEEP_NEURAL_NETWORK_MODEL']['model']
+        self.scaler_file_name = app.config['DEEP_NEURAL_NETWORK_MODEL']['scaler']
+        pass
 
     def getClassifier(self, finding):
 
@@ -345,7 +378,6 @@ class DeepNeuralNetwork(DSS):
                     model.add(keras.layers.Dense(neuron_count, input_dim=columns_x, activation='relu'))
 
             model.add(keras.layers.Dense(output_neuron_c, activation=output_activation_function__c))
-
 
             model.compile(loss='categorical_crossentropy',
                           optimizer=optimizer, metrics=['accuracy'], )
@@ -386,7 +418,7 @@ class DeepNeuralNetwork(DSS):
                          metrics.mean_absolute_percentage_error]
                 # metrics = ['accuracy']
             )
-            #modelReg.summary()
+            # modelReg.summary()
             return modelReg
 
         # return model1
