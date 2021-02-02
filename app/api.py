@@ -131,6 +131,87 @@ def dss_training():
     resp.status_code = status
     return resp
 
+@app.route('/dss/metrics', methods=['POST'])
+@token_required
+def dss_accuracy():
+    """Endpoint for training dss system for munitions
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: model_id
+        in: formData
+        type: integer
+        enum: [1, 2, 3, 5, 6]
+        required: true
+        default: 1
+        description:  User can choose any of the given model for training. System will override the existing model for selected model_id, action_id and protection_goods_id. Neural Network(scikit learn)=1, RANDOM FOREST(scikit learn)=2, LINEAR REGRESSION(scikit learn)=3, DEEP NEURAL NETWORK(Keras+tensorflow)=5, Decision Tree(scikit learn)=6
+      - name: action_id
+        in: formData
+        type: integer
+        required: true
+        description: Value from AMUCAD application. Possible values corrosion=2, explosion=1
+        default: 1
+      - name: protection_goods_id
+        in: formData
+        type: integer
+        required: true
+        description: Value from AMUCAD application. Possible values 1,2,3,4,5
+        default: 2
+      - name: user_id
+        in: formData
+        type: integer
+        required: true
+        description: 'User id of logged in user in AMUCAD application should be given'
+        default: 2
+      - name: token
+        in: formData
+        type: string
+        required: true
+        description:  'JSON Web Token, should be generated from login API using email and password'
+    responses:
+      200:
+        description: JSON object containing status of the action
+        examples:
+          rgb: []
+    """
+
+    errors = TrainingAPISchema().validate(request.form)
+    if errors:
+        message = {
+            'status': 422,
+            'message': str(errors),
+        }
+        resp = jsonify(message)
+        resp.status_code = 422
+        return resp
+
+    model_type = int(request.form.get('model_id'))
+    action_id = int(request.form.get('action_id'))
+    protection_goods_id = int(request.form.get('protection_goods_id'))
+    user_id = int(request.form.get('user_id'))
+
+    from app.structure import machine_learning as starter
+
+    try:
+        obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
+        res = obj.accuracy_finder()
+        status = res['status']
+        ret = res['message']
+
+    except Exception as e:
+        status = 500
+        ret = str(e)
+
+    message = {
+        'status': status,
+        'data': {
+            'message': ret
+        },
+    }
+    resp = jsonify(message)
+    resp.status_code = status
+    return resp
+
 
 @app.route('/dss/evaluation', methods=['POST'])
 @token_required

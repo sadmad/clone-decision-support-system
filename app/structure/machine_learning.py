@@ -92,7 +92,34 @@ class MachineLearning:
 
 
         self.training()
-        self.training_history_log()
+        # self.training_history_log()
+        return {
+            'status': 200,
+            'message': 'Success'
+        }
+
+    def accuracy_finder(self):
+
+        # https://scikit-learn.org/stable/modules/tree.html
+
+        if not path.exists(app.config['STORAGE_DIRECTORY']):
+            os.mkdir(app.config['STORAGE_DIRECTORY'])
+        self.data_load()
+        if self.data.empty:
+            return {
+                'status': 502,
+                'message': 'Data Not Found'
+            }
+
+        self.data_intialization()
+
+        # from sklearn.datasets import make_regression
+        # self.y_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2,
+        #                                random_state=1)
+        self.data_preprocessing()
+
+        ac = self.accuracy()
+        # self.training_history_log()
         return {
             'status': 200,
             'message': 'Success'
@@ -155,6 +182,10 @@ class MachineLearning:
         r.mset({self.cache_key: json.dumps(self.output_variables)})
 
         return self.DSS.training(self)
+
+    def accuracy(self):
+
+        return self.DSS.accuracy_evaluation(self)
 
     def set_test_data(self, data):
         self.test_data = [data]

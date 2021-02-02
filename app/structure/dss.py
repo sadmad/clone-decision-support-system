@@ -39,6 +39,18 @@ class DSS:
 
         return
 
+    def evaluate_accuracy(self, classifier, finding):
+        ac = accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
+        return ac
+
+
+
+    def evaluate_accuracy_dnn(self, classifier, finding):
+        ac = accuracy.AccuracyFinder.stratified_k_fold_dnn(classifier, finding.x_train, finding.y_train, finding)
+        return ac
+
+
+
     def save_model(self, model, finding):
 
         if os.path.exists(finding.trained_model_path):
@@ -145,6 +157,8 @@ class NeuralNetwork(DSS):
         }
         super().gridSearch(self.getClassifier(), grid_param, finding)
 
+    def accuracy_evaluation(self, finding):
+        return super().evaluate_accuracy(self.getClassifier(finding), finding)
 
 #######################################################################
 #######################################################################
@@ -380,6 +394,9 @@ class DeepNeuralNetwork(DSS):
     def training(self, finding):
 
         return self.fit(self.getClassifier(finding), finding)
+
+    def accuracy_evaluation(self, finding):
+        return super().evaluate_accuracy_dnn(self.getClassifier(finding), finding)
 
     def fit(self, classifier, finding):
 
