@@ -159,7 +159,7 @@ class MachineLearning:
         if os.path.exists(self.scaler_file_path) and os.path.exists(self.trained_model_path):
             # Before prediction
             self.apply_existing_scaler()
-            return self.DSS.predict_data(self, self.test_data)
+            return self.DSS.predict_data(self)
         else:
             return None
 

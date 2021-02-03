@@ -44,19 +44,11 @@ class DSS:
             os.remove(data.trained_model_path)
         joblib.dump(model, data.trained_model_path)
 
-    def testing(self, data):
-        data.x_train = scale.Scale.LoadScalerAndScaleTestData(data.x_train, data.trained_scaler_path)
-        loaded_model = joblib.load(data.trained_model_path)
-        # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        predictions = loaded_model.predict(data.x_train)
-        # print(confusion_matrix(self.y_test,predictions))
-        # print(classification_report(self.y_test,predictions))
-        return pd.Series(predictions).to_json(orient='values')
 
-    def predict_data(self, data, observation):
+    def predict_data(self, data):
         loaded_model = joblib.load(data.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        prediction = loaded_model.predict(observation)
+        prediction = loaded_model.predict(data.test_data)
         cached_response_variables = json.loads(redis.Redis().get(data.cache_key))
         res = {}
         i = 0
@@ -413,7 +405,7 @@ class DeepNeuralNetwork(DSS):
     def accuracy_evaluation(self, data):
         return super().evaluate_accuracy_dnn(self.get_model(data), data)
 
-    def predict_data(self, data, observation):
+    def predict_data(self, data):
         from tensorflow import keras
         # from keras.models import Sequential
         # from keras.layers.core import Dense
@@ -426,7 +418,7 @@ class DeepNeuralNetwork(DSS):
         # loaded_model = joblib.load(finding.trained_model_path)
 
         reconstructed_model = keras.models.load_model(data.trained_model_path)
-        predictions = reconstructed_model.predict(observation)
+        predictions = reconstructed_model.predict(data.test_data)
         # predictions = loaded_model.model.predict(data)
         # Awais
         # predictions = loaded_model.model.predict(data)
