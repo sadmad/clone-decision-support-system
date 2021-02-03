@@ -20,99 +20,68 @@ import json
 
 
 class DSS:
-    def __init__(self):
 
+    def __init__(self):
         pass
 
-    def data_preprocessing(self, finding):
+    def data_preprocessing(self, data):
+        return scale.Scale.StandardScaler(data.x_train, data.trained_scaler_path)
 
-        return scale.Scale.StandardScaler(finding.x_train, finding.trained_scaler_path)
-
-    def fit(self, classifier, finding):
+    def fit(self, model, data):
         ac = 0  # accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
-        if os.path.exists(finding.trained_model_path):
-            os.remove(finding.trained_model_path)
+        if os.path.exists(data.trained_model_path):
+            os.remove(data.trained_model_path)
 
-        fit_model = classifier.fit(finding.x_train, finding.y_train)
-        self.save_model(fit_model, finding)
+        fit_model = model.fit(data.x_train, data.y_train)
+        self.save_model(fit_model, data)
         return ac
 
-        return
-
-    def evaluate_accuracy(self, classifier, finding):
-        ac = accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
+    def evaluate_accuracy(self, model, data):
+        ac = accuracy.AccuracyFinder.stratified_k_fold(model, data.x_train, data.y_train)
         return ac
 
-    def evaluate_accuracy_dnn(self, classifier, finding):
-        ac = accuracy.AccuracyFinder.stratified_k_fold_dnn(classifier, finding.x_train, finding.y_train, finding)
+    def evaluate_accuracy_dnn(self, model, data):
+        ac = accuracy.AccuracyFinder.stratified_k_fold_dnn(model, data.x_train, data.y_train, data)
         return ac
 
-    def save_model(self, model, finding):
+    def save_model(self, model, data):
+        if os.path.exists(data.trained_model_path):
+            os.remove(data.trained_model_path)
+        joblib.dump(model, data.trained_model_path)
 
-        if os.path.exists(finding.trained_model_path):
-            os.remove(finding.trained_model_path)
-        joblib.dump(model, finding.trained_model_path)
-
-    def testing(self, finding):
-
-        finding.x_train = scale.Scale.LoadScalerAndScaleTestData(finding.x_train, finding.trained_scaler_path)
-
-        loaded_model = joblib.load(finding.trained_model_path)
+    def testing(self, data):
+        data.x_train = scale.Scale.LoadScalerAndScaleTestData(data.x_train, data.trained_scaler_path)
+        loaded_model = joblib.load(data.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-        predictions = loaded_model.predict(finding.x_train)
+        predictions = loaded_model.predict(data.x_train)
         # print(confusion_matrix(self.y_test,predictions))
         # print(classification_report(self.y_test,predictions))
-
         return pd.Series(predictions).to_json(orient='values')
-        # return jsonify([{
-        #     'status':200,
-        #     'message':'Test Obervations are predicted by Neural Network Trained Model.',
-        #     'predictions' : pd.Series(predictions).to_json(orient='values')
-        # }])
 
-    def predict_data(self, finding, data):
-
-        # data = scale.Scale.LoadScalerAndScaleTestData(data, finding.trained_scaler_path)
-
-        loaded_model = joblib.load(finding.trained_model_path)
+    def predict_data(self, data, observation):
+        loaded_model = joblib.load(data.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
-
-        prediction = loaded_model.predict(data)
-        cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
-
+        prediction = loaded_model.predict(observation)
+        cached_response_variables = json.loads(redis.Redis().get(data.cache_key))
         res = {}
         i = 0
         for j in cached_response_variables:
             res[j] = round(prediction[0][i], 2)
             i = i + 1
-
         return res
-        # return json.dumps(str(res))
-        # print(confusion_matrix(self.y_test,predictions))
-        # print(classification_report(self.y_test,predictions))
 
-        # return pd.Series(predictions).to_json(orient='values')
-
-        # return jsonify([{
-        #     'status':200,
-        #     'message':'Test Obervations are predicted by Neural Network Trained Model.',
-        #     'predictions' : pd.Series(predictions).to_json(orient='values')
-        # }])
-
-    def gridSearch(self, classifier, grid_param, finding):
+    def gridSearch(self, model, grid_param, data):
         # https://stackabuse.com/cross-validation-and-grid-search-for-model-selection-in-python/
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74##targetText=In%20the%20case%20of%20a,each%20node%20learned%20during%20training).
         from sklearn.model_selection import GridSearchCV
-
         from sklearn.multioutput import MultiOutputRegressor
-        classifier = GridSearchCV(MultiOutputRegressor(classifier), param_grid=grid_param)
-
+        classifier = GridSearchCV(MultiOutputRegressor(model), param_grid=grid_param)
         gd_sr = GridSearchCV(estimator=classifier,
                              param_grid=grid_param,
                              scoring='accuracy',
                              cv=5,
                              n_jobs=-1)
-        gd_sr.fit(finding.x_train, finding.y_train)
+        gd_sr.fit(data.x_train, data.y_train)
         best_parameters = gd_sr.best_params_
 
 
@@ -127,23 +96,21 @@ class DSS:
 class NeuralNetwork(DSS):
 
     def __init__(self):
-
         self.model_name = app.config['NEURAL_NETWORK_MODEL']['name']
         self.model_file_name = app.config['NEURAL_NETWORK_MODEL']['model']
         self.scaler_file_name = app.config['NEURAL_NETWORK_MODEL']['scaler']
         pass
 
-    def getClassifier(self, is_regression=0):
-
+    def get_model(self, is_regression=0):
         if is_regression == 0:
             return MLPClassifier(hidden_layer_sizes=(13, 13, 13), max_iter=500)
         else:
             return MLPRegressor(hidden_layer_sizes=(13, 13, 13), activation='logistic', random_state=1, max_iter=500)
 
-    def training(self, finding):
-        return super().fit(self.getClassifier(finding.is_regression), finding)
+    def training(self, data):
+        return super().fit(self.get_model(data.is_regression), data)
 
-    def determineBestHyperParameters(self, finding):
+    def determineBestHyperParameters(self, data):
         grid_param = {
             'activation': ['identity', 'logistic', 'tanh', 'relu'],
             'solver': ['lbfgs', 'sgd', 'adam'],
@@ -155,10 +122,10 @@ class NeuralNetwork(DSS):
             # 'nesterovs_momentum': [True,False],
             # 'early_stopping': [True,False]
         }
-        super().gridSearch(self.getClassifier(), grid_param, finding)
+        super().gridSearch(self.get_model(), grid_param, data)
 
-    def accuracy_evaluation(self, finding):
-        return super().evaluate_accuracy(self.getClassifier(finding), finding)
+    def accuracy_evaluation(self, data):
+        return super().evaluate_accuracy(self.get_model(data), data)
 
 
 #######################################################################
@@ -172,14 +139,12 @@ class NeuralNetwork(DSS):
 class RandomForest(DSS):
 
     def __init__(self):
-
         self.model_name = app.config['RANDOM_FOREST_MODEL']['name']
         self.model_file_name = app.config['RANDOM_FOREST_MODEL']['model']
         self.scaler_file_name = app.config['RANDOM_FOREST_MODEL']['scaler']
         pass
 
-    def getClassifier(self, is_regression=0):
-
+    def get_model(self, is_regression=0):
         if is_regression == 0:
             return RandomForestClassifier(
                 n_estimators=100,
@@ -197,10 +162,10 @@ class RandomForest(DSS):
                 bootstrap=True
             )
 
-    def training(self, finding):
-        return super().fit(self.getClassifier(finding.is_regression), finding)
+    def training(self, data):
+        return super().fit(self.get_model(data.is_regression), data)
 
-    def determineBestHyperParameters(self, finding):
+    def determineBestHyperParameters(self, data):
         grid_param = {
             'criterion': ['gini', 'entropy'],
             'bootstrap': [True, False],
@@ -213,7 +178,7 @@ class RandomForest(DSS):
             'n_estimators': [100]
 
         }
-        super().gridSearch(self.getClassifier(), grid_param, finding)
+        super().gridSearch(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -232,19 +197,19 @@ class LinearRegressionM(DSS):
         self.scaler_file_name = app.config['LINEAR_REGRESSION_MODEL']['scaler']
         pass
 
-    def getClassifier(self):
+    def get_model(self):
         return LinearRegression()
 
-    def training(self, finding):
-        return super().fit(self.getClassifier(), finding)
+    def training(self, data):
+        return super().fit(self.get_model(), data)
 
-    def determineBestHyperParameters(self, finding):
+    def determineBestHyperParameters(self, data):
         grid_param = {
             'fit_intercept': [True, False],
             'normalize': [True, False],
             'copy_X': [True, False]
         }
-        super().gridSearch(self.getClassifier(), grid_param, finding)
+        super().gridSearch(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -258,14 +223,12 @@ class LinearRegressionM(DSS):
 class DecisionTreeRegressor(DSS):
 
     def __init__(self):
-
         self.model_name = app.config['DECISION_TREE_MODEL']['name']
         self.model_file_name = app.config['DECISION_TREE_MODEL']['model']
         self.scaler_file_name = app.config['DECISION_TREE_MODEL']['scaler']
         pass
 
-    def getClassifier(self, is_regression=0):
-
+    def get_model(self, is_regression=0):
         from sklearn import tree
         if is_regression == 0:
             return tree.DecisionTreeClassifier()
@@ -273,16 +236,16 @@ class DecisionTreeRegressor(DSS):
 
             return tree.DecisionTreeRegressor()
 
-    def training(self, finding):
-        return super().fit(self.getClassifier(finding.is_regression), finding)
+    def training(self, data):
+        return super().fit(self.get_model(data.is_regression), data)
 
-    def determineBestHyperParameters(self, finding):
+    def determineBestHyperParameters(self, data):
         grid_param = {
             'fit_intercept': [True, False],
             'normalize': [True, False],
             'copy_X': [True, False]
         }
-        super().gridSearch(self.getClassifier(), grid_param, finding)
+        super().gridSearch(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -296,19 +259,18 @@ class DecisionTreeRegressor(DSS):
 class LogisticRegressionM(DSS):
 
     def __init__(self):
-
         self.model_name = app.config['LOGISTIC_REGRESSION_MODEL']['name']
         self.model_file_name = app.config['LOGISTIC_REGRESSION_MODEL']['model']
         self.scaler_file_name = app.config['LOGISTIC_REGRESSION_MODEL']['scaler']
         pass
 
-    def getClassifier(self):
+    def get_model(self):
         return LogisticRegression()
 
-    def training(self, finding):
-        return super().fit(self.getClassifier(), finding)
+    def training(self, data):
+        return super().fit(self.get_model(), data)
 
-    def determineBestHyperParameters(self, finding):
+    def determineBestHyperParameters(self, data):
         grid_param = {
             # 'penalty': ['l1','l2','elasticnet','none'],
             # 'penalty': ['l2','elasticnet','none'],
@@ -321,7 +283,7 @@ class LogisticRegressionM(DSS):
             # 'multi_class':['ovr', 'multinomial','auto'],
             'warm_start': ['True', 'False']
         }
-        super().gridSearch(self.getClassifier(), grid_param, finding)
+        super().gridSearch(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -335,14 +297,12 @@ class LogisticRegressionM(DSS):
 class DeepNeuralNetwork(DSS):
 
     def __init__(self):
-
         self.model_name = app.config['DEEP_NEURAL_NETWORK_MODEL']['name']
         self.model_file_name = app.config['DEEP_NEURAL_NETWORK_MODEL']['model']
         self.scaler_file_name = app.config['DEEP_NEURAL_NETWORK_MODEL']['scaler']
         pass
 
-    def getClassifier(self, finding):
-
+    def get_model(self, finding):
         from tensorflow import keras
         # from keras.models import Sequential
         # from keras.layers.core import Dense
@@ -423,47 +383,42 @@ class DeepNeuralNetwork(DSS):
 
         # return model1
 
-    def training(self, finding):
-
-        return self.fit(self.getClassifier(finding), finding)
-
-    def accuracy_evaluation(self, finding):
-        return super().evaluate_accuracy_dnn(self.getClassifier(finding), finding)
-
-    def fit(self, classifier, finding):
-
-        if finding.is_regression == 0:
+    def fit(self, model, data):
+        if data.is_regression == 0:
             # Classification
             import numpy as np
-            B = finding.y_train.transpose()
-            B = np.reshape(finding.y_train, (-1, 1))
+            B = data.y_train.transpose()
+            B = np.reshape(data.y_train, (-1, 1))
             encoder = OneHotEncoder()
             targets = encoder.fit_transform(B)
-            train_features, test_features, train_targets, test_targets = train_test_split(finding.x_train, targets,
+            train_features, test_features, train_targets, test_targets = train_test_split(data.x_train, targets,
                                                                                           test_size=0.2)
 
-            fit_model = classifier.fit(finding.x_train, targets, epochs=10, batch_size=200, verbose=2)
+            fit_model = model.fit(data.x_train, targets, epochs=10, batch_size=200, verbose=2)
             # results= fit_model.fit_model.evaluate(test_features,test_targets)
             # print("Accuracy on the test dataset:%.2f" % results[1])
         else:
             # Regression
             # K.clear_session()
             # verbose=2 , 0 for not printing epocs
-            classifier.fit(finding.x_train, finding.y_train, epochs=500, verbose=0)
+            model.fit(data.x_train, data.y_train, epochs=500, verbose=0)
 
-        self.save_model(classifier, finding)
+        self.save_model(model, data)
         return 0
 
     def save_model(self, model, finding):
-
         import shutil
-
         if os.path.exists(finding.trained_model_path):
             shutil.rmtree(finding.trained_model_path)
         model.save(finding.trained_model_path)
 
-    def predict_data(self, finding, data):
+    def training(self, data):
+        return self.fit(self.get_model(data), data)
 
+    def accuracy_evaluation(self, data):
+        return super().evaluate_accuracy_dnn(self.get_model(data), data)
+
+    def predict_data(self, data, observation):
         from tensorflow import keras
         # from keras.models import Sequential
         # from keras.layers.core import Dense
@@ -475,8 +430,8 @@ class DeepNeuralNetwork(DSS):
 
         # loaded_model = joblib.load(finding.trained_model_path)
 
-        reconstructed_model = keras.models.load_model(finding.trained_model_path)
-        predictions = reconstructed_model.predict(data)
+        reconstructed_model = keras.models.load_model(data.trained_model_path)
+        predictions = reconstructed_model.predict(observation)
         # predictions = loaded_model.model.predict(data)
         # Awais
         # predictions = loaded_model.model.predict(data)
@@ -486,21 +441,21 @@ class DeepNeuralNetwork(DSS):
         # with graph.as_default():
         #     predictions = loaded_model.model.predict(data, batch_size=1, verbose=1)
 
-        cached_response_variables = json.loads(redis.Redis().get(finding.cache_key))
+        cached_response_variables = json.loads(redis.Redis().get(data.cache_key))
 
-        data = pd.np.array(predictions.tolist())
+        result = pd.np.array(predictions.tolist())
         # Something went wrong in Cache for response variable
         res = {}
         i = 0
         for j in cached_response_variables:
-            res[j] = round(data[0][i], 2)
+            res[j] = round(result[0][i], 2)
             i = i + 1
 
         return res
-        #return json.dumps(str(res))
+        # return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
-    def determineBestHyperParameters(self, finding):
+    def determineBestHyperParameters(self, data):
         grid_param = {
             'activation': ['identity', 'logistic', 'tanh', 'relu'],
             'solver': ['lbfgs', 'sgd', 'adam'],
@@ -512,4 +467,4 @@ class DeepNeuralNetwork(DSS):
             # 'nesterovs_momentum': [True,False],
             # 'early_stopping': [True,False]
         }
-        super().gridSearch(self.getClassifier(), grid_param, finding, model)
+        super().gridSearch(self.self.get_model(data), grid_param, data)

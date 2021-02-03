@@ -131,6 +131,7 @@ def dss_training():
     resp.status_code = status
     return resp
 
+
 @app.route('/dss/metrics', methods=['POST'])
 @token_required
 def dss_accuracy():
@@ -228,16 +229,7 @@ def dss_evaluation():
         "model_id":2,
         "protection_good_id": 2,
         "action_id": 1,
-        "data": [{
-                "tnt_equivalent": 1000,
-                "RP_benthic_habitats": 0.4546,
-                "RP_integrated_fish_assessments": 0,
-                "RP_shipping_fishing_2016": 4,
-                "RP_fisheries_bottom_trawl": 1324,
-                "RP_fisheries_surface_midwater": 0,
-                "RP_coastal_and_stationary": 43.347,
-                "RP_anoxic_level_probabilities": 0
-            }]}]'
+        "data": [{ "user_id":2, "model_id":6, "protection_good_id": 5, "action_id": 1, "data": [{"RP_shipping_all_2019": 23, "RP_shipping_cargo_2019": 11, "RP_shipping_container_2016": 0, "RP_shipping_fishing_2016": 1, "RP_shipping_other_2019": 0, "RP_shipping_passenger_2019": 0, "RP_shipping_rorocargo_2016": 1, "RP_shipping_service_2016": 1, "RP_shipping_tanker_2019": 6, "RP_seabed_slope": 0.279508501291275, "RP_depth": -123.440002441406, "OP_corrosion_level": null, "OP_sediment_cover": null, "OP_bio_cover": null, "OP_tnt_equivalent": 50, "CHARGE_113": 0, "CHARGE_114": 0, "CHARGE_115": 0, "CHARGE_117": 0, "CHARGE_118": 0, "CHARGE_119": 0, "CHARGE_120": 0, "CHARGE_121": 0, "CHARGE_124": 0, "CHARGE_125": 0, "CHARGE_126": 0, "CHARGE_127": 0, "CHARGE_129": 0, "CHARGE_130": 0, "CHARGE_131": 0, "CHARGE_132": 0, "CHARGE_135": 0, "CHARGE_136": 0, "CHARGE_137": 0, "CHARGE_138": 0, "CHARGE_139": 0, "CHARGE_140": 0, "CHARGE_142": 0, "CHARGE_143": 0, "CHARGE_144": 0, "CHARGE_145": 0, "CHARGE_146": 0, "CHARGE_147": 0, "CHARGE_148": 0, "CHARGE_154": 1, "CHARGE_155": 0, "CHARGE_156": 0, "CHARGE_157": 0, "CHARGE_158": 0, "CHARGE_159": 0, "CHARGE_160": 0, "CHARGE_161": 0, "CHARGE_162": 0, "CHARGE_163": 0, "CHARGE_164": 0, "CHARGE_165": 0, "CHARGE_166": 0, "CHARGE_167": 0, "CHARGE_168": 0, "CHARGE_169": 0, "CHARGE_170": 0, "CHARGE_171": 0, "CHARGE_172": 0, "CHARGE_173": 0, "CHARGE_174": 0, "CHARGE_175": 0}]}]'
       - name: token
         in: query
         type: string
@@ -252,24 +244,20 @@ def dss_evaluation():
         from app.structure import machine_learning as starter
 
         results = []
-        counter = 1
-        model_key = 'model_id'
-        action_key = 'action_id'
-        protection_key = 'protection_good_id'
-        sample_data = [80, 40, 1000, 0.4546, 0, 4, 1324, 0, 43.347, 0]
-        status = 200
+
         if content is not None:
             counter = 1
             for d in content:
                 status = 400
                 single_result = {}
-                if model_key not in d or action_key not in d or protection_key not in d:
+                if 'model_id' not in d or 'action_id' not in d or 'protection_good_id' not in d or 'user_id' not in d:
                     single_result[
                         'assessment_' + str(counter)] = "Action ID, Model ID and Protection Good ID must be provided."
                     single_result['status'] = status
                 else:
                     if 0 < d['model_id'] < 7:
-                        obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'])
+                        obj = starter.MachineLearning(d['model_id'], d['action_id'], d['protection_good_id'],
+                                                      d['user_id'])
                         single_result['model_id'] = d['model_id']
                         single_result['protection_good_id'] = d['protection_good_id']
                         single_result['action_id'] = d['action_id']
