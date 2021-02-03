@@ -5,7 +5,6 @@ class ModelFactory:
 
     @staticmethod
     def get_model(model_type):
-
         if model_type == 1:
             return dss.NeuralNetwork()
 
@@ -16,9 +15,9 @@ class ModelFactory:
             return dss.LinearRegressionM()
 
         elif model_type == 4:
-            return dss.LogisticRegressionM()
+            return dss.LogisticRegression()
         elif model_type == 5:
             return dss.DeepNeuralNetwork()
 
         elif model_type == 6:
-            return dss.DecisionTreeRegressor()
+            return dss.DecisionTree()

@@ -3,17 +3,12 @@ from functools import wraps
 
 import datetime
 import jwt
-import os
-import redis
 import requests
 from flasgger import Swagger
 from flask import request, jsonify
 
 from app import app
-from app.input_schema import FDIInputSchema, CFInputSchema, TrainingAPISchema, MunitionInputSchema, LoginInputSchema
-from app.structure import dss
-from app.structure import model as md, data_transformer as amc
-import sys
+from app.input_schema import TrainingAPISchema, LoginInputSchema
 
 swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 
@@ -244,7 +239,7 @@ def dss_evaluation():
         from app.structure import machine_learning as starter
 
         results = []
-
+        # check design pattern Chain Of Responsibility
         if content is not None:
             counter = 1
             for d in content:

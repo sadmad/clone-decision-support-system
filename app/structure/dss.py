@@ -1,20 +1,15 @@
 import os
-
 import joblib
-
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
-
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from app import app
 from app import scale
-from app.structure import model
 from app.structure import accuracy_finder as accuracy
-
 import redis
 import json
 
@@ -70,7 +65,7 @@ class DSS:
             i = i + 1
         return res
 
-    def gridSearch(self, model, grid_param, data):
+    def grid_search(self, model, grid_param, data):
         # https://stackabuse.com/cross-validation-and-grid-search-for-model-selection-in-python/
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74##targetText=In%20the%20case%20of%20a,each%20node%20learned%20during%20training).
         from sklearn.model_selection import GridSearchCV
@@ -110,7 +105,7 @@ class NeuralNetwork(DSS):
     def training(self, data):
         return super().fit(self.get_model(data.is_regression), data)
 
-    def determineBestHyperParameters(self, data):
+    def determine_best_hyper_parameters(self, data):
         grid_param = {
             'activation': ['identity', 'logistic', 'tanh', 'relu'],
             'solver': ['lbfgs', 'sgd', 'adam'],
@@ -122,7 +117,7 @@ class NeuralNetwork(DSS):
             # 'nesterovs_momentum': [True,False],
             # 'early_stopping': [True,False]
         }
-        super().gridSearch(self.get_model(), grid_param, data)
+        super().grid_search(self.get_model(), grid_param, data)
 
     def accuracy_evaluation(self, data):
         return super().evaluate_accuracy(self.get_model(data), data)
@@ -165,7 +160,7 @@ class RandomForest(DSS):
     def training(self, data):
         return super().fit(self.get_model(data.is_regression), data)
 
-    def determineBestHyperParameters(self, data):
+    def determine_best_hyper_parameters(self, data):
         grid_param = {
             'criterion': ['gini', 'entropy'],
             'bootstrap': [True, False],
@@ -178,7 +173,7 @@ class RandomForest(DSS):
             'n_estimators': [100]
 
         }
-        super().gridSearch(self.get_model(), grid_param, data)
+        super().grid_search(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -203,13 +198,13 @@ class LinearRegressionM(DSS):
     def training(self, data):
         return super().fit(self.get_model(), data)
 
-    def determineBestHyperParameters(self, data):
+    def determine_best_hyper_parameters(self, data):
         grid_param = {
             'fit_intercept': [True, False],
             'normalize': [True, False],
             'copy_X': [True, False]
         }
-        super().gridSearch(self.get_model(), grid_param, data)
+        super().grid_search(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -220,7 +215,7 @@ class LinearRegressionM(DSS):
 #######################################################################
 #######################################################################
 
-class DecisionTreeRegressor(DSS):
+class DecisionTree(DSS):
 
     def __init__(self):
         self.model_name = app.config['DECISION_TREE_MODEL']['name']
@@ -239,13 +234,13 @@ class DecisionTreeRegressor(DSS):
     def training(self, data):
         return super().fit(self.get_model(data.is_regression), data)
 
-    def determineBestHyperParameters(self, data):
+    def determine_best_hyper_parameters(self, data):
         grid_param = {
             'fit_intercept': [True, False],
             'normalize': [True, False],
             'copy_X': [True, False]
         }
-        super().gridSearch(self.get_model(), grid_param, data)
+        super().grid_search(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -270,7 +265,7 @@ class LogisticRegressionM(DSS):
     def training(self, data):
         return super().fit(self.get_model(), data)
 
-    def determineBestHyperParameters(self, data):
+    def determine_best_hyper_parameters(self, data):
         grid_param = {
             # 'penalty': ['l1','l2','elasticnet','none'],
             # 'penalty': ['l2','elasticnet','none'],
@@ -283,7 +278,7 @@ class LogisticRegressionM(DSS):
             # 'multi_class':['ovr', 'multinomial','auto'],
             'warm_start': ['True', 'False']
         }
-        super().gridSearch(self.get_model(), grid_param, data)
+        super().grid_search(self.get_model(), grid_param, data)
 
 
 #######################################################################
@@ -455,7 +450,7 @@ class DeepNeuralNetwork(DSS):
         # return json.dumps(str(res))
         # return predictions[0] #pd.Series(predictions).to_json(orient='values')
 
-    def determineBestHyperParameters(self, data):
+    def determine_best_hyper_parameters(self, data):
         grid_param = {
             'activation': ['identity', 'logistic', 'tanh', 'relu'],
             'solver': ['lbfgs', 'sgd', 'adam'],
@@ -467,4 +462,4 @@ class DeepNeuralNetwork(DSS):
             # 'nesterovs_momentum': [True,False],
             # 'early_stopping': [True,False]
         }
-        super().gridSearch(self.self.get_model(data), grid_param, data)
+        super().grid_search(self.self.get_model(data), grid_param, data)

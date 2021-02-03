@@ -5,7 +5,6 @@ from sklearn.model_selection import LeavePOut
 from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import StratifiedKFold
 from numpy import mean
-from app.structure import model
 from numpy import absolute
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
