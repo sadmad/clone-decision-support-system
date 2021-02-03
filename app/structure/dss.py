@@ -44,7 +44,6 @@ class DSS:
             os.remove(data.trained_model_path)
         joblib.dump(model, data.trained_model_path)
 
-
     def predict_data(self, data):
         loaded_model = joblib.load(data.trained_model_path)
         # score_result = loaded_model.score(finding.x_train, finding.y_train)
