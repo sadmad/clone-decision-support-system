@@ -15,7 +15,7 @@ import json
 
 class MachineLearning:
     def __init__(self, model_type, action_id, protection_goods_id, user_id=None):
-        self.DSS = factory.ModelFactory.get_model(model_type)
+        self.DSS = factory.ModelFactory().get_model(model_type)
         self.model_id = model_type
         self.action_id = action_id
         self.protection_goods_id = protection_goods_id

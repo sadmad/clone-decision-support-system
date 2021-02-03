@@ -3,21 +3,25 @@ from app.structure import dss
 
 class ModelFactory:
 
-    @staticmethod
-    def get_model(model_type):
+    def __init__(self):
+        self.model = None
+
+    def get_model(self, model_type):
         if model_type == 1:
-            return dss.NeuralNetwork()
+            self.model = dss.NeuralNetwork()
 
         elif model_type == 2:
-            return dss.RandomForest()
+            self.model = dss.RandomForest()
 
         elif model_type == 3:
-            return dss.LinearRegressionM()
+            self.model = dss.LinearRegressionM()
 
         elif model_type == 4:
-            return dss.LogisticRegression()
+            self.model = dss.LogisticRegression()
         elif model_type == 5:
-            return dss.DeepNeuralNetwork()
+            self.model = dss.DeepNeuralNetwork()
 
         elif model_type == 6:
-            return dss.DecisionTree()
+            self.model = dss.DecisionTree()
+
+        return self.model
