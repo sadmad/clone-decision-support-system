@@ -166,7 +166,8 @@ class RandomForest(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
-
+    def accuracy_evaluation(self, data):
+        return super().evaluate_accuracy(self.get_model(data), data)
 #######################################################################
 #######################################################################
 #######################################################################
@@ -197,7 +198,8 @@ class LinearRegressionM(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
-
+    def accuracy_evaluation(self, data):
+        return super().evaluate_accuracy(self.get_model(data), data)
 #######################################################################
 #######################################################################
 #######################################################################
@@ -233,6 +235,8 @@ class DecisionTree(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
+    def accuracy_evaluation(self, data):
+        return super().evaluate_accuracy(self.get_model(data), data)
 
 #######################################################################
 #######################################################################
@@ -271,6 +275,8 @@ class LogisticRegressionM(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
+    def accuracy_evaluation(self, data):
+        return super().evaluate_accuracy(self.get_model(data), data)
 
 #######################################################################
 #######################################################################

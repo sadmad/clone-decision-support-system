@@ -87,7 +87,8 @@ class MachineLearning:
         # self.training_history_log()
         return {
             'status': 200,
-            'message': 'Success'
+            'message': 'Success',
+            'accuracy': ac
         }
 
     def data_load(self):

@@ -57,20 +57,11 @@ class Amucad:
 
     def amucad_generic_api(self, obj):
 
-        res = egeos_authentication_api()
-        access_token = res['session_id']
-        key = res['key']
-        headers = {"language": "eng", "access_token": access_token}
-        hawk_auth = HawkAuth(id=access_token, key=key, algorithm='sha256')
-        page_size = 50
-        page_index = 0
-        total_pages = 1
-
         input_variables = {}
         output_variables = {}
         assessments_avg = {}
         i = 0
-        # obj.action_id, obj.protection_goods_id
+        # # obj.action_id, obj.protection_goods_id
         fileName = str(obj.action_id) + "_" + str(obj.protection_goods_id) + "_dynamic_data.txt"
         file = os.path.join(app.config['STORAGE_DIRECTORY'], fileName)
         if app.config['CACHE_API'] == 1 and os.path.exists(file):
@@ -86,6 +77,19 @@ class Amucad:
                 i = i + 1
 
         else:
+            res = egeos_authentication_api()
+            access_token = res['session_id']
+            key = res['key']
+            headers = {"language": "eng", "access_token": access_token}
+            hawk_auth = HawkAuth(id=access_token, key=key, algorithm='sha256')
+            page_size = 50
+            page_index = 0
+            total_pages = 1
+
+            i = 0
+            # obj.action_id, obj.protection_goods_id
+            fileName = str(obj.action_id) + "_" + str(obj.protection_goods_id) + "_dynamic_data.txt"
+            file = os.path.join(app.config['STORAGE_DIRECTORY'], fileName)
 
             while (page_index + 1) <= total_pages:
                 url = 'http://www.amucad.org/api/decision_support_system/dss_training/' \

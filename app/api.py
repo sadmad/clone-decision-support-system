@@ -193,6 +193,9 @@ def dss_accuracy():
         res = obj.accuracy_finder()
         status = res['status']
         ret = res['message']
+        accuracy = 0
+        if status == 200:
+            accuracy = res['accuracy']
 
     except Exception as e:
         status = 500
@@ -200,6 +203,7 @@ def dss_accuracy():
 
     message = {
         'status': status,
+        'accuracy': accuracy,
         'data': {
             'message': ret
         },
