@@ -128,7 +128,6 @@ class RandomForest(DSS):
         self.model_name = app.config['RANDOM_FOREST_MODEL']['name']
         self.model_file_name = app.config['RANDOM_FOREST_MODEL']['model']
         self.scaler_file_name = app.config['RANDOM_FOREST_MODEL']['scaler']
-        pass
 
     def get_model(self, is_regression=0):
         if is_regression == 0:
@@ -149,7 +148,9 @@ class RandomForest(DSS):
             )
 
     def training(self, data):
-        return super().fit(self.get_model(data.is_regression), data)
+        model = self.get_model(data.is_regression) if app.config['GRID_SEARCH'] == 0 else self.get_model_grid_search(
+            data)
+        return super().fit(model, data)
 
     def determine_best_hyper_parameters(self, data):
         grid_param = {
@@ -166,8 +167,49 @@ class RandomForest(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
+    def get_model_grid_search(self, data):
+
+        from sklearn.model_selection import GridSearchCV
+        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
+        from numpy import absolute
+        from numpy import mean
+        from numpy import std
+        from sklearn import model_selection
+
+        res = 0
+        if data.is_regression == 1:
+            param_grid = {
+                'max_depth': range(3, 10),
+                'n_estimators': (10, 50, 100, 1000),
+            }
+            gsc = GridSearchCV(
+                estimator=RandomForestRegressor(),
+                param_grid=param_grid,
+                cv=5, scoring='neg_mean_squared_error', verbose=0, n_jobs=-1)
+
+            grid_result = gsc.fit(data.x_train, data.y_train)
+            best_params = grid_result.best_params_
+            rfr = RandomForestRegressor(max_depth=best_params["max_depth"], n_estimators=best_params["n_estimators"],
+                                        random_state=False, verbose=False)
+            # scores = cross_val_score(rfr, data.x_train, data.y_train, cv=10, scoring='neg_mean_absolute_error')
+            # print("MAE: %.3f (%.3f)" % (scores))
+
+            scoring = 'neg_mean_absolute_error'  # 'r2'
+            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
+            n_scores = absolute(results)
+            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
+            return results.mean()
+        else:
+            # NotImplemented
+            pass
+        return 0
+
     def accuracy_evaluation(self, data):
-        return super().evaluate_accuracy(self.get_model(data), data)
+        self.get_model_grid_search(data)
+        # return super().evaluate_accuracy(self.get_model(data), data)
+
+
 #######################################################################
 #######################################################################
 #######################################################################
@@ -198,8 +240,79 @@ class LinearRegressionM(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
+    def get_model_grid_search(self, data):
+
+        from sklearn.linear_model import LinearRegression
+
+        from sklearn.linear_model import ElasticNet
+        from sklearn import tree
+        from sklearn.model_selection import GridSearchCV
+        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
+        from numpy import absolute
+        from numpy import mean
+        from numpy import std
+        from sklearn import model_selection
+
+        res = 0
+        if data.is_regression == 1:
+
+            # For LinearRegression
+            # param_grid = {
+            #     'fit_intercept': [True, False],
+            #     'normalize': [True, False],
+            #     "copy_X": [True, False],
+            #     "solver": ['svd', 'cholesky', 'lsqr', 'sag']
+            #     # "positive": [True, False],
+            # }
+
+            # gsc = GridSearchCV(
+            #     estimator=LinearRegression(),
+            #     param_grid=param_grid,
+            #     cv=5, scoring='neg_mean_squared_error', verbose=0, n_jobs=-1)
+            #
+            # grid_result = gsc.fit(data.x_train, data.y_train)
+            # best_params = grid_result.best_params_
+            # rfr = LinearRegression(fit_intercept=best_params["fit_intercept"], normalize=best_params["normalize"],
+            #                        copy_X=best_params["copy_X"], n_jobs=-1, solver=best_params["solver"])
+
+            # scores = cross_val_score(rfr, data.x_train, data.y_train, cv=10, scoring='neg_mean_absolute_error')
+            # print("MAE: %.3f (%.3f)" % (scores))
+
+            # For ElasticNet
+            param_grid = {
+                'alpha': [1, 3, 5, 7],
+                'fit_intercept': [True, False],
+                "copy_X": [True, False],
+                "selection": ['cyclic', 'random']
+                # "positive": [True, False],
+            }
+
+            gsc = GridSearchCV(
+                estimator=ElasticNet(),
+                param_grid=param_grid,
+                cv=5, scoring='neg_mean_squared_error', verbose=0, n_jobs=-1)
+
+            grid_result = gsc.fit(data.x_train, data.y_train)
+            best_params = grid_result.best_params_
+            rfr = ElasticNet(alpha=best_params["alpha"], fit_intercept=best_params["fit_intercept"],
+                             copy_X=best_params["copy_X"], selection=best_params["selection"])
+
+            scoring = 'neg_mean_absolute_error'  # 'r2'
+            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
+            n_scores = absolute(results)
+            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
+            return results.mean()
+        else:
+            # NotImplemented
+            pass
+        return 0
+
     def accuracy_evaluation(self, data):
-        return super().evaluate_accuracy(self.get_model(data), data)
+        self.get_model_grid_search(data)
+        # return super().evaluate_accuracy(self.get_model(data), data)
+
+
 #######################################################################
 #######################################################################
 #######################################################################
@@ -235,48 +348,56 @@ class DecisionTree(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
+    def get_model_grid_search(self, data):
+
+        from sklearn import tree
+        from sklearn.model_selection import GridSearchCV
+        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
+        from numpy import absolute
+        from numpy import mean
+        from numpy import std
+        from sklearn import model_selection
+
+        res = 0
+        if data.is_regression == 1:
+            param_grid = {
+                'criterion': ["mse", "friedman_mse", "mae", "poisson"],
+                'splitter': ["best", "random"],
+                "max_features": ["auto", "sqrt", "log2"]
+            }
+
+            gsc = GridSearchCV(
+                estimator=tree.DecisionTreeRegressor(),
+                param_grid=param_grid,
+                cv=5, scoring='neg_mean_squared_error', verbose=0, n_jobs=-1)
+
+            grid_result = gsc.fit(data.x_train, data.y_train)
+            best_params = grid_result.best_params_
+            rfr = tree.DecisionTreeRegressor(criterion=best_params["criterion"])
+
+            # rfr = tree.DecisionTreeRegressor()
+
+            # scores = cross_val_score(rfr, data.x_train, data.y_train, cv=10, scoring='neg_mean_absolute_error')
+            # print("MAE: %.3f (%.3f)" % (scores))
+
+            scoring = 'neg_mean_absolute_error'  # 'r2'
+            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
+            n_scores = absolute(results)
+            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
+            return results.mean()
+        else:
+            # NotImplemented
+            pass
+        return 0
+
     def accuracy_evaluation(self, data):
-        return super().evaluate_accuracy(self.get_model(data), data)
+        self.get_model_grid_search(data)
+        # return super().evaluate_accuracy(self.get_model(data), data)
 
-#######################################################################
-#######################################################################
-#######################################################################
-################### Logistic Regression Model #########################
-#######################################################################
-#######################################################################
-#######################################################################
 
-class LogisticRegressionM(DSS):
 
-    def __init__(self):
-        self.model_name = app.config['LOGISTIC_REGRESSION_MODEL']['name']
-        self.model_file_name = app.config['LOGISTIC_REGRESSION_MODEL']['model']
-        self.scaler_file_name = app.config['LOGISTIC_REGRESSION_MODEL']['scaler']
-        pass
 
-    def get_model(self):
-        return LogisticRegression()
-
-    def training(self, data):
-        return super().fit(self.get_model(), data)
-
-    def determine_best_hyper_parameters(self, data):
-        grid_param = {
-            # 'penalty': ['l1','l2','elasticnet','none'],
-            # 'penalty': ['l2','elasticnet','none'],
-
-            'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
-            # 'dual':[True, False],
-            'fit_intercept': [True, False],
-            # 'class_weight':[dict, 'balanced',None],
-            'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-            # 'multi_class':['ovr', 'multinomial','auto'],
-            'warm_start': ['True', 'False']
-        }
-        super().grid_search(self.get_model(), grid_param, data)
-
-    def accuracy_evaluation(self, data):
-        return super().evaluate_accuracy(self.get_model(data), data)
 
 #######################################################################
 #######################################################################

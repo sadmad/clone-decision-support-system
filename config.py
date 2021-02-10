@@ -15,6 +15,7 @@ class Config:
     # You could also use os.urandom(16)
     SECRET_KEY = "11Fnw8U6DXrMFvbH9jCdZQ"
 
+    GRID_SEARCH = 1,
     NEURAL_NETWORK_MODEL = {
         'model': 'neural_network.sav',
         'scaler': 'neural_network.save',

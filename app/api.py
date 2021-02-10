@@ -187,13 +187,13 @@ def dss_accuracy():
     user_id = int(request.form.get('user_id'))
 
     from app.structure import machine_learning as starter
-
+    accuracy = 0
     try:
         obj = starter.MachineLearning(model_type, action_id, protection_goods_id, user_id)
         res = obj.accuracy_finder()
         status = res['status']
         ret = res['message']
-        accuracy = 0
+
         if status == 200:
             accuracy = res['accuracy']
 

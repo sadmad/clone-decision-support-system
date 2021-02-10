@@ -3,3 +3,8 @@
 Decision Tree Regression can aslo be useful
 
 http://maps.helcom.fi/website/mapservice/?datasetID=e54e0cc7-c646-4b82-87bf-9a1132712ae7
+
+
+
+
+https://machinelearningmastery.com/metrics-evaluate-machine-learning-algorithms-python/
