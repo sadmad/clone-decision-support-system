@@ -68,6 +68,7 @@ class Amucad:
 
             with open(file) as json_file:
                 api_response = json.load(json_file)
+                json_file.close()
 
             output_variables = api_response['output_variables']
             input_variables = api_response['input_variables']

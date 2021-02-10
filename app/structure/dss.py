@@ -110,8 +110,53 @@ class NeuralNetwork(DSS):
         }
         super().grid_search(self.get_model(), grid_param, data)
 
+    def get_model_grid_search(self, data):
+
+        from sklearn import tree
+        from sklearn.model_selection import GridSearchCV
+        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
+        from numpy import absolute
+        from numpy import mean
+        from numpy import std
+        from sklearn import model_selection
+
+        res = 0
+        if data.is_regression == 1:
+            param_grid = {'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100, 1)],
+                          'activation': ['relu', 'tanh', 'logistic'],
+                          'alpha': [0.0001, 0.05],
+                          'learning_rate': ['constant', 'adaptive'],
+                          'solver': ['adam']
+                          }
+
+            gsc = GridSearchCV(
+                estimator=MLPRegressor(),
+                param_grid=param_grid,
+                cv=5, scoring='neg_mean_squared_error', verbose=0, n_jobs=-1)
+
+            grid_result = gsc.fit(data.x_train, data.y_train)
+            best_params = grid_result.best_params_
+
+            rfr = MLPRegressor(
+                hidden_layer_sizes=best_params["hidden_layer_sizes"],
+                activation=best_params["activation"],
+                solver=best_params["solver"],
+                max_iter=5000, n_iter_no_change=200)
+
+            scoring = 'neg_mean_absolute_error'  # 'r2'
+            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
+            n_scores = absolute(results)
+            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
+            return results.mean()
+        else:
+            # NotImplemented
+            pass
+        return 0
+
     def accuracy_evaluation(self, data):
-        return super().evaluate_accuracy(self.get_model(data), data)
+        self.get_model_grid_search(data)
+        # return super().evaluate_accuracy(self.get_model(data), data)
 
 
 #######################################################################
@@ -191,8 +236,6 @@ class RandomForest(DSS):
             best_params = grid_result.best_params_
             rfr = RandomForestRegressor(max_depth=best_params["max_depth"], n_estimators=best_params["n_estimators"],
                                         random_state=False, verbose=False)
-            # scores = cross_val_score(rfr, data.x_train, data.y_train, cv=10, scoring='neg_mean_absolute_error')
-            # print("MAE: %.3f (%.3f)" % (scores))
 
             scoring = 'neg_mean_absolute_error'  # 'r2'
             kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
@@ -361,7 +404,7 @@ class DecisionTree(DSS):
         res = 0
         if data.is_regression == 1:
             param_grid = {
-                'criterion': ["mse", "friedman_mse", "mae", "poisson"],
+                'criterion': ["mse", "friedman_mse", "mae"],
                 'splitter': ["best", "random"],
                 "max_features": ["auto", "sqrt", "log2"]
             }
@@ -373,12 +416,8 @@ class DecisionTree(DSS):
 
             grid_result = gsc.fit(data.x_train, data.y_train)
             best_params = grid_result.best_params_
-            rfr = tree.DecisionTreeRegressor(criterion=best_params["criterion"])
-
-            # rfr = tree.DecisionTreeRegressor()
-
-            # scores = cross_val_score(rfr, data.x_train, data.y_train, cv=10, scoring='neg_mean_absolute_error')
-            # print("MAE: %.3f (%.3f)" % (scores))
+            rfr = tree.DecisionTreeRegressor(criterion=best_params["criterion"], splitter=best_params["splitter"],
+                                             max_features=best_params["max_features"])
 
             scoring = 'neg_mean_absolute_error'  # 'r2'
             kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
@@ -394,9 +433,6 @@ class DecisionTree(DSS):
     def accuracy_evaluation(self, data):
         self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
-
-
-
 
 
 #######################################################################
