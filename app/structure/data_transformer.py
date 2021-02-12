@@ -93,7 +93,7 @@ class Amucad:
             file = os.path.join(app.config['STORAGE_DIRECTORY'], fileName)
 
             while (page_index + 1) <= total_pages:
-                url = 'http://www.amucad.org/api/decision_support_system/dss_training/' \
+                url = 'http://amucad.org/api/decision_support_system/dss_training/' \
                       'assessed_finding_objects?actions_id={}&protection_goods_id={}&' \
                       '$page_size={}&$page_index={}'.format(obj.action_id, obj.protection_goods_id, page_size,
                                                             page_index)

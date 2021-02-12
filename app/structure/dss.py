@@ -148,7 +148,7 @@ class NeuralNetwork(DSS):
             results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
             n_scores = absolute(results)
             print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return results.mean()
+            return mean(n_scores)
         else:
             # NotImplemented
             pass
@@ -242,7 +242,7 @@ class RandomForest(DSS):
             results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
             n_scores = absolute(results)
             print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return results.mean()
+            return mean(n_scores)
         else:
             # NotImplemented
             pass
@@ -345,7 +345,7 @@ class LinearRegressionM(DSS):
             results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
             n_scores = absolute(results)
             print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return results.mean()
+            return mean(n_scores)
         else:
             # NotImplemented
             pass
@@ -424,7 +424,7 @@ class DecisionTree(DSS):
             results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
             n_scores = absolute(results)
             print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return results.mean()
+            return mean(n_scores)
         else:
             # NotImplemented
             pass
