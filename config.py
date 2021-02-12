@@ -97,7 +97,7 @@ class Config:
         },
 
         # comment for local environment
-        "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
+        "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
         "basePath": "/assessment-models",  # base bash for blueprint registration
         "schemes": 'https',
 
