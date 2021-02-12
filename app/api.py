@@ -73,7 +73,7 @@ def dss_training():
         default: 2
       - name: user_id
         in: formData
-        type: integer
+        type: string
         required: true
         description: 'User id of logged in user in AMUCAD application should be given'
         default: 2
@@ -102,7 +102,7 @@ def dss_training():
     model_type = int(request.form.get('model_id'))
     action_id = int(request.form.get('action_id'))
     protection_goods_id = int(request.form.get('protection_goods_id'))
-    user_id = int(request.form.get('user_id'))
+    user_id = request.form.get('user_id')
 
     from app.structure import machine_learning as starter
 
@@ -155,7 +155,7 @@ def dss_accuracy():
         default: 2
       - name: user_id
         in: formData
-        type: integer
+        type: string
         required: true
         description: 'User id of logged in user in AMUCAD application should be given'
         default: 2
@@ -184,7 +184,7 @@ def dss_accuracy():
     model_type = int(request.form.get('model_id'))
     action_id = int(request.form.get('action_id'))
     protection_goods_id = int(request.form.get('protection_goods_id'))
-    user_id = int(request.form.get('user_id'))
+    user_id = request.form.get('user_id')
 
     from app.structure import machine_learning as starter
     accuracy = 0
