@@ -115,7 +115,7 @@ class ProductionConfig(Config):
     Use this class to define production configuration atrributes, such
     as database usernames, passwords, server specific files & directories etc.
     """
-    CACHE_API = 1
+    CACHE_API = 0
     STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")
 
 
@@ -126,5 +126,5 @@ class DevelopmentConfig(Config):
     as local database usernames, passwords, local specific files & directories etc.
     """
     DEBUG = True
-    CACHE_API = 1
+    CACHE_API = 0
     STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")
