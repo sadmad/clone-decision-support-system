@@ -155,7 +155,7 @@ class NeuralNetwork(DSS):
         return 0
 
     def accuracy_evaluation(self, data):
-        self.get_model_grid_search(data)
+        return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 
@@ -249,7 +249,7 @@ class RandomForest(DSS):
         return 0
 
     def accuracy_evaluation(self, data):
-        self.get_model_grid_search(data)
+        return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 
@@ -352,7 +352,7 @@ class LinearRegressionM(DSS):
         return 0
 
     def accuracy_evaluation(self, data):
-        self.get_model_grid_search(data)
+        return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 
@@ -431,7 +431,7 @@ class DecisionTree(DSS):
         return 0
 
     def accuracy_evaluation(self, data):
-        self.get_model_grid_search(data)
+        return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 
