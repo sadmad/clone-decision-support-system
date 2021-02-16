@@ -27,7 +27,7 @@ class MachineLearning:
         self.is_regression = 1
         self.test_data = None
         self.user_id = user_id
-        self.cache_key = str(self.action_id) + '_' + str(self.protection_goods_id)
+        self.cache_key = str(self.user_id) + '_' + str(self.action_id) + '_' + str(self.protection_goods_id)
         self.scaler_file_path = os.path.join(app.config['STORAGE_DIRECTORY'],
                                              'scaler_' + str(self.user_id) + str(self.action_id) +
                                              str(self.protection_goods_id) + '_' + self.DSS.scaler_file_name)

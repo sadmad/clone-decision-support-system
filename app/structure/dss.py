@@ -3,7 +3,6 @@ import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
@@ -70,6 +69,58 @@ class DSS:
         gd_sr.fit(data.x_train, data.y_train)
         best_parameters = gd_sr.best_params_
 
+    def dummy_regressor(self, data):
+
+        from sklearn.dummy import DummyRegressor
+        from sklearn.model_selection import cross_val_score, RepeatedKFold
+        from numpy import absolute, mean, std
+        from sklearn import model_selection
+        if data.is_regression == 1:
+
+            rfr = DummyRegressor(strategy='median').fit(data.x_train, data.y_train)
+            scoring = 'neg_mean_absolute_error'
+            # scoring = 'neg_mean_squared_error'
+            # scoring = 'r2'
+            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
+            n_scores = absolute(results)
+            print("DummyRegressor: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
+            return mean(n_scores)
+
+            # from numpy import sqrt
+            # from sklearn.metrics import mean_squared_error
+            # from sklearn.metrics import mean_absolute_errorcross_validation
+            # X_train, X_test, y_train, y_test = model_selection.train_test_split(
+            #     data.x_train, data.y_train, test_size=0.25, random_state=42, shuffle=True)
+            #
+            # # Create a dummy regressor
+            # dummy = DummyRegressor(strategy='mean')
+            #
+            # # Train dummy regressor
+            # dummy.fit(X_train, y_train)
+            # y_true, y_pred = y_test, dummy.predict(X_test)
+            # # Dummy performance
+            # mean_absolute_error = mean_absolute_error(y_test, y_pred)
+            # mean_squared_error = sqrt(mean_squared_error(y_test, y_pred))
+            # print("mean_squared_error: %.3f (%.3f)" % (mean_absolute_error, mean_squared_error))
+            # print("**** Done ****")
+        else:
+            # NotImplemented
+            pass
+        return 0
+
+    def determine_accuracy(self, data, model):
+        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
+        from numpy import absolute, mean, std
+        scoring = 'neg_mean_absolute_error'
+        # scoring = 'neg_mean_squared_error'
+        # scoring = 'r2'
+        kfold = RepeatedKFold(n_splits=10, n_repeats=1, random_state=1)
+        results = cross_val_score(model, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
+        n_scores = absolute(results)
+        print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
+        return mean(n_scores)
+
 
 #######################################################################
 #######################################################################
@@ -112,21 +163,13 @@ class NeuralNetwork(DSS):
 
     def get_model_grid_search(self, data):
 
-        from sklearn import tree
         from sklearn.model_selection import GridSearchCV
-        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute
-        from numpy import mean
-        from numpy import std
-        from sklearn import model_selection
-
-        res = 0
         if data.is_regression == 1:
             param_grid = {'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100, 1)],
-                          'activation': ['relu', 'tanh', 'logistic'],
+                          'activation': ['identity', 'relu', 'tanh', 'logistic'],
                           'alpha': [0.0001, 0.05],
-                          'learning_rate': ['constant', 'adaptive'],
-                          'solver': ['adam']
+                          # 'learning_rate': ['constant', 'adaptive'],
+                          'solver': ['adam'],
                           }
 
             gsc = GridSearchCV(
@@ -140,21 +183,22 @@ class NeuralNetwork(DSS):
             rfr = MLPRegressor(
                 hidden_layer_sizes=best_params["hidden_layer_sizes"],
                 activation=best_params["activation"],
+                alpha=best_params["alpha"],
+                # learning_rate=best_params["learning_rate"],
                 solver=best_params["solver"],
-                max_iter=5000, n_iter_no_change=200)
+                max_iter=5000,
+                n_iter_no_change=200
+            )
 
-            scoring = 'neg_mean_absolute_error'  # 'r2'
-            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
-            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
-            n_scores = absolute(results)
-            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return mean(n_scores)
+            return self.determine_accuracy(data, rfr)
+
         else:
             # NotImplemented
             pass
         return 0
 
     def accuracy_evaluation(self, data):
+        # return self.dummy_regressor(data)
         return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
@@ -216,12 +260,8 @@ class RandomForest(DSS):
 
         from sklearn.model_selection import GridSearchCV
         from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute
-        from numpy import mean
-        from numpy import std
-        from sklearn import model_selection
+        from numpy import absolute, mean, std
 
-        res = 0
         if data.is_regression == 1:
             param_grid = {
                 'max_depth': range(3, 10),
@@ -234,22 +274,21 @@ class RandomForest(DSS):
 
             grid_result = gsc.fit(data.x_train, data.y_train)
             best_params = grid_result.best_params_
-            rfr = RandomForestRegressor(max_depth=best_params["max_depth"], n_estimators=best_params["n_estimators"],
-                                        random_state=False, verbose=False)
-
-            scoring = 'neg_mean_absolute_error'  # 'r2'
-            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
-            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
-            n_scores = absolute(results)
-            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return mean(n_scores)
+            rfr = RandomForestRegressor(
+                max_depth=best_params["max_depth"],
+                n_estimators=best_params["n_estimators"],
+                random_state=False,
+                verbose=False
+            )
+            return self.determine_accuracy(data, rfr)
         else:
             # NotImplemented
             pass
         return 0
 
     def accuracy_evaluation(self, data):
-        return self.get_model_grid_search(data)
+        return self.dummy_regressor(data)
+        # return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 
@@ -288,15 +327,10 @@ class LinearRegressionM(DSS):
         from sklearn.linear_model import LinearRegression
 
         from sklearn.linear_model import ElasticNet
-        from sklearn import tree
         from sklearn.model_selection import GridSearchCV
         from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute
-        from numpy import mean
-        from numpy import std
-        from sklearn import model_selection
+        from numpy import absolute, std, mean
 
-        res = 0
         if data.is_regression == 1:
 
             # For LinearRegression
@@ -337,22 +371,21 @@ class LinearRegressionM(DSS):
 
             grid_result = gsc.fit(data.x_train, data.y_train)
             best_params = grid_result.best_params_
-            rfr = ElasticNet(alpha=best_params["alpha"], fit_intercept=best_params["fit_intercept"],
-                             copy_X=best_params["copy_X"], selection=best_params["selection"])
-
-            scoring = 'neg_mean_absolute_error'  # 'r2'
-            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
-            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
-            n_scores = absolute(results)
-            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return mean(n_scores)
+            rfr = ElasticNet(
+                alpha=best_params["alpha"],
+                fit_intercept=best_params["fit_intercept"],
+                copy_X=best_params["copy_X"],
+                selection=best_params["selection"]
+            )
+            return self.determine_accuracy(data, rfr)
         else:
             # NotImplemented
             pass
         return 0
 
     def accuracy_evaluation(self, data):
-        return self.get_model_grid_search(data)
+        return self.dummy_regressor(data)
+        # return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 
@@ -396,12 +429,8 @@ class DecisionTree(DSS):
         from sklearn import tree
         from sklearn.model_selection import GridSearchCV
         from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute
-        from numpy import mean
-        from numpy import std
-        from sklearn import model_selection
+        from numpy import absolute, mean, std
 
-        res = 0
         if data.is_regression == 1:
             param_grid = {
                 'criterion': ["mse", "friedman_mse", "mae"],
@@ -419,19 +448,15 @@ class DecisionTree(DSS):
             rfr = tree.DecisionTreeRegressor(criterion=best_params["criterion"], splitter=best_params["splitter"],
                                              max_features=best_params["max_features"])
 
-            scoring = 'neg_mean_absolute_error'  # 'r2'
-            kfold = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
-            results = cross_val_score(rfr, data.x_train, data.y_train, scoring=scoring, cv=kfold, n_jobs=-1)
-            n_scores = absolute(results)
-            print("MAE: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
-            return mean(n_scores)
+            return self.determine_accuracy(data, rfr)
         else:
             # NotImplemented
             pass
         return 0
 
     def accuracy_evaluation(self, data):
-        return self.get_model_grid_search(data)
+        return self.dummy_regressor(data)
+        # return self.get_model_grid_search(data)
         # return super().evaluate_accuracy(self.get_model(data), data)
 
 

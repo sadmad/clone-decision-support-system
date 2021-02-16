@@ -375,7 +375,7 @@ def login():
                             data={'email': request.form.get('email'), 'password': request.form.get('password')}).json()
     if r_login['status'] == 200:
         token = jwt.encode(
-            {'user': request.form.get('email'), 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+            {'user': request.form.get('email'), 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=120)},
             app.config['SECRET_KEY'])
         resp = jsonify({
             'status': 200,

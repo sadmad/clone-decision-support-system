@@ -97,9 +97,9 @@ class Config:
         },
 
         # comment for local environment
-        "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
-        "basePath": "/assessment-models",  # base bash for blueprint registration
-        "schemes": 'https',
+        # "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
+        # "basePath": "/assessment-models",  # base bash for blueprint registration
+        # "schemes": 'https',
 
         "operationId": "getmyData"
     }
@@ -115,7 +115,7 @@ class ProductionConfig(Config):
     Use this class to define production configuration atrributes, such
     as database usernames, passwords, server specific files & directories etc.
     """
-    CACHE_API = 0
+    CACHE_API = 1
     STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")
 
 
@@ -126,5 +126,5 @@ class DevelopmentConfig(Config):
     as local database usernames, passwords, local specific files & directories etc.
     """
     DEBUG = True
-    CACHE_API = 0
+    CACHE_API = 1
     STORAGE_DIRECTORY = os.path.join(app.root_path, "storage")

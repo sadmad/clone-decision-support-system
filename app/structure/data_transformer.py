@@ -112,5 +112,6 @@ class Amucad:
                 if app.config['CACHE_API'] == 1:
                     with open(file, 'w') as outfile:
                         json.dump(api_response, outfile)
+                        outfile.close()
 
         return pd.DataFrame.from_dict(assessments_avg, orient='index'), input_variables, output_variables
