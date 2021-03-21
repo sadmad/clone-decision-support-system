@@ -89,7 +89,7 @@ class Amucad:
 
             i = 0
             # obj.action_id, obj.protection_goods_id
-            fileName = str(obj.action_id) + "_" + str(obj.protection_goods_id) + "_dynamic_data.txt"
+            fileName = str(obj.action_id) + "_" + str(obj.protection_goods_id) + "_all_dynamic_data.txt"
             file = os.path.join(app.config['STORAGE_DIRECTORY'], fileName)
 
             while (page_index + 1) <= total_pages:
@@ -109,9 +109,11 @@ class Amucad:
                     assessments_avg[i] = d
                     i = i + 1
 
-                if app.config['CACHE_API'] == 1:
-                    with open(file, 'w') as outfile:
-                        json.dump(api_response, outfile)
-                        outfile.close()
-
+            if app.config['CACHE_API'] == 1:
+                with open(file, 'w') as outfile:
+                    json.dump(assessments_avg, outfile)
+                    outfile.close()
+                with open(os.path.join(app.config['STORAGE_DIRECTORY'], str(obj.action_id) + "_" + str(obj.protection_goods_id) + "_meta_data.txt"), 'w') as outfile2:
+                    json.dump(api_response, outfile2)
+                    outfile2.close()
         return pd.DataFrame.from_dict(assessments_avg, orient='index'), input_variables, output_variables

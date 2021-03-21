@@ -1,20 +1,21 @@
+import json
 import os
 import os.path
 from os import path
 
-from app.structure import data_transformer as dt, factory
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from app import app
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
 import joblib
 import redis
-import json
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from app import app
+from app.structure import data_transformer as dt, factory
 
 
 class MachineLearning:
-    def __init__(self, model_type, action_id, protection_goods_id, user_id=None):
+    def __init__(self, model_type=None, action_id=None, protection_goods_id=None, user_id=None):
         self.DSS = factory.ModelFactory().get_model(model_type)
         self.model_id = model_type
         self.action_id = action_id
@@ -95,6 +96,13 @@ class MachineLearning:
         amucad = dt.Amucad()
         self.data, self.input_variables, self.output_variables = amucad.amucad_generic_api(self)
 
+        # Write data to CSV File
+        if app.config['CACHE_API'] == 1:
+            fileName = os.path.join(app.config['STORAGE_DIRECTORY'],
+                                    str(self.action_id) +
+                                    str(self.protection_goods_id) + '_' + "dynamic_data.csv")
+            self.data.to_csv(fileName, index=False)
+
     def data_intialization(self):
 
         self.data.round(2)
@@ -103,20 +111,12 @@ class MachineLearning:
         for y in self.output_variables:
             self.data = self.data.dropna(how='any', subset=[y])
 
-        # Separation of input variables
-        # self.x_train = self.data
-        # for y in self.output_variables:
-        #     self.x_train = self.x_train.drop(y, axis=1)
-
         self.x_train = self.data[self.input_variables]
 
         # Separation of output variables
         self.y_train = self.data[self.output_variables]
-        # for y in self.output_variables:
-        #     self.y_train = self.data[y]
-        #     break
 
-    def data_preprocessing(self):
+    def data_preprocessing(self, scaling=True):
 
         # Numeric Imputation
         impute_numerical = SimpleImputer(strategy="mean")
@@ -124,33 +124,25 @@ class MachineLearning:
             steps=[('impute_numerical', impute_numerical)])
         self.x_train = ColumnTransformer(transformers=[('numerical', numerical_transformer, self.input_variables)],
                                          remainder="passthrough").fit_transform(self.x_train)
-        # from sklearn.datasets import make_regression
-        # self.x_train = make_regression(n_samples=2000, n_features=10, n_informative=8, n_targets=2,
-        #                                random_state=1)
-
-        self.data_scaling()
+        if scaling:
+            self.data_scaling()
 
     def data_scaling(self):
         # Data Scaling
         scaler = StandardScaler()
-        # scaler.fit(self.x_train[0])
         scaler.fit(self.x_train)
         if os.path.exists(self.scaler_file_path):
             os.remove(self.scaler_file_path)
         joblib.dump(scaler, self.scaler_file_path)
-        # self.x_train = scaler.transform(self.x_train[0])
         self.x_train = scaler.transform(self.x_train)
 
     def training(self):
-
         r = redis.Redis()
         r.delete(self.cache_key)
         r.mset({self.cache_key: json.dumps(self.output_variables)})
-
         return self.DSS.training(self)
 
     def accuracy(self):
-
         return self.DSS.accuracy_evaluation(self)
 
     def set_test_data(self, data):
@@ -170,7 +162,6 @@ class MachineLearning:
 
     def training_history_log(self):
 
-        from pymongo import MongoClient
         import datetime
         from app.commons.mongo_connector import MongoConnector
         # https://api.mongodb.com/python/current/tutorial.html
@@ -187,3 +178,30 @@ class MachineLearning:
             "output_variables": self.output_variables,
             "date": datetime.datetime.utcnow()}
         collection_training.insert_one(item)
+
+    def features_importance(self):
+
+        # https://scikit-learn.org/stable/modules/tree.html
+        from sklearn.ensemble import RandomForestRegressor
+        self.data_load()
+        if self.data.empty:
+            return {
+                'status': 502,
+                'message': 'Data Not Found'
+            }
+
+        self.data_intialization()
+        # Turn Scaling off
+        self.data_preprocessing(False)
+        # define the model
+        model = RandomForestRegressor()
+        # fit the model
+        model.fit(self.x_train, self.y_train)
+        # get importance
+        importance = model.feature_importances_
+        data = {}
+        j = 0
+        for i, v in enumerate(importance):
+            data[self.input_variables[j]] = v
+            j = j + 1
+        return data

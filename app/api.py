@@ -8,7 +8,7 @@ from flasgger import Swagger
 from flask import request, jsonify
 
 from app import app
-from app.input_schema import TrainingAPISchema, LoginInputSchema
+from app.input_schema import TrainingAPISchema, LoginInputSchema, FeatureImportanceAPISchema
 
 swagger = Swagger(app, template=app.config['SWAGGER_TEMPLATE'])
 
@@ -206,6 +206,72 @@ def dss_accuracy():
         'accuracy': accuracy,
         'data': {
             'message': ret
+        },
+    }
+    resp = jsonify(message)
+    resp.status_code = status
+    return resp
+
+
+@app.route('/dss/feature_importance', methods=['POST'])
+@token_required
+def feature_importance():
+    """Endpoint for training dss system for munitions
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: action_id
+        in: formData
+        type: integer
+        required: true
+        description: Value from AMUCAD application. Possible values corrosion=2, explosion=1
+        default: 1
+      - name: protection_goods_id
+        in: formData
+        type: integer
+        required: true
+        description: Value from AMUCAD application. Possible values 1,2,3,4,5
+        default: 2
+      - name: token
+        in: formData
+        type: string
+        required: true
+        description:  'JSON Web Token, should be generated from login API using email and password'
+    responses:
+      200:
+        description: JSON object containing status of the action
+        examples:
+          rgb: []
+    """
+
+    errors = FeatureImportanceAPISchema().validate(request.form)
+    if errors:
+        message = {
+            'status': 422,
+            'message': str(errors),
+        }
+        resp = jsonify(message)
+        resp.status_code = 422
+        return resp
+
+    action_id = int(request.form.get('action_id'))
+    protection_goods_id = int(request.form.get('protection_goods_id'))
+
+    from app.structure import machine_learning as starter
+    feature_importance = None
+    try:
+        # dummy values for model_id and user_id
+        obj = starter.MachineLearning(1, action_id, protection_goods_id, 1)
+        features_importance = obj.features_importance()
+        status = 200
+    except Exception as e:
+        status = 500
+        ret = str(e)
+
+    message = {
+        'status': status,
+        'data': {
+            'features_importance': features_importance
         },
     }
     resp = jsonify(message)

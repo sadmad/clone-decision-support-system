@@ -22,13 +22,11 @@ class DSS:
         return scale.Scale.StandardScaler(data.x_train, data.trained_scaler_path)
 
     def fit(self, model, data):
-        ac = 0  # accuracy.AccuracyFinder.stratified_k_fold(classifier, finding.x_train, finding.y_train)
+
         if os.path.exists(data.trained_model_path):
             os.remove(data.trained_model_path)
-
-        fit_model = model.fit(data.x_train, data.y_train)
-        self.save_model(fit_model, data)
-        return ac
+        self.save_model(model.fit(data.x_train, data.y_train), data)
+        return True
 
     def evaluate_accuracy(self, model, data):
         ac = accuracy.AccuracyFinder.stratified_k_fold(model, data.x_train, data.y_train)
@@ -158,7 +156,12 @@ class NeuralNetwork(DSS):
             return MLPRegressor(hidden_layer_sizes=(13, 13, 13), activation='logistic', random_state=1, max_iter=500)
 
     def training(self, data):
-        return super().fit(self.get_model(data.is_regression), data)
+        model = None
+        if app.config['GRID_SEARCH'] == 0:
+            model = self.get_model(data.is_regression)
+        else:
+            model = self.get_model_grid_search(data)
+        return super().fit(model, data)
 
     def determine_best_hyper_parameters(self, data):
         grid_param = {
@@ -252,8 +255,11 @@ class RandomForest(DSS):
             )
 
     def training(self, data):
-        model = self.get_model(data.is_regression) if app.config['GRID_SEARCH'] == 0 else self.get_model_grid_search(
-            data)
+        model = None
+        if app.config['GRID_SEARCH'] == 0:
+            model = self.get_model(data.is_regression)
+        else:
+            model = self.get_model_grid_search(data)
         return super().fit(model, data)
 
     def determine_best_hyper_parameters(self, data):
@@ -323,11 +329,17 @@ class LinearRegressionM(DSS):
         self.scaler_file_name = app.config['LINEAR_REGRESSION_MODEL']['scaler']
         pass
 
-    def get_model(self):
+    def get_model(self, is_regression=0):
         return LinearRegression()
 
     def training(self, data):
-        return super().fit(self.get_model(), data)
+
+        model = None
+        if app.config['GRID_SEARCH'] == 0:
+            model = self.get_model(data.is_regression)
+        else:
+            model = self.get_model_grid_search(data)
+        return super().fit(model, data)
 
     def determine_best_hyper_parameters(self, data):
         grid_param = {
@@ -429,7 +441,13 @@ class DecisionTree(DSS):
             return tree.DecisionTreeRegressor()
 
     def training(self, data):
-        return super().fit(self.get_model(data.is_regression), data)
+
+        model = None
+        if app.config['GRID_SEARCH'] == 0:
+            model = self.get_model(data.is_regression)
+        else:
+            model = self.get_model_grid_search(data)
+        return super().fit(model, data)
 
     def determine_best_hyper_parameters(self, data):
         grid_param = {
@@ -468,7 +486,7 @@ class DecisionTree(DSS):
 
             return self.determine_accuracy(data, rfr)
         else:
-            # NotImplemented
+            # To do
             pass
         return 0
 

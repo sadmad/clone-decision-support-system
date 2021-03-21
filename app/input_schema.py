@@ -29,3 +29,8 @@ class MunitionInputSchema(Schema):
 class LoginInputSchema(Schema):
     email = fields.Str(required=True)
     password = fields.Str(required=True)
+
+class FeatureImportanceAPISchema(Schema):
+    action_id = fields.Int(required=True)
+    protection_goods_id = fields.Int(required=True)
+    token = fields.Str(required=True)
