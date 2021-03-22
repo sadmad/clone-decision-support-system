@@ -199,6 +199,17 @@ class MachineLearning:
         model.fit(self.x_train, self.y_train)
         # get importance
         importance = model.feature_importances_
+
+        # summarize feature importance
+        # for i, v in enumerate(importance):
+        #     print('Feature: %0d, Score: %.5f' % (i, v))
+        # # plot feature importance
+        # from matplotlib import pyplot
+        # pyplot.bar([x for x in range(len(importance))], importance)
+        # pyplot.show()
+
+
+
         data = {}
         j = 0
         for i, v in enumerate(importance):
