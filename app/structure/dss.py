@@ -1,16 +1,18 @@
+import json
 import os
+
 import joblib
 import pandas as pd
+import redis
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.model_selection import train_test_split
+
 from app import app
 from app import scale
 from app.structure import accuracy_finder as accuracy
-import redis
-import json
 
 
 class DSS:
@@ -70,32 +72,8 @@ class DSS:
     def dummy_regressor(self, data):
 
         from sklearn.dummy import DummyRegressor
-        from sklearn.model_selection import train_test_split
-        from sklearn.model_selection import GridSearchCV
-        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
         if data.is_regression == 1:
-
-            rfr = DummyRegressor(strategy='median')
-
-            # param_grid = {
-            #     'fit_intercept': [True, False],
-            #     "copy_X": [True, False]
-            # }
-            # gsc = GridSearchCV(
-            #     estimator=LinearRegression(),
-            #     param_grid=param_grid,
-            #     cv=5, scoring='neg_mean_squared_error', verbose=0, n_jobs=-1)
-            # grid_result = gsc.fit(data.x_train, data.y_train)
-            # best_params = grid_result.best_params_
-            # rfr = LinearRegression(
-            #     fit_intercept=best_params["fit_intercept"],
-            #     copy_X=best_params["copy_X"],
-            #     n_jobs=-1
-            # )
-            # .fit(data.x_train, data.y_train)
-            return self.determine_accuracy(data, rfr)
-
-
+            return self.determine_accuracy(data, DummyRegressor(strategy='median'))
         else:
             # NotImplemented
             pass
@@ -280,8 +258,6 @@ class RandomForest(DSS):
     def get_model_grid_search(self, data):
 
         from sklearn.model_selection import GridSearchCV
-        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute, mean, std
 
         if data.is_regression == 1:
             param_grid = {
@@ -308,9 +284,8 @@ class RandomForest(DSS):
         return 0
 
     def accuracy_evaluation(self, data):
-        # return self.dummy_regressor(data)
-        return self.get_model_grid_search(data)
-        # return super().evaluate_accuracy(self.get_model(data), data)
+        return self.dummy_regressor(data)
+        # return self.get_model_grid_search(data)
 
 
 #######################################################################
@@ -351,12 +326,8 @@ class LinearRegressionM(DSS):
 
     def get_model_grid_search(self, data):
 
-        from sklearn.linear_model import LinearRegression
-
         from sklearn.linear_model import ElasticNet
         from sklearn.model_selection import GridSearchCV
-        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute, std, mean
 
         if data.is_regression == 1:
 
@@ -461,8 +432,6 @@ class DecisionTree(DSS):
 
         from sklearn import tree
         from sklearn.model_selection import GridSearchCV
-        from sklearn.model_selection import KFold, cross_val_score, RepeatedKFold
-        from numpy import absolute, mean, std
 
         if data.is_regression == 1:
             param_grid = {
@@ -517,7 +486,6 @@ class DeepNeuralNetwork(DSS):
         # from keras.models import Sequential
         # from keras.layers.core import Dense
 
-        from keras import backend as K
         # from keras.optimizers import Adam
         # from keras.layers import Input
         # from keras.models import Model
