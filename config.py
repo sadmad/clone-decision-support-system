@@ -1,5 +1,8 @@
 import os
 from app import app
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Config:
@@ -13,7 +16,7 @@ class Config:
     # Only required when using the session object
     # Generated with secrets.token_urlsafe(16)
     # You could also use os.urandom(16)
-    SECRET_KEY = "11Fnw8U6DXrMFvbH9jCdZQ"
+    SECRET_KEY = os.getenv("SECRET_KEY")
 
     GRID_SEARCH = 0
     NEURAL_NETWORK_MODEL = {
@@ -53,8 +56,8 @@ class Config:
 
     EGEOS = {
         'base_url': 'https://www.amucad.org',
-        'user_name': 'amus17@tu-clausthal.de',
-        'password': 'Kfy$482xx'
+        'user_name': os.getenv("EGEOS_USERNAME"),
+        'password': os.getenv("EGEOS_PASSWORD")
     }
 
     # EGEOS = {
@@ -97,16 +100,16 @@ class Config:
         },
 
         # comment for local environment
-        "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
-        "basePath": "/assessment-models",  # base bash for blueprint registration
-        "schemes": 'https',
+        # "host": "mdbdev.in.tu-clausthal.de",  # overrides localhost:500
+        # "basePath": "/assessment-models",  # base bash for blueprint registration
+        # "schemes": 'https',
 
         "operationId": "getmyData"
     }
 
-    # MONGO_DB_USERNAME = "mdbadmin"
-    # MONGO_DB_PASSWORD = "69bPc2%?LpP(g5"
-    # MONGO_DB_AUTHSOURCE = "dss"
+    MONGO_DB_USERNAME = os.getenv("MONGO_DB_USERNAME")
+    MONGO_DB_PASSWORD = os.getenv("MONGO_DB_PASSWORD")
+    MONGO_DB_AUTHSOURCE = os.getenv("MONGO_DB_AUTHSOURCE")
 
 
 class ProductionConfig(Config):

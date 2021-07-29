@@ -58,7 +58,7 @@ class MachineLearning:
         self.data_preprocessing()
 
         self.training()
-        # self.training_history_log()
+        self.training_history_log()
         return {
             'status': 200,
             'message': 'Success'
@@ -207,8 +207,6 @@ class MachineLearning:
         # from matplotlib import pyplot
         # pyplot.bar([x for x in range(len(importance))], importance)
         # pyplot.show()
-
-
 
         data = {}
         j = 0
