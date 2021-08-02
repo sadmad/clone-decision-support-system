@@ -33,7 +33,7 @@ Either way, you'll need to push your code to a remote repo as we'll be pulling t
 - Create a new virtual environment with `python -m venv <name_of_your_environment>`
 - Clone this repo or create the project files individually
 - Activate the virtual environment
-- Install the dependencies with `pip install -r requirments.txt` or with `pip install flask uwsgi`
+- Install the dependencies with `pip install -r requirements.txt` or with `pip install flask uwsgi`
 
 If you're copying the source code and creating the files/directories yourself, be sure to generate a `requirements.txt` file by running the following command from the app parent directory:
 
