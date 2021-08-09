@@ -503,7 +503,7 @@ ExecStart=/home/<yourusername>/app/env/bin/uwsgi --ini app.ini
 WantedBy=multi-user.target
 ```
 
-Save and close the file with `Ctrl + c`, followed by `y` then `Enter`.
+Save and close the file with `Ctrl + x`, followed by `y` then `Enter`.
 
 Start the process:
 
