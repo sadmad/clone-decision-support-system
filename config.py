@@ -76,7 +76,7 @@ class Config:
     }
 
     EGEOS = {
-        'base_url': 'https://www.amucad.org',
+        'base_url': 'https://amucad.org',
         'user_name': 'amus17@tu-clausthal.de',
         'password': 'Kfy$482xx'
     }
@@ -121,9 +121,9 @@ class Config:
         },
 
         # comment for local environment
-        "host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
-        "basePath": "/assessment-models",  # base bash for blueprint registration
-        "schemes": 'https',
+        #"host": "mdb.in.tu-clausthal.de",  # overrides localhost:500
+        #"basePath": "/assessment-models",  # base bash for blueprint registration
+        #"schemes": 'https',
 
         "operationId": "getmyData"
     }
