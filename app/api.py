@@ -193,7 +193,7 @@ def dss_evaluation():
                         single_result['protection_good_id'] = d['protection_good_id']
                         single_result['action_id'] = d['action_id']
                         sample = []
-                        for key in d['data'][0]:
+                        for key, value in d['data'][0].items():
                             if d['data'][0][key] is None:
                                 sample.append(0)
                             else:
